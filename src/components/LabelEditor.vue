@@ -26,6 +26,15 @@
                 class="w-32"
                 @change="updateTextStyle"
             />
+            <BaseInput
+                v-model="lineHeight"
+                type="number"
+                step="0.1"
+                min="0.5"
+                max="3"
+                class="w-32"
+                @change="updateLineHeight"
+            />
             <BaseButton @click="toggleBold" color="bg-gray-700" icon="BoldIcon" />
             <BaseButton icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю" color="bg-green-600" @click="setTextAlign('left')" />
             <BaseButton icon="Bars2Icon" tooltip="Текст по центру" color="bg-green-600" @click="setTextAlign('center')" />
@@ -73,6 +82,7 @@ export default {
             widthMM: 150,
             heightMM: 100,
             fontSize: 30,
+            lineHeight: 1.0,
             isBold: false,
             canUndo: false,
             canRedo: false,
@@ -224,6 +234,13 @@ export default {
             const active = this.canvas.getActiveObject();
             if (active && active.type === 'textbox') {
                 active.set('fontSize', this.fontSize);
+                this.canvas.requestRenderAll();
+            }
+        },
+        updateLineHeight() {
+            const active = this.canvas.getActiveObject();
+            if (active && active.type === 'textbox') {
+                active.set('lineHeight', parseFloat(this.lineHeight));
                 this.canvas.requestRenderAll();
             }
         },
