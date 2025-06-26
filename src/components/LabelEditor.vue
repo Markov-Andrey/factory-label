@@ -6,11 +6,15 @@
         </div>
 
         <div class="flex gap-2">
-            <BaseButton @click="addText" color="bg-blue-600" icon="PlusIcon">Добавить текст</BaseButton>
-            <BaseButton @click="addSVG" color="bg-green-600" icon="DocumentPlusIcon">Добавить SVG</BaseButton>
             <BaseButton @click="saveCanvas" color="bg-yellow-500" icon="FolderArrowDownIcon">Сохранить шаблон</BaseButton>
             <BaseButton @click="() => $refs.fileInput.click()" color="bg-gray-500" icon="FolderPlusIcon">Загрузить шаблон</BaseButton>
             <input type="file" ref="fileInput" class="hidden" @change="handleLoadFile" accept=".json" />
+            <BaseButton @click="addText" color="bg-blue-600" icon="PlusIcon">Добавить текст</BaseButton>
+            <BaseButton @click="addSVG" color="bg-green-600" icon="DocumentPlusIcon">Добавить SVG</BaseButton>
+            <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PhotoIcon">
+                Добавить изображение
+            </BaseButton>
+            <input type="file" ref="imageInput" class="hidden" accept="image/*" @change="addImageFromFile" />
         </div>
 
         <div class="flex gap-2">
@@ -61,7 +65,6 @@ import BaseInput from '@/components/base/BaseInput.vue';
 import { useDeleteObjects } from '@/composables/useDeleteObjects.js';
 import { useCanvasSaveLoad } from '@/composables/useCanvasSaveLoad.js';
 import { useUndoRedo } from '@/composables/useUndoRedo.js';
-import { v4 as uuidv4 } from 'uuid';
 
 export default {
     components: { BaseButton, BaseInput },
@@ -173,9 +176,33 @@ export default {
         async addSVG() {
             const { objects, options } = await fabric.loadSVGFromString(getSVG());
             const group = fabric.util.groupSVGElements(objects, options);
-            group.set({ left: 150, top: 150, lockScalingFlip: true, lockRotation: true, id: uuidv4() });
+            group.set({ left: 150, top: 150, lockScalingFlip: true, lockRotation: true, id: '' });
             this.canvas.add(group);
             this.canvas.requestRenderAll();
+        },
+        async addImageFromFile(event) {
+            const file = event.target.files?.[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const dataUrl = reader.result;
+
+                const img = await fabric.FabricImage.fromURL(dataUrl, {
+                    left: 100,
+                    top: 100,
+                    scaleX: 1,
+                    scaleY: 1,
+                    id: '',
+                });
+
+                this.canvas.add(img);
+                this.canvas.setActiveObject(img);
+                this.canvas.requestRenderAll();
+            };
+
+            reader.readAsDataURL(file);
+            event.target.value = null;
         },
         addText() {
             const text = new fabric.Textbox('Новый текст', {
@@ -183,7 +210,7 @@ export default {
                 top: 100,
                 fontSize: 30,
                 fill: 'black',
-                id: uuidv4(),
+                id: '',
             });
             this.canvas.add(text);
             this.canvas.setActiveObject(text);
