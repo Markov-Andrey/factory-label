@@ -60,6 +60,9 @@
                     @input="updateSelectedObjectId"
                     class="border px-2 py-1 rounded w-full"
                 />
+                <pre class="bg-gray-100 text-sm p-2 overflow-auto max-h-64">
+                  {{ JSON.stringify(selectedObject, null, 2) }}
+                </pre>
             </div>
         </div>
     </div>
@@ -216,6 +219,7 @@ export default {
         },
         addText() {
             const text = new fabric.Textbox('Новый текст', {
+                fontFamily: 'Times New Roman',
                 left: 100,
                 top: 100,
                 fontSize: 30,
