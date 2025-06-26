@@ -4,17 +4,20 @@
             <BaseInput v-model="widthMM" type="number" label="Ширина (мм):" class="w-32" />
             <BaseInput v-model="heightMM" type="number" label="Высота (мм):" class="w-32" />
         </div>
+
         <div class="flex gap-2">
-            <BaseButton @click="addText" color="blue" icon="PlusIcon">Добавить текст</BaseButton>
-            <BaseButton @click="addSVG" color="green" icon="DocumentPlusIcon">Добавить SVG</BaseButton>
-            <BaseButton @click="saveCanvas" color="yellow" icon="FolderArrowDownIcon">Сохранить шаблон</BaseButton>
-            <BaseButton @click="() => $refs.fileInput.click()" color="gray" icon="FolderPlusIcon">Загрузить шаблон</BaseButton>
+            <BaseButton @click="addText" color="bg-blue-600" icon="PlusIcon">Добавить текст</BaseButton>
+            <BaseButton @click="addSVG" color="bg-green-600" icon="DocumentPlusIcon">Добавить SVG</BaseButton>
+            <BaseButton @click="saveCanvas" color="bg-yellow-500" icon="FolderArrowDownIcon">Сохранить шаблон</BaseButton>
+            <BaseButton @click="() => $refs.fileInput.click()" color="bg-gray-500" icon="FolderPlusIcon">Загрузить шаблон</BaseButton>
             <input type="file" ref="fileInput" class="hidden" @change="handleLoadFile" accept=".json" />
         </div>
+
         <div class="flex gap-2">
-            <BaseButton @click="undo" :disabled="!canUndo" tooltip="Отменить" color="blue" icon="ArrowUturnLeftIcon"></BaseButton>
-            <BaseButton @click="redo" :disabled="!canRedo" tooltip="Вернуть" color="green" icon="ArrowUturnRightIcon"></BaseButton>
+            <BaseButton @click="undo" :disabled="!canUndo" tooltip="Отменить" color="bg-blue-600" icon="ArrowUturnLeftIcon" />
+            <BaseButton @click="redo" :disabled="!canRedo" tooltip="Вернуть" color="bg-green-600" icon="ArrowUturnRightIcon" />
         </div>
+
         <div>
             <div
                 class="block border border-black mt-4 overflow-hidden"
@@ -27,12 +30,14 @@
 </template>
 
 <script>
+import { ref } from 'vue';
 import * as fabric from 'fabric';
 import { getSVG } from './svgString.js';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import { useDeleteObjects } from '@/composables/useDeleteObjects.js';
 import { useCanvasSaveLoad } from '@/composables/useCanvasSaveLoad.js';
+import { useUndoRedo } from '@/composables/useUndoRedo.js';
 
 export default {
     components: { BaseButton, BaseInput },
@@ -40,18 +45,10 @@ export default {
         return {
             widthMM: 210,
             heightMM: 297,
-            history: [],
-            historyIndex: -1,
-            isUndoRedoRunning: false,
+
+            canUndo: false,
+            canRedo: false,
         };
-    },
-    computed: {
-        canUndo() {
-            return this.historyIndex > 0;
-        },
-        canRedo() {
-            return this.historyIndex < this.history.length - 1;
-        }
     },
     mounted() {
         const canvasEl = this.$refs.canvas;
@@ -73,14 +70,27 @@ export default {
         this.handleKeyDown = handleKeyDown;
         window.addEventListener('keydown', this.handleKeyDown);
 
-        this.resumeRecording(); // Подключаем обработчики
-        this.recordState(); // Первое состояние
+        this.canvasRef = ref(this.canvas);
+        this.undoRedo = useUndoRedo(this.canvasRef);
+        this.updateUndoRedoFlags();
+
+        this.$watch(() => [
+            this.undoRedo.canUndo.value,
+            this.undoRedo.canRedo.value,
+        ], this.updateUndoRedoFlags);
+
+        this.undoRedo.resumeRecording();
+        this.undoRedo.recordState();
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.handleKeyDown);
-        this.pauseRecording();
+        this.undoRedo.pauseRecording();
     },
     methods: {
+        updateUndoRedoFlags() {
+            this.canUndo = this.undoRedo.canUndo.value;
+            this.canRedo = this.undoRedo.canRedo.value;
+        },
         mmToPx(mm) {
             return mm * 3;
         },
@@ -110,6 +120,13 @@ export default {
             if (!file) return;
 
             this._loadCanvasFn(file, (w, h) => {
+                const mmWidth = w / 3;
+                const mmHeight = h / 3;
+
+                // Обновляем widthMM и heightMM, чтобы обновился div с канвасом
+                this.widthMM = mmWidth;
+                this.heightMM = mmHeight;
+
                 const canvasEl = this.$refs.canvas;
                 canvasEl.width = w;
                 canvasEl.height = h;
@@ -118,84 +135,21 @@ export default {
                 this.canvas.calcOffset();
                 this.canvas.requestRenderAll();
 
-                this.history = [];
-                this.historyIndex = -1;
-                this.recordState();
+                // Сброс истории
+                this.undoRedo.history.value = [];
+                this.undoRedo.historyIndex.value = -1;
+                this.undoRedo.recordState();
             });
 
             e.target.value = null;
         },
-
-        recordState() {
-            if (this.isUndoRedoRunning) return;
-
-            const json = this.canvas.toJSON();
-
-            // Избегаем дублирующих записей
-            const last = this.history[this.historyIndex];
-            if (last && JSON.stringify(last) === JSON.stringify(json)) return;
-
-            // Удаляем "будущее", если откат был
-            if (this.historyIndex < this.history.length - 1) {
-                this.history.splice(this.historyIndex + 1);
-            }
-
-            this.history.push(json);
-
-            if (this.history.length > 50) {
-                this.history.shift();
-                this.historyIndex = this.history.length - 1;
-            } else {
-                this.historyIndex = this.history.length - 1;
-            }
-        },
-
-        pauseRecording() {
-            this.canvas.off('object:added', this.recordState);
-            this.canvas.off('object:modified', this.recordState);
-            this.canvas.off('object:removed', this.recordState);
-        },
-
-        resumeRecording() {
-            this.canvas.on('object:added', this.recordState);
-            this.canvas.on('object:modified', this.recordState);
-            this.canvas.on('object:removed', this.recordState);
-        },
-
         undo() {
-            if (!this.canUndo) return;
-
-            this.isUndoRedoRunning = true;
-            this.pauseRecording();
-            this.historyIndex--;
-
-            const prevState = this.history[this.historyIndex];
-            this.canvas.loadFromJSON(prevState, () => {
-                this.canvas.requestRenderAll();
-                setTimeout(() => {
-                    this.isUndoRedoRunning = false;
-                    this.resumeRecording();
-                }, 0);
-            });
+            this.undoRedo.undo();
         },
-
         redo() {
-            if (!this.canRedo) return;
-
-            this.isUndoRedoRunning = true;
-            this.pauseRecording();
-            this.historyIndex++;
-
-            const nextState = this.history[this.historyIndex];
-            this.canvas.loadFromJSON(nextState, () => {
-                this.canvas.requestRenderAll();
-                setTimeout(() => {
-                    this.isUndoRedoRunning = false;
-                    this.resumeRecording();
-                }, 0);
-            });
+            this.undoRedo.redo();
         },
-    }
+    },
 };
 </script>
 
