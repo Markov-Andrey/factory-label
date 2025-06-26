@@ -45,7 +45,7 @@
 
 <script setup>
 import { ref } from 'vue'
-import * as heroicons from '@heroicons/vue/24/outline'
+import * as heroicons from '@heroicons/vue/24/solid'
 
 const props = defineProps({
     color: { type: String, default: 'bg-blue-600' },
