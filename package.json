@@ -1,0 +1,27 @@
+{
+  "name": "a",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "generate": "node generate.cjs"
+  },
+  "dependencies": {
+    "@heroicons/vue": "^2.2.0",
+    "@tailwindcss/vite": "^4.1.10",
+    "bwip-js": "^4.6.0",
+    "canvas": "^2.11.2",
+    "fabric": "^6.7.0",
+    "flowbite": "^3.1.2",
+    "tailwindcss": "^4.1.10",
+    "vue": "^3.5.17"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^6.0.0",
+    "vite": "^7.0.0",
+    "vite-plugin-vue-devtools": "^7.7.7"
+  }
+}
