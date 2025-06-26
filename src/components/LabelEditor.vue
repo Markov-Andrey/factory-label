@@ -16,28 +16,37 @@
         <div class="flex gap-2">
             <BaseButton @click="undo" :disabled="!canUndo" tooltip="Отменить" color="bg-blue-600" icon="ArrowUturnLeftIcon" />
             <BaseButton @click="redo" :disabled="!canRedo" tooltip="Вернуть" color="bg-green-600" icon="ArrowUturnRightIcon" />
-            <select v-model.number="fontSize" @change="updateTextStyle" class="border rounded px-2 py-1 text-sm">
-                <option v-for="size in [8,10,12,14,16,18,24,30,36,48,60,72]" :key="size" :value="size">
-                    {{ size }}
-                </option>
-            </select>
-            <BaseButton
-                @click="toggleBold"
-                color="bg-gray-700"
-                icon="BoldIcon"
-            ></BaseButton>
+            <BaseInput
+                v-model="fontSize"
+                type="number"
+                class="w-32"
+                @change="updateTextStyle"
+            />
+            <BaseButton @click="toggleBold" color="bg-gray-700" icon="BoldIcon" />
             <BaseButton icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю" color="bg-green-600" @click="setTextAlign('left')" />
             <BaseButton icon="Bars2Icon" tooltip="Текст по центру" color="bg-green-600" @click="setTextAlign('center')" />
             <BaseButton icon="Bars3BottomRightIcon" tooltip="Текст по правому краю" color="bg-green-600" @click="setTextAlign('right')" />
             <BaseButton icon="Bars4Icon" tooltip="Текст по ширине" color="bg-green-600" @click="setTextAlign('justify')" />
         </div>
 
-        <div>
+        <div class="flex mt-4 gap-4 items-start">
+            <!-- Левая часть: Canvas -->
             <div
-                class="block border border-black mt-4 overflow-hidden"
+                class="border border-black overflow-hidden"
                 :style="{ width: mmToPx(widthMM) + 'px', height: mmToPx(heightMM) + 'px' }"
             >
                 <canvas ref="canvas"></canvas>
+            </div>
+
+            <!-- Правая часть: Панель выбранного объекта -->
+            <div v-if="selectedObject" class="w-64 space-y-2">
+                <label class="block mb-1 font-semibold">ID выбранного объекта:</label>
+                <input
+                    type="text"
+                    v-model="selectedObjectId"
+                    @input="updateSelectedObjectId"
+                    class="border px-2 py-1 rounded w-full"
+                />
             </div>
         </div>
     </div>
@@ -52,6 +61,7 @@ import BaseInput from '@/components/base/BaseInput.vue';
 import { useDeleteObjects } from '@/composables/useDeleteObjects.js';
 import { useCanvasSaveLoad } from '@/composables/useCanvasSaveLoad.js';
 import { useUndoRedo } from '@/composables/useUndoRedo.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export default {
     components: { BaseButton, BaseInput },
@@ -63,6 +73,8 @@ export default {
             isBold: false,
             canUndo: false,
             canRedo: false,
+            selectedObject: null,
+            selectedObjectId: '',
         };
     },
     mounted() {
@@ -71,6 +83,23 @@ export default {
         canvasEl.height = this.mmToPx(this.heightMM);
 
         this.canvas = new fabric.Canvas(canvasEl);
+        // id-блок
+        if (!fabric.Object.prototype.stateProperties) {
+            fabric.Object.prototype.stateProperties = [];
+        }
+        if (!fabric.Object.prototype.stateProperties.includes('id')) {
+            fabric.Object.prototype.stateProperties.push('id');
+        }
+        fabric.Object.prototype.toObject = (function(toObject) {
+            return function(propertiesToInclude) {
+                const obj = toObject.call(this, propertiesToInclude);
+                if (this.id) {
+                    obj.id = this.id;
+                }
+
+                return obj;
+            };
+        })(fabric.Object.prototype.toObject);
 
         const { saveCanvas, loadCanvas } = useCanvasSaveLoad(
             { value: this.canvas },
@@ -96,12 +125,34 @@ export default {
 
         this.undoRedo.resumeRecording();
         this.undoRedo.recordState();
+
+        this.canvas.on('selection:created', this.onSelectionChanged);
+        this.canvas.on('selection:updated', this.onSelectionChanged);
+        this.canvas.on('selection:cleared', () => {
+            this.selectedObject = null;
+            this.selectedObjectId = '';
+        });
     },
     beforeDestroy() {
         window.removeEventListener('keydown', this.handleKeyDown);
         this.undoRedo.pauseRecording();
     },
     methods: {
+        onSelectionChanged() {
+            const active = this.canvas.getActiveObject();
+            if (active) {
+                this.selectedObject = active;
+                this.selectedObjectId = active.id || '';
+            } else {
+                this.selectedObject = null;
+                this.selectedObjectId = '';
+            }
+        },
+        updateSelectedObjectId() {
+            if (this.selectedObject) {
+                this.selectedObject.set('id', this.selectedObjectId);
+            }
+        },
         setTextAlign(alignment) {
             const activeObj = this.canvas.getActiveObject();
             if (activeObj && activeObj.isType('textbox')) {
@@ -122,7 +173,7 @@ export default {
         async addSVG() {
             const { objects, options } = await fabric.loadSVGFromString(getSVG());
             const group = fabric.util.groupSVGElements(objects, options);
-            group.set({ left: 150, top: 150, lockScalingFlip: true, lockRotation: true });
+            group.set({ left: 150, top: 150, lockScalingFlip: true, lockRotation: true, id: uuidv4() });
             this.canvas.add(group);
             this.canvas.requestRenderAll();
         },
@@ -132,6 +183,7 @@ export default {
                 top: 100,
                 fontSize: 30,
                 fill: 'black',
+                id: uuidv4(),
             });
             this.canvas.add(text);
             this.canvas.setActiveObject(text);
