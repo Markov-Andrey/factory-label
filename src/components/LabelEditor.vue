@@ -67,8 +67,8 @@ export default {
     components: { BaseButton, BaseInput },
     data() {
         return {
-            widthMM: 210,
-            heightMM: 297,
+            widthMM: 150,
+            heightMM: 100,
             fontSize: 30,
             isBold: false,
             canUndo: false,
@@ -165,7 +165,7 @@ export default {
             this.canRedo = this.undoRedo.canRedo.value;
         },
         mmToPx(mm) {
-            return mm * 3;
+            return mm * 4;
         },
         saveCanvas() {
             this._saveCanvasFn?.();
@@ -214,8 +214,8 @@ export default {
             if (!file) return;
 
             this._loadCanvasFn(file, (w, h) => {
-                const mmWidth = w / 3;
-                const mmHeight = h / 3;
+                const mmWidth = w / 4;
+                const mmHeight = h / 4;
                 this.widthMM = mmWidth;
                 this.heightMM = mmHeight;
 

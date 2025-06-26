@@ -7,7 +7,7 @@ const outputDir = 'C:\\Program Files\\OSPanel\\domains\\fabric\\public\\output';
 
 const DPI = 300;
 const MM_TO_PX_REAL = DPI / 25.4;
-const MM_TO_PX_FRONTEND = 3;
+const MM_TO_PX_FRONTEND = 4;
 
 async function processFile(fileName) {
     const inputFile = path.join(inputDir, fileName);
