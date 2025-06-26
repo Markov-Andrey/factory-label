@@ -2,8 +2,8 @@ export function useCanvasSaveLoad(canvasRef, widthMMRef, heightMMRef, mmToPxFn) 
     function saveCanvas() {
         const json = canvasRef.value.toJSON();
         json.custom = {
-            widthMM: widthMMRef.value,
-            heightMM: heightMMRef.value,
+            widthMM: Number(widthMMRef()),
+            heightMM: Number(heightMMRef()),
         };
 
         const blob = new Blob([JSON.stringify(json, null, 2)], {

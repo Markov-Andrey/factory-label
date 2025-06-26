@@ -16,6 +16,20 @@
         <div class="flex gap-2">
             <BaseButton @click="undo" :disabled="!canUndo" tooltip="Отменить" color="bg-blue-600" icon="ArrowUturnLeftIcon" />
             <BaseButton @click="redo" :disabled="!canRedo" tooltip="Вернуть" color="bg-green-600" icon="ArrowUturnRightIcon" />
+            <select v-model.number="fontSize" @change="updateTextStyle" class="border rounded px-2 py-1 text-sm">
+                <option v-for="size in [8,10,12,14,16,18,24,30,36,48,60,72]" :key="size" :value="size">
+                    {{ size }}
+                </option>
+            </select>
+            <BaseButton
+                @click="toggleBold"
+                color="bg-gray-700"
+                icon="BoldIcon"
+            ></BaseButton>
+            <BaseButton icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю" color="bg-green-600" @click="setTextAlign('left')" />
+            <BaseButton icon="Bars2Icon" tooltip="Текст по центру" color="bg-green-600" @click="setTextAlign('center')" />
+            <BaseButton icon="Bars3BottomRightIcon" tooltip="Текст по правому краю" color="bg-green-600" @click="setTextAlign('right')" />
+            <BaseButton icon="Bars4Icon" tooltip="Текст по ширине" color="bg-green-600" @click="setTextAlign('justify')" />
         </div>
 
         <div>
@@ -45,7 +59,8 @@ export default {
         return {
             widthMM: 210,
             heightMM: 297,
-
+            fontSize: 30,
+            isBold: false,
             canUndo: false,
             canRedo: false,
         };
@@ -59,8 +74,8 @@ export default {
 
         const { saveCanvas, loadCanvas } = useCanvasSaveLoad(
             { value: this.canvas },
-            { value: this.widthMM },
-            { value: this.heightMM },
+            () => this.widthMM,
+            () => this.heightMM,
             this.mmToPx
         );
         this._saveCanvasFn = saveCanvas;
@@ -87,6 +102,13 @@ export default {
         this.undoRedo.pauseRecording();
     },
     methods: {
+        setTextAlign(alignment) {
+            const activeObj = this.canvas.getActiveObject();
+            if (activeObj && activeObj.isType('textbox')) {
+                activeObj.set('textAlign', alignment);
+                this.canvas.requestRenderAll();
+            }
+        },
         updateUndoRedoFlags() {
             this.canUndo = this.undoRedo.canUndo.value;
             this.canRedo = this.undoRedo.canRedo.value;
@@ -114,6 +136,26 @@ export default {
             this.canvas.add(text);
             this.canvas.setActiveObject(text);
             this.canvas.requestRenderAll();
+
+            // Подгружаем стили для UI
+            this.fontSize = text.fontSize;
+            this.isBold = text.fontWeight === 'bold';
+        },
+        updateTextStyle() {
+            const active = this.canvas.getActiveObject();
+            if (active && active.type === 'textbox') {
+                active.set('fontSize', this.fontSize);
+                this.canvas.requestRenderAll();
+            }
+        },
+        toggleBold() {
+            const active = this.canvas.getActiveObject();
+            if (active && active.type === 'textbox') {
+                const newWeight = active.fontWeight === 'bold' ? 'normal' : 'bold';
+                active.set('fontWeight', newWeight);
+                this.isBold = newWeight === 'bold';
+                this.canvas.requestRenderAll();
+            }
         },
         handleLoadFile(e) {
             const file = e.target.files?.[0];
@@ -122,8 +164,6 @@ export default {
             this._loadCanvasFn(file, (w, h) => {
                 const mmWidth = w / 3;
                 const mmHeight = h / 3;
-
-                // Обновляем widthMM и heightMM, чтобы обновился div с канвасом
                 this.widthMM = mmWidth;
                 this.heightMM = mmHeight;
 
