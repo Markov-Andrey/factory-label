@@ -1,9 +1,6 @@
 <template>
     <button
-        :class="[
-      'flex items-center gap-2 rounded py-1 px-4 text-white transition-colors duration-200',
-      colorClass,
-    ]"
+        :class="['flex items-center gap-2 rounded py-1 px-4 text-white transition-colors duration-200', colorClass]"
     >
         <component
             v-if="IconComponent"

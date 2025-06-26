@@ -1,65 +1,57 @@
 <template>
-    <div class="space-y-4 p-4">
-        <div class="flex items-center gap-2">
-            <BaseInput v-model="widthMM" type="number" label="Ширина (мм):" className="w-32" />
-            <BaseInput v-model="heightMM" type="number" label="Высота (мм):" className="w-32" />
+    <div class="space-y-2 p-4">
+        <div class="flex gap-2">
+            <BaseInput v-model="widthMM" type="number" label="Ширина (мм):" class="w-32" />
+            <BaseInput v-model="heightMM" type="number" label="Высота (мм):" class="w-32" />
         </div>
-
         <div class="flex gap-2">
             <BaseButton @click="addText" color="blue" icon="PlusIcon">Добавить текст</BaseButton>
             <BaseButton @click="addSVG" color="green" icon="DocumentPlusIcon">Добавить SVG</BaseButton>
             <BaseButton @click="saveCanvas" color="yellow" icon="FolderArrowDownIcon">Сохранить шаблон</BaseButton>
-            <BaseButton @click="triggerLoad" color="gray" icon="FolderPlusIcon">Загрузить шаблон</BaseButton>
+            <BaseButton @click="() => $refs.fileInput.click()" color="gray" icon="FolderPlusIcon">Загрузить шаблон</BaseButton>
+            <input type="file" ref="fileInput" class="hidden" @change="handleLoadFile" accept=".json" />
         </div>
-
-        <input
-            type="file"
-            ref="fileInput"
-            class="hidden"
-            @change="loadCanvas"
-            accept=".json"
-        />
-
         <div
-            class="block border border-black mt-4"
-            :style="{
-        width: mmToPx(widthMM) + 'px',
-        height: mmToPx(heightMM) + 'px',
-        overflow: 'hidden',
-      }"
+            class="block border border-black mt-4 overflow-hidden"
+            :style="{ width: mmToPx(widthMM) + 'px', height: mmToPx(heightMM) + 'px' }"
         >
             <canvas ref="canvas"></canvas>
         </div>
     </div>
 </template>
 
-
 <script>
 import * as fabric from 'fabric';
 import { getSVG } from './svgString.js';
-import BaseButton from "@/components/base/BaseButton.vue";
-import BaseInput from "@/components/base/BaseInput.vue";
+import BaseButton from '@/components/base/BaseButton.vue';
+import BaseInput from '@/components/base/BaseInput.vue';
+import { useDeleteObjects } from '@/composables/useDeleteObjects.js';
+import { useCanvasSaveLoad } from '@/composables/useCanvasSaveLoad.js';
 
 export default {
-    components: {
-        BaseButton,
-        BaseInput,
-    },
+    components: { BaseButton, BaseInput },
     data() {
-        return {
-            widthMM: 210,
-            heightMM: 297,
-        };
+        return { widthMM: 210, heightMM: 297 };
     },
     mounted() {
-        const widthPx = this.mmToPx(this.widthMM);
-        const heightPx = this.mmToPx(this.heightMM);
-
         const canvasEl = this.$refs.canvas;
-        canvasEl.width = widthPx;
-        canvasEl.height = heightPx;
+        canvasEl.width = this.mmToPx(this.widthMM);
+        canvasEl.height = this.mmToPx(this.heightMM);
+
         this.canvas = new fabric.Canvas(canvasEl);
 
+        const { saveCanvas, loadCanvas } = useCanvasSaveLoad(
+            { value: this.canvas },
+            { value: this.widthMM },
+            { value: this.heightMM },
+            this.mmToPx
+        );
+
+        this._saveCanvasFn = saveCanvas;
+        this._loadCanvasFn = loadCanvas;
+
+        const { handleKeyDown } = useDeleteObjects(this.canvas);
+        this.handleKeyDown = handleKeyDown;
         window.addEventListener('keydown', this.handleKeyDown);
     },
     beforeDestroy() {
@@ -67,102 +59,39 @@ export default {
     },
     methods: {
         mmToPx(mm) {
-            return mm*3;
+            return mm * 3;
         },
-        handleKeyDown(event) {
-            if (event.key === 'Delete' || event.keyCode === 46) {
-                const activeObjects = this.canvas.getActiveObjects();
-                if (activeObjects.length) {
-                    activeObjects.forEach(obj => {
-                        this.canvas.remove(obj);
-                    });
-                    this.canvas.discardActiveObject();
-                    this.canvas.requestRenderAll();
-                }
-            }
+        saveCanvas() {
+            this._saveCanvasFn?.();
         },
         async addSVG() {
             const { objects, options } = await fabric.loadSVGFromString(getSVG());
             const group = fabric.util.groupSVGElements(objects, options);
-            group.set({
-                left: 150,
-                top: 150,
-                lockScalingFlip: 1,
-                lockRotation: 1
-            });
-            this.canvas.add(group);
-            this.canvas.requestRenderAll();
+            group.set({ left: 150, top: 150, lockScalingFlip: true, lockRotation: true });
+            this.canvas.add(group).requestRenderAll();
         },
         addText() {
-            const text = new fabric.Textbox('Новый текст', {
-                left: 100,
-                top: 100,
-                fontSize: 30,
-                fill: 'black',
-                lockScalingFlip: 1,
-                lockRotation: 1
-            });
-            this.canvas.add(text);
-            this.canvas.setActiveObject(text);
-            this.canvas.requestRenderAll();
+            const text = new fabric.Textbox('Новый текст', { left: 100, top: 100, fontSize: 30, fill: 'black' });
+            this.canvas.add(text).setActiveObject(text).requestRenderAll();
         },
-        saveCanvas() {
-            const json = this.canvas.toJSON();
-            json.custom = {
-                widthMM: this.widthMM,
-                heightMM: this.heightMM,
-            };
-            const jsonString = JSON.stringify(json, null, 2);
-            const blob = new Blob([jsonString], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'canvas.json';
-            a.click();
-            URL.revokeObjectURL(url);
-        },
-        triggerLoad() {
-            this.$refs.fileInput.click();
-        },
-        loadCanvas(event) {
-            const file = event.target.files[0];
+        handleLoadFile(e) {
+            const file = e.target.files?.[0];
             if (!file) return;
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const json = JSON.parse(e.target.result);
-                    this.canvas.clear();
-                    if (json.custom && json.custom.widthMM && json.custom.heightMM) {
-                        this.widthMM = json.custom.widthMM;
-                        this.heightMM = json.custom.heightMM;
 
-                        const widthPx = this.mmToPx(this.widthMM);
-                        const heightPx = this.mmToPx(this.heightMM);
+            this._loadCanvasFn(file, (w, h) => {
+                const canvasEl = this.$refs.canvas;
+                canvasEl.width = w;
+                canvasEl.height = h;
+                this.canvas.setWidth(w);
+                this.canvas.setHeight(h);
+                this.canvas.calcOffset();
+                this.canvas.requestRenderAll();
+            });
 
-                        this.$nextTick(() => {
-                            const canvasEl = this.$refs.canvas;
-                            canvasEl.width = widthPx;
-                            canvasEl.height = heightPx;
-
-                            this.canvas.setWidth(widthPx);
-                            this.canvas.setHeight(heightPx);
-
-                            this.canvas.calcOffset();
-                            this.canvas.requestRenderAll();
-                        });
-                    }
-                    this.canvas.loadFromJSON(json, () => {
-                        this.canvas.requestRenderAll();
-                    });
-                } catch (err) {
-                    alert('Ошибка загрузки: ' + err.message);
-                }
-            };
-            reader.readAsText(file);
-            event.target.value = null;
+            e.target.value = null;
         }
     }
 };
 </script>
-<style scoped>
-</style>
+
+<style scoped></style>
