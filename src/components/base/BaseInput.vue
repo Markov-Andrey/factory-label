@@ -4,7 +4,8 @@
         <input
             :type="type"
             :value="modelValue"
-            @input="$emit('update:modelValue', $event.target.value)"
+            @input="handleInput"
+            :step="step"
             :class="`mt-1 rounded border border-gray-300 px-2 py-1 focus:border-blue-500 focus:outline-none focus:ring ${className}`"
             v-bind="$attrs"
         />
@@ -26,7 +27,21 @@ const props = defineProps({
         type: String,
         default: '',
     },
+    step: {
+        type: [String, Number],
+        default: undefined,
+    },
 })
 
 const emit = defineEmits(['update:modelValue'])
+
+function handleInput(event) {
+    let value = event.target.value
+
+    if (props.type === 'number') {
+        value = value === '' ? '' : parseFloat(value)
+    }
+
+    emit('update:modelValue', value)
+}
 </script>

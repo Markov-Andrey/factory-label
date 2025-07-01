@@ -6,40 +6,28 @@
         </div>
 
         <div class="flex gap-2">
-            <BaseButton @click="saveCanvas" color="bg-yellow-500" icon="FolderArrowDownIcon">Сохранить шаблон</BaseButton>
+            <BaseButton @click="saveCanvas(this.canvas, widthMM, heightMM)" color="bg-yellow-500" icon="FolderArrowDownIcon">Сохранить шаблон</BaseButton>
             <BaseButton @click="() => $refs.fileInput.click()" color="bg-gray-500" icon="FolderPlusIcon">Загрузить шаблон</BaseButton>
             <input type="file" ref="fileInput" class="hidden" @change="handleLoadFile" accept=".json" />
-            <BaseButton @click="addText" color="bg-blue-600" icon="PlusIcon">Добавить текст</BaseButton>
-            <BaseButton @click="addSVG" color="bg-green-600" icon="DocumentPlusIcon">Добавить SVG</BaseButton>
+            <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusIcon">Добавить текст</BaseButton>
+            <BaseButton @click="addSVG(this.canvas, '/asset/my-svg.svg');" color="bg-green-600" icon="DocumentPlusIcon">Добавить SVG</BaseButton>
             <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PhotoIcon">
                 Добавить изображение
             </BaseButton>
-            <input type="file" ref="imageInput" class="hidden" accept="image/*" @change="addImageFromFile" />
+            <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
         </div>
 
         <div class="flex gap-2">
-            <BaseButton @click="undo" :disabled="!canUndo" tooltip="Отменить" color="bg-blue-600" icon="ArrowUturnLeftIcon" />
-            <BaseButton @click="redo" :disabled="!canRedo" tooltip="Вернуть" color="bg-green-600" icon="ArrowUturnRightIcon" />
-            <BaseInput
-                v-model="fontSize"
-                type="number"
-                class="w-32"
-                @change="updateTextStyle"
-            />
-            <BaseInput
-                v-model="lineHeight"
-                type="number"
-                step="0.1"
-                min="0.5"
-                max="3"
-                class="w-32"
-                @change="updateLineHeight"
-            />
-            <BaseButton @click="toggleBold" color="bg-gray-700" icon="BoldIcon" />
-            <BaseButton icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю" color="bg-green-600" @click="setTextAlign('left')" />
-            <BaseButton icon="Bars2Icon" tooltip="Текст по центру" color="bg-green-600" @click="setTextAlign('center')" />
-            <BaseButton icon="Bars3BottomRightIcon" tooltip="Текст по правому краю" color="bg-green-600" @click="setTextAlign('right')" />
-            <BaseButton icon="Bars4Icon" tooltip="Текст по ширине" color="bg-green-600" @click="setTextAlign('justify')" />
+            <BaseButton @click="undo" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить" color="bg-blue-600" />
+            <BaseButton @click="redo" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть" color="bg-green-600" />
+            <BaseInput @change="updateFontSize(this.canvas, this.fontSize)" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
+            <BaseInput @change="updateLineHeight(this.canvas, this.lineHeight)" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
+            <BaseButton @click="toggleBold(this.canvas)" color="bg-gray-700" icon="BoldIcon" tooltip="Полужирный" />
+            <BaseButton @click="toggleItalic(this.canvas)" color="bg-gray-700" icon="ItalicIcon" tooltip="Курсив" />
+            <BaseButton @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю" color="bg-green-600" />
+            <BaseButton @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру" color="bg-green-600" />
+            <BaseButton @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю" color="bg-green-600" />
+            <BaseButton @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине" color="bg-green-600" />
         </div>
 
         <div class="flex mt-4 gap-4 items-start">
@@ -71,12 +59,12 @@
 <script>
 import { ref } from 'vue';
 import * as fabric from 'fabric';
-import { getSVG } from './svgString.js';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import { useDeleteObjects } from '@/composables/useDeleteObjects.js';
-import { useCanvasSaveLoad } from '@/composables/useCanvasSaveLoad.js';
 import { useUndoRedo } from '@/composables/useUndoRedo.js';
+import { addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight } from '@/utils/fabricHelpers.js';
+import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
 
 export default {
     components: { BaseButton, BaseInput },
@@ -117,15 +105,6 @@ export default {
             };
         })(fabric.Object.prototype.toObject);
 
-        const { saveCanvas, loadCanvas } = useCanvasSaveLoad(
-            { value: this.canvas },
-            () => this.widthMM,
-            () => this.heightMM,
-            this.mmToPx
-        );
-        this._saveCanvasFn = saveCanvas;
-        this._loadCanvasFn = loadCanvas;
-
         const { handleKeyDown } = useDeleteObjects(this.canvas);
         this.handleKeyDown = handleKeyDown;
         window.addEventListener('keydown', this.handleKeyDown);
@@ -154,6 +133,7 @@ export default {
         this.undoRedo.pauseRecording();
     },
     methods: {
+        addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight, saveCanvas, loadCanvas,
         onSelectionChanged() {
             const active = this.canvas.getActiveObject();
             if (active) {
@@ -169,29 +149,12 @@ export default {
                 this.selectedObject.set('id', this.selectedObjectId);
             }
         },
-        setTextAlign(alignment) {
-            const activeObj = this.canvas.getActiveObject();
-            if (activeObj && activeObj.isType('textbox')) {
-                activeObj.set('textAlign', alignment);
-                this.canvas.requestRenderAll();
-            }
-        },
         updateUndoRedoFlags() {
             this.canUndo = this.undoRedo.canUndo.value;
             this.canRedo = this.undoRedo.canRedo.value;
         },
         mmToPx(mm) {
             return mm * 4;
-        },
-        saveCanvas() {
-            this._saveCanvasFn?.();
-        },
-        async addSVG() {
-            const { objects, options } = await fabric.loadSVGFromString(getSVG());
-            const group = fabric.util.groupSVGElements(objects, options);
-            group.set({ left: 150, top: 150, lockScalingFlip: true, lockRotation: true, id: '' });
-            this.canvas.add(group);
-            this.canvas.requestRenderAll();
         },
         async addImageFromFile(event) {
             const file = event.target.files?.[0];
@@ -217,51 +180,11 @@ export default {
             reader.readAsDataURL(file);
             event.target.value = null;
         },
-        addText() {
-            const text = new fabric.Textbox('Новый текст', {
-                fontFamily: 'Times New Roman',
-                left: 100,
-                top: 100,
-                fontSize: 30,
-                fill: 'black',
-                id: '',
-            });
-            this.canvas.add(text);
-            this.canvas.setActiveObject(text);
-            this.canvas.requestRenderAll();
-
-            // Подгружаем стили для UI
-            this.fontSize = text.fontSize;
-            this.isBold = text.fontWeight === 'bold';
-        },
-        updateTextStyle() {
-            const active = this.canvas.getActiveObject();
-            if (active && active.type === 'textbox') {
-                active.set('fontSize', this.fontSize);
-                this.canvas.requestRenderAll();
-            }
-        },
-        updateLineHeight() {
-            const active = this.canvas.getActiveObject();
-            if (active && active.type === 'textbox') {
-                active.set('lineHeight', parseFloat(this.lineHeight));
-                this.canvas.requestRenderAll();
-            }
-        },
-        toggleBold() {
-            const active = this.canvas.getActiveObject();
-            if (active && active.type === 'textbox') {
-                const newWeight = active.fontWeight === 'bold' ? 'normal' : 'bold';
-                active.set('fontWeight', newWeight);
-                this.isBold = newWeight === 'bold';
-                this.canvas.requestRenderAll();
-            }
-        },
         handleLoadFile(e) {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            this._loadCanvasFn(file, (w, h) => {
+            loadCanvas(this.canvas, file, (w, h) => {
                 const mmWidth = w / 4;
                 const mmHeight = h / 4;
                 this.widthMM = mmWidth;
@@ -275,11 +198,10 @@ export default {
                 this.canvas.calcOffset();
                 this.canvas.requestRenderAll();
 
-                // Сброс истории
                 this.undoRedo.history.value = [];
                 this.undoRedo.historyIndex.value = -1;
                 this.undoRedo.recordState();
-            });
+            })
 
             e.target.value = null;
         },
