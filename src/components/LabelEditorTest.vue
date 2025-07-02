@@ -61,15 +61,16 @@ import { ref } from 'vue';
 import * as fabric from 'fabric';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
-import { useDeleteObjects } from '@/composables/useDeleteObjects.js';
 import { useUndoRedo } from '@/composables/useUndoRedo.js';
 import { addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight } from '@/utils/fabricHelpers.js';
 import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
+import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
 
 export default {
     components: { BaseButton, BaseInput },
     data() {
         return {
+            zoom: 4,
             widthMM: 150,
             heightMM: 100,
             fontSize: 30,
@@ -105,9 +106,7 @@ export default {
             };
         })(fabric.Object.prototype.toObject);
 
-        const { handleKeyDown } = useDeleteObjects(this.canvas);
-        this.handleKeyDown = handleKeyDown;
-        window.addEventListener('keydown', this.handleKeyDown);
+        this.unregister = registerKeyboardShortcuts(this.canvas);
 
         this.canvasRef = ref(this.canvas);
         this.undoRedo = useUndoRedo(this.canvasRef);
@@ -129,11 +128,11 @@ export default {
         });
     },
     beforeDestroy() {
-        window.removeEventListener('keydown', this.handleKeyDown);
+        this.unregister();
         this.undoRedo.pauseRecording();
     },
     methods: {
-        addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight, saveCanvas, loadCanvas,
+        addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight, saveCanvas, loadCanvas, registerKeyboardShortcuts,
         onSelectionChanged() {
             const active = this.canvas.getActiveObject();
             if (active) {
@@ -154,7 +153,7 @@ export default {
             this.canRedo = this.undoRedo.canRedo.value;
         },
         mmToPx(mm) {
-            return mm * 4;
+            return mm * this.zoom;
         },
         async addImageFromFile(event) {
             const file = event.target.files?.[0];
@@ -180,28 +179,25 @@ export default {
             reader.readAsDataURL(file);
             event.target.value = null;
         },
-        handleLoadFile(e) {
+        async handleLoadFile(e) {
             const file = e.target.files?.[0];
             if (!file) return;
 
-            loadCanvas(this.canvas, file, (w, h) => {
-                const mmWidth = w / 4;
-                const mmHeight = h / 4;
-                this.widthMM = mmWidth;
-                this.heightMM = mmHeight;
+            try {
+                const { widthPx, heightPx } = await loadCanvas(
+                    this.canvas,
+                    file,
+                    this.$refs.canvas,
+                    this.undoRedo,
+                    (mm) => mm * this.zoom
+                );
 
-                const canvasEl = this.$refs.canvas;
-                canvasEl.width = w;
-                canvasEl.height = h;
-                this.canvas.setWidth(w);
-                this.canvas.setHeight(h);
-                this.canvas.calcOffset();
-                this.canvas.requestRenderAll();
+                this.widthMM = widthPx / this.zoom;
+                this.heightMM = heightPx / this.zoom;
 
-                this.undoRedo.history.value = [];
-                this.undoRedo.historyIndex.value = -1;
-                this.undoRedo.recordState();
-            })
+            } catch (err) {
+                console.error(err);
+            }
 
             e.target.value = null;
         },

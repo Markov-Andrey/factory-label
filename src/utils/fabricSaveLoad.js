@@ -16,25 +16,45 @@ export function saveCanvas(canvas, widthMM, heightMM) {
     URL.revokeObjectURL(url);
 }
 
-export function loadCanvas(canvas, file, onDimensionsUpdate = () => {}) {
-    const reader = new FileReader();
+export async function loadCanvas(canvas, file, canvasEl, undoRedo, mmToPx) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
 
-    reader.onload = (e) => {
-        try {
-            const json = JSON.parse(e.target.result);
-            canvas.clear();
+        reader.onload = (e) => {
+            try {
+                const json = JSON.parse(e.target.result);
+                canvas.clear();
 
-            if (json.custom?.widthMM && json.custom?.heightMM) {
-                onDimensionsUpdate(json.custom.widthMM, json.custom.heightMM);
+                let widthPx, heightPx;
+
+                if (json.custom?.widthMM && json.custom?.heightMM) {
+                    widthPx = mmToPx(json.custom.widthMM);
+                    heightPx = mmToPx(json.custom.heightMM);
+
+                    canvasEl.width = widthPx;
+                    canvasEl.height = heightPx;
+                    canvas.setWidth(widthPx);
+                    canvas.setHeight(heightPx);
+                    canvas.calcOffset();
+                }
+
+                canvas.loadFromJSON(json, () => {
+                    canvas.requestRenderAll();
+
+                    if (undoRedo) {
+                        undoRedo.history.value = [];
+                        undoRedo.historyIndex.value = -1;
+                        undoRedo.recordState();
+                    }
+
+                    resolve({ widthPx, heightPx });
+                });
+            } catch (err) {
+                alert('Ошибка загрузки: ' + err.message);
+                reject(err);
             }
+        };
 
-            canvas.loadFromJSON(json, () => {
-                canvas.requestRenderAll();
-            });
-        } catch (err) {
-            alert('Ошибка загрузки: ' + err.message);
-        }
-    };
-
-    reader.readAsText(file);
+        reader.readAsText(file);
+    });
 }
