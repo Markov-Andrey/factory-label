@@ -10,7 +10,6 @@ function deleteActiveObjects(canvas) {
 export function registerKeyboardShortcuts(canvas) {
     function handleKeyDown(e) {
         if (e.key === 'Delete' || e.keyCode === 46) {
-            console.log('Delete');
             deleteActiveObjects(canvas);
         }
     }
