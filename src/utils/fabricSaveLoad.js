@@ -16,7 +16,7 @@ export function saveCanvas(canvas, widthMM, heightMM) {
     URL.revokeObjectURL(url);
 }
 
-export async function loadCanvas(canvas, file, canvasEl, undoRedo, mmToPx) {
+export async function loadCanvas(canvas, file, canvasEl, mmToPx) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
 
@@ -40,12 +40,6 @@ export async function loadCanvas(canvas, file, canvasEl, undoRedo, mmToPx) {
 
                 canvas.loadFromJSON(json, () => {
                     canvas.requestRenderAll();
-
-                    if (undoRedo) {
-                        undoRedo.history.value = [];
-                        undoRedo.historyIndex.value = -1;
-                        undoRedo.recordState();
-                    }
 
                     resolve({ widthPx, heightPx });
                 });

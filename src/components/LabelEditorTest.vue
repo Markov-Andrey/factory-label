@@ -57,14 +57,14 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
 import * as fabric from 'fabric';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
-import { useUndoRedo } from '@/composables/useUndoRedo.js';
 import { addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight } from '@/utils/fabricHelpers.js';
 import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
 import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
+import { pauseRecording, resumeRecording } from '@/utils/fabricHistory.js'
 
 export default {
     components: { BaseButton, BaseInput },
@@ -80,6 +80,9 @@ export default {
             canRedo: false,
             selectedObject: null,
             selectedObjectId: '',
+            history: [],
+            historyIndex: -1,
+            isUndoRedoRunning: false,
         };
     },
     mounted() {
@@ -88,37 +91,29 @@ export default {
         canvasEl.height = this.mmToPx(this.heightMM);
 
         this.canvas = new fabric.Canvas(canvasEl);
-        // id-блок
+
+        // Добавление поддержки ID
         if (!fabric.Object.prototype.stateProperties) {
             fabric.Object.prototype.stateProperties = [];
         }
         if (!fabric.Object.prototype.stateProperties.includes('id')) {
             fabric.Object.prototype.stateProperties.push('id');
         }
+
         fabric.Object.prototype.toObject = (function(toObject) {
             return function(propertiesToInclude) {
                 const obj = toObject.call(this, propertiesToInclude);
-                if (this.id) {
-                    obj.id = this.id;
-                }
-
+                if (this.id) obj.id = this.id;
                 return obj;
             };
         })(fabric.Object.prototype.toObject);
 
         this.unregister = registerKeyboardShortcuts(this.canvas);
 
-        this.canvasRef = ref(this.canvas);
-        this.undoRedo = useUndoRedo(this.canvasRef);
         this.updateUndoRedoFlags();
 
-        this.$watch(() => [
-            this.undoRedo.canUndo.value,
-            this.undoRedo.canRedo.value,
-        ], this.updateUndoRedoFlags);
-
-        this.undoRedo.resumeRecording();
-        this.undoRedo.recordState();
+        this.resumeRecording();
+        this.recordState();
 
         this.canvas.on('selection:created', this.onSelectionChanged);
         this.canvas.on('selection:updated', this.onSelectionChanged);
@@ -129,32 +124,32 @@ export default {
     },
     beforeDestroy() {
         this.unregister();
-        this.undoRedo.pauseRecording();
+        this.pauseRecording();
     },
     methods: {
         addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight, saveCanvas, loadCanvas, registerKeyboardShortcuts,
+
         onSelectionChanged() {
             const active = this.canvas.getActiveObject();
-            if (active) {
-                this.selectedObject = active;
-                this.selectedObjectId = active.id || '';
-            } else {
-                this.selectedObject = null;
-                this.selectedObjectId = '';
-            }
+            this.selectedObject = active || null;
+            this.selectedObjectId = active?.id || '';
         },
+
         updateSelectedObjectId() {
             if (this.selectedObject) {
                 this.selectedObject.set('id', this.selectedObjectId);
             }
         },
+
         updateUndoRedoFlags() {
-            this.canUndo = this.undoRedo.canUndo.value;
-            this.canRedo = this.undoRedo.canRedo.value;
+            this.canUndo = this.historyIndex > 0;
+            this.canRedo = this.historyIndex < this.history.length - 1;
         },
+
         mmToPx(mm) {
             return mm * this.zoom;
         },
+
         async addImageFromFile(event) {
             const file = event.target.files?.[0];
             if (!file) return;
@@ -179,6 +174,7 @@ export default {
             reader.readAsDataURL(file);
             event.target.value = null;
         },
+
         async handleLoadFile(e) {
             const file = e.target.files?.[0];
             if (!file) return;
@@ -188,8 +184,7 @@ export default {
                     this.canvas,
                     file,
                     this.$refs.canvas,
-                    this.undoRedo,
-                    (mm) => mm * this.zoom
+                    this.mmToPx
                 );
 
                 this.widthMM = widthPx / this.zoom;
@@ -201,11 +196,68 @@ export default {
 
             e.target.value = null;
         },
-        undo() {
-            this.undoRedo.undo();
+
+        pauseRecording() {
+            pauseRecording(this.canvas, this.recordState.bind(this));
         },
+
+        resumeRecording() {
+            resumeRecording(this.canvas, this.recordState.bind(this));
+        },
+
+        recordState() {
+            if (this.isUndoRedoRunning) return;
+
+            const json = this.canvas.toJSON();
+            const last = this.history[this.historyIndex];
+            if (last && JSON.stringify(last) === JSON.stringify(json)) return;
+
+            if (this.historyIndex < this.history.length - 1) {
+                this.history.splice(this.historyIndex + 1);
+            }
+
+            this.history.push(json);
+
+            if (this.history.length > 50) {
+                this.history.shift();
+                this.historyIndex = this.history.length - 1;
+            } else {
+                this.historyIndex = this.history.length - 1;
+            }
+
+            this.updateUndoRedoFlags();
+        },
+
+        undo() {
+            if (!this.canUndo) return;
+
+            this.isUndoRedoRunning = true;
+            this.pauseRecording();
+            this.historyIndex--;
+
+            const prevState = this.history[this.historyIndex];
+            this.canvas.loadFromJSON(prevState, () => {
+                this.canvas.requestRenderAll();
+                this.isUndoRedoRunning = false;
+                this.resumeRecording();
+                this.updateUndoRedoFlags();
+            });
+        },
+
         redo() {
-            this.undoRedo.redo();
+            if (!this.canRedo) return;
+
+            this.isUndoRedoRunning = true;
+            this.pauseRecording();
+            this.historyIndex++;
+
+            const nextState = this.history[this.historyIndex];
+            this.canvas.loadFromJSON(nextState, () => {
+                this.canvas.requestRenderAll();
+                this.isUndoRedoRunning = false;
+                this.resumeRecording();
+                this.updateUndoRedoFlags();
+            });
         },
     },
 };
