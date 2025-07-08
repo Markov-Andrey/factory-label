@@ -64,7 +64,7 @@ import BaseInput from '@/components/base/BaseInput.vue';
 import { addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight } from '@/utils/fabricHelpers.js';
 import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
 import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
-import { pauseRecording, resumeRecording } from '@/utils/fabricHistory.js'
+import { pauseRecording, resumeRecording, undo as doUndo, redo as doRedo } from '@/utils/fabricHistory.js'
 
 export default {
     components: { BaseButton, BaseInput },
@@ -146,9 +146,7 @@ export default {
             this.canRedo = this.historyIndex < this.history.length - 1;
         },
 
-        mmToPx(mm) {
-            return mm * this.zoom;
-        },
+        mmToPx(mm) { return mm * this.zoom; },
 
         async addImageFromFile(event) {
             const file = event.target.files?.[0];
@@ -178,32 +176,21 @@ export default {
         async handleLoadFile(e) {
             const file = e.target.files?.[0];
             if (!file) return;
+            const { widthPx, heightPx } = await loadCanvas(
+                this.canvas,
+                file,
+                this.$refs.canvas,
+                this.mmToPx
+            );
 
-            try {
-                const { widthPx, heightPx } = await loadCanvas(
-                    this.canvas,
-                    file,
-                    this.$refs.canvas,
-                    this.mmToPx
-                );
-
-                this.widthMM = widthPx / this.zoom;
-                this.heightMM = heightPx / this.zoom;
-
-            } catch (err) {
-                console.error(err);
-            }
+            this.widthMM = widthPx / this.zoom;
+            this.heightMM = heightPx / this.zoom;
 
             e.target.value = null;
         },
 
-        pauseRecording() {
-            pauseRecording(this.canvas, this.recordState.bind(this));
-        },
-
-        resumeRecording() {
-            resumeRecording(this.canvas, this.recordState.bind(this));
-        },
+        pauseRecording() { pauseRecording(this.canvas, this.recordState.bind(this)); },
+        resumeRecording() { resumeRecording(this.canvas, this.recordState.bind(this)); },
 
         recordState() {
             if (this.isUndoRedoRunning) return;
@@ -229,36 +216,31 @@ export default {
         },
 
         undo() {
-            if (!this.canUndo) return;
-
-            this.isUndoRedoRunning = true;
-            this.pauseRecording();
-            this.historyIndex--;
-
-            const prevState = this.history[this.historyIndex];
-            this.canvas.loadFromJSON(prevState, () => {
-                this.canvas.requestRenderAll();
-                this.isUndoRedoRunning = false;
-                this.resumeRecording();
-                this.updateUndoRedoFlags();
+            doUndo({
+                canvas: this.canvas,
+                history: this.history,
+                historyIndex: this.historyIndex,
+                setHistoryIndex: (i) => { this.historyIndex = i },
+                pauseRecording: () => this.pauseRecording(),
+                resumeRecording: () => this.resumeRecording(),
+                setIsUndoRedoRunning: (val) => { this.isUndoRedoRunning = val },
+                updateUndoRedoFlags: this.updateUndoRedoFlags,
+                canUndo: () => this.canUndo,
             });
         },
-
         redo() {
-            if (!this.canRedo) return;
-
-            this.isUndoRedoRunning = true;
-            this.pauseRecording();
-            this.historyIndex++;
-
-            const nextState = this.history[this.historyIndex];
-            this.canvas.loadFromJSON(nextState, () => {
-                this.canvas.requestRenderAll();
-                this.isUndoRedoRunning = false;
-                this.resumeRecording();
-                this.updateUndoRedoFlags();
+            doRedo({
+                canvas: this.canvas,
+                history: this.history,
+                historyIndex: this.historyIndex,
+                setHistoryIndex: (i) => { this.historyIndex = i },
+                pauseRecording: () => this.pauseRecording(),
+                resumeRecording: () => this.resumeRecording(),
+                setIsUndoRedoRunning: (val) => { this.isUndoRedoRunning = val },
+                updateUndoRedoFlags: this.updateUndoRedoFlags,
+                canRedo: () => this.canRedo,
             });
-        },
+        }
     },
 };
 </script>
