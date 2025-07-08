@@ -18,19 +18,19 @@
         </div>
 
         <div class="flex gap-2">
-            <BaseButton @click="() => { undo(); this.canUpd(); }" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить" color="bg-blue-600" />
-            <BaseButton @click="() => { redo(); this.canUpd(); }" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть" color="bg-green-600" />
-            <BaseInput @change="updateFontSize(this.canvas, this.fontSize)" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
-            <BaseInput @change="updateLineHeight(this.canvas, this.lineHeight)" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
-            <BaseButton @click="toggleBold(this.canvas)" color="bg-gray-700" icon="BoldIcon" tooltip="Полужирный" />
-            <BaseButton @click="toggleItalic(this.canvas)" color="bg-gray-700" icon="ItalicIcon" tooltip="Курсив" />
-            <BaseButton @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю" color="bg-green-600" />
-            <BaseButton @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру" color="bg-green-600" />
-            <BaseButton @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю" color="bg-green-600" />
-            <BaseButton @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине" color="bg-green-600" />
-            <BaseColorPicker tooltip="Фон текста" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
-            <BaseColorPicker tooltip="Цвет текста" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
-            <BaseSelect tooltip="Шрифт текста" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
+            <BaseButton @click="undo; canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" color="bg-blue-600" />
+            <BaseButton @click="redo(); this.canUpd()" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть (Ctrl+Y)" color="bg-green-600" />
+            <BaseInput :disabled="isTextboxSelected" @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
+            <BaseInput :disabled="isTextboxSelected" @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
+            <BaseButton :disabled="isTextboxSelected" @click="toggleBold(this.canvas)" color="bg-gray-700" icon="BoldIcon" tooltip="Полужирный" />
+            <BaseButton :disabled="isTextboxSelected" @click="toggleItalic(this.canvas)" color="bg-gray-700" icon="ItalicIcon" tooltip="Курсив" />
+            <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю" color="bg-green-600" />
+            <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру" color="bg-green-600" />
+            <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю" color="bg-green-600" />
+            <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине" color="bg-green-600" />
+            <BaseColorPicker :disabled="isTextboxSelected" tooltip="Фон текста" v-model="backgroundColor" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
+            <BaseColorPicker :disabled="isTextboxSelected" tooltip="Цвет текста" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
+            <BaseSelect :disabled="isTextboxSelected" tooltip="Шрифт текста" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
         </div>
 
         <div class="flex mt-4 gap-4 items-start">
@@ -95,6 +95,10 @@ export default {
             canRedo: false,
             selectedObject: null,
             selectedObjectId: '',
+            isTextboxSelected: true,
+            backgroundColor: '#fff',
+            fontColor: '#000000',
+            fontFamily: 'Times New Roman',
         };
     },
     mounted() {
@@ -126,11 +130,18 @@ export default {
             };
         })(fabric.Object.prototype.toObject);
 
-        this.unregister = registerKeyboardShortcuts(this.canvas);
+        const unregister = registerKeyboardShortcuts(this.canvas, () => {
+            undo();
+            this.canUpd();
+        }, () => {
+            redo();
+            this.canUpd();
+        });
 
         this.canvas.on('selection:created', this.onSelectionChanged);
         this.canvas.on('selection:updated', this.onSelectionChanged);
         this.canvas.on('selection:cleared', () => {
+            this.onSelectionChanged();
             this.selectedObject = null;
             this.selectedObjectId = '';
         });
@@ -147,6 +158,14 @@ export default {
             const active = this.canvas.getActiveObject();
             this.selectedObject = active || null;
             this.selectedObjectId = active?.id || '';
+            this.isTextboxSelected = !(active && active.isType('textbox'));
+            if (active) {
+                this.fontSize = active.fontSize;
+                this.lineHeight = active.lineHeight;
+                this.backgroundColor = active.backgroundColor;
+                this.fontColor = active.fill;
+                this.fontFamily = active.fontFamily;
+            }
         },
 
         updateSelectedObjectId() {

@@ -3,7 +3,8 @@
         <input
             type="color"
             class="p-1 h-10 w-14 block bg-white border border-gray-200 cursor-pointer rounded-lg disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700"
-            :value="modelValue"
+            :value="validColor"
+            :disabled="disabled"
             @input="onInput"
             title="Choose your color"
         />
@@ -26,13 +27,22 @@ export default {
         },
         modelValue: {
             type: String,
-            default: "#000000",
+            default: "",
+        },
+        disabled: {
+            type: Boolean,
+            default: false,
         },
     },
     data() {
         return {
             show: false,
         };
+    },
+    computed: {
+        validColor() { // исключение под warning, пустое значение
+            return /^#([0-9a-fA-F]{6})$/.test(this.modelValue) ? this.modelValue : '#000000';
+        },
     },
     methods: {
         onInput(event) {

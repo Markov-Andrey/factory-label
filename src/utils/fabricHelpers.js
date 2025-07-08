@@ -13,7 +13,8 @@ export function addText(canvas, options = {}) {
         left: 100,
         top: 100,
         fontSize: 30,
-        fill: 'black',
+        fill: '#000000',
+        backgroundColor: '',
         id: '',
         ...options,
     });

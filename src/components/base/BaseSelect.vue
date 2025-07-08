@@ -4,8 +4,11 @@
             :value="modelValue"
             @change="onChange"
             :title="tooltip"
-            class="py-3 px-4 pe-9 block w-full border border-gray-200 rounded-lg text-sm
-             focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none"
+            :disabled="disabled"
+            :class="[
+              'py-3 px-4 pe-9 block w-full border rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none',
+              disabled ? 'bg-gray-200 cursor-not-allowed border-gray-300' : 'border-gray-200'
+            ]"
         >
             <option disabled value="">{{ placeholder }}</option>
             <option v-for="option in options" :key="option" :value="option">{{ option }}</option>
@@ -26,13 +29,18 @@ const props = defineProps({
     options: Array,
     modelValue: { type: [String, Number], default: '' },
     placeholder: { type: String, default: 'Select an option' },
-    tooltip: { type: String, default: '' }
+    tooltip: { type: String, default: '' },
+    disabled: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['change'])
+const emit = defineEmits(['update:modelValue', 'change'])
 const show = ref(false)
 
 function onChange(e) {
-    emit('change', e.target.value)
+    if (!props.disabled) {
+        const val = e.target.value
+        emit('update:modelValue', val)
+        emit('change', val)
+    }
 }
 </script>
