@@ -126,8 +126,12 @@ export function onColorChange(color, canvas, attribute) {
     }
 }
 
+/**
+ * Меняет шрифт текста у выбранного текстового объекта на canvas.
+ * @param {fabric.Canvas} canvas
+ * @param {string} fontName - название шрифта (например, "Arial")
+ */
 export function setTextFont(canvas, fontName) {
-    console.log(fontName);
     const activeObj = canvas.getActiveObject();
     if (activeObj && activeObj.isType('textbox')) {
         activeObj.set('fontFamily', fontName);
