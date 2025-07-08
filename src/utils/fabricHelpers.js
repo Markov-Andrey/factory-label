@@ -110,3 +110,18 @@ export function updateLineHeight(canvas, lineHeight) {
         canvas.requestRenderAll();
     }
 }
+
+/**
+ * Меняет цвет указанного атрибута у активного объекта на canvas.
+ * @param {string} color - новый цвет
+ * @param {fabric.Canvas} canvas
+ * @param {string} attribute - имя свойства, которое нужно изменить (например, 'fill' или 'stroke')
+ */
+export function onColorChange(color, canvas, attribute) {
+    if (!canvas) return;
+    const activeObj = canvas.getActiveObject();
+    if (activeObj) {
+        activeObj.set(attribute, color);
+        canvas.requestRenderAll();
+    }
+}

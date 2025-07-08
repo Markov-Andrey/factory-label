@@ -1,69 +1,90 @@
-// canvasRecording.js
+let canvas = null;
+let history = [];
+let historyIndex = 1;
+let onFlagsChanged = () => {};
+let isBlocked = false;
 
-export function pauseRecording(canvas, recordState) {
-    canvas.off('object:added', recordState);
-    canvas.off('object:modified', recordState);
-    canvas.off('object:removed', recordState);
+export function initRecording(canvasInstance, flagsCallback) {
+    canvas = canvasInstance;
+    onFlagsChanged = flagsCallback || (() => {});
+
+    history = [];
+    historyIndex = 1;
+
+    history.push(null); // заглушка под индекс 0
+    history.push(canvas.toJSON());
+
+    canvas.on('object:added', handleChange);
+    canvas.on('object:modified', handleChange);
+    canvas.on('object:removed', handleChange);
+
+    onFlagsChanged();
 }
 
-export function resumeRecording(canvas, recordState) {
-    canvas.on('object:added', recordState);
-    canvas.on('object:modified', recordState);
-    canvas.on('object:removed', recordState);
+function handleChange() {
+    if (isBlocked) return;
+    record();
 }
 
-export function undo({
-                         canvas,
-                         history,
-                         historyIndex,
-                         setHistoryIndex,
-                         pauseRecording,
-                         resumeRecording,
-                         setIsUndoRedoRunning,
-                         updateUndoRedoFlags,
-                         canUndo
-                     }) {
+export function record() {
+    const json = canvas.toJSON();
+    const last = history[historyIndex];
+
+    if (last && JSON.stringify(last) === JSON.stringify(json)) return;
+
+    if (historyIndex < history.length - 1) {
+        history.splice(historyIndex + 1);
+    }
+
+    history.push(json);
+    historyIndex++;
+
+    if (history.length > 50) {
+        history.splice(1, 1);
+        if (historyIndex > 1) historyIndex--;
+    }
+
+    onFlagsChanged();
+}
+
+function block() {
+    isBlocked = true;
+}
+
+function unblock() {
+    isBlocked = false;
+}
+
+export function undo() {
     if (!canUndo()) return;
 
-    setIsUndoRedoRunning(true);
-    pauseRecording();
+    block();
+    historyIndex--;
 
-    const newIndex = historyIndex - 1;
-    setHistoryIndex(newIndex);
-
-    const prevState = history[newIndex];
-    canvas.loadFromJSON(prevState, () => {
+    canvas.loadFromJSON(history[historyIndex], () => {
         canvas.requestRenderAll();
-        setIsUndoRedoRunning(false);
-        resumeRecording();
-        updateUndoRedoFlags();
+        onFlagsChanged();
+        setTimeout(unblock, 10);
     });
 }
 
-export function redo({
-                         canvas,
-                         history,
-                         historyIndex,
-                         setHistoryIndex,
-                         pauseRecording,
-                         resumeRecording,
-                         setIsUndoRedoRunning,
-                         updateUndoRedoFlags,
-                         canRedo
-                     }) {
+export function redo() {
     if (!canRedo()) return;
 
-    setIsUndoRedoRunning(true);
-    pauseRecording();
+    block();
+    historyIndex++;
 
-    const newIndex = historyIndex + 1;
-    setHistoryIndex(newIndex);
-
-    const nextState = history[newIndex];
-    canvas.loadFromJSON(nextState, () => {
+    canvas.loadFromJSON(history[historyIndex], () => {
         canvas.requestRenderAll();
-        setIsUndoRedoRunning(false);
-        resumeRecording();
-        updateUndoRedoFlags();
+        onFlagsChanged();
+        setTimeout(unblock, 10);
     });
+}
+
+export function canUndo() {
+    return historyIndex > 1;
+}
+
+export function canRedo() {
+    return historyIndex < history.length - 1;
 }
