@@ -125,3 +125,12 @@ export function onColorChange(color, canvas, attribute) {
         canvas.requestRenderAll();
     }
 }
+
+export function setTextFont(canvas, fontName) {
+    console.log(fontName);
+    const activeObj = canvas.getActiveObject();
+    if (activeObj && activeObj.isType('textbox')) {
+        activeObj.set('fontFamily', fontName);
+        canvas.requestRenderAll();
+    }
+}

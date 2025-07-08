@@ -30,6 +30,7 @@
             <BaseButton @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине" color="bg-green-600" />
             <BaseColorPicker tooltip="Фон текста" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
             <BaseColorPicker tooltip="Цвет текста" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
+            <BaseSelect tooltip="Шрифт текста" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
         </div>
 
         <div class="flex mt-4 gap-4 items-start">
@@ -63,14 +64,25 @@ import {computed, ref} from 'vue';
 import * as fabric from 'fabric';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
-import { addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight, onColorChange } from '@/utils/fabricHelpers.js';
+import {
+    addText,
+    addSVG,
+    setTextAlign,
+    toggleBold,
+    toggleItalic,
+    updateFontSize,
+    updateLineHeight,
+    onColorChange,
+    setTextFont
+} from '@/utils/fabricHelpers.js';
 import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
 import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
 import {initRecording, undo, redo, record, canUndo, canRedo} from '@/utils/fabricHistory.js'
 import BaseColorPicker from "@/components/base/BaseColorPicker.vue";
+import BaseSelect from "@/components/base/BaseSelect.vue";
 
 export default {
-    components: {BaseColorPicker, BaseButton, BaseInput },
+    components: {BaseSelect, BaseColorPicker, BaseButton, BaseInput },
     data() {
         return {
             zoom: 4,
@@ -127,7 +139,8 @@ export default {
         this.unregister();
     },
     methods: {
-        addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight, saveCanvas, loadCanvas, registerKeyboardShortcuts,
+        setTextFont, addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
+        saveCanvas, loadCanvas, registerKeyboardShortcuts,
         undo, redo, onColorChange,
 
         onSelectionChanged() {
