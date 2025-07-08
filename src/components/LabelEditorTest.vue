@@ -32,6 +32,9 @@
             <BaseColorPicker :disabled="isTextboxSelected" tooltip="Цвет текста" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
             <BaseSelect :disabled="isTextboxSelected" tooltip="Шрифт текста" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
         </div>
+        <div class="flex gap-2">
+            <BaseSelectGallery @icon-selected="icon => addSVG(this.canvas, icon.path)" />
+        </div>
 
         <div class="flex mt-4 gap-4 items-start">
             <!-- Левая часть: Canvas -->
@@ -60,7 +63,6 @@
 </template>
 
 <script>
-import {computed, ref} from 'vue';
 import * as fabric from 'fabric';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
@@ -80,9 +82,10 @@ import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
 import {initRecording, undo, redo, record, canUndo, canRedo} from '@/utils/fabricHistory.js'
 import BaseColorPicker from "@/components/base/BaseColorPicker.vue";
 import BaseSelect from "@/components/base/BaseSelect.vue";
+import BaseSelectGallery from "@/components/base/BaseSelectGallery.vue";
 
 export default {
-    components: {BaseSelect, BaseColorPicker, BaseButton, BaseInput },
+    components: {BaseSelectGallery, BaseSelect, BaseColorPicker, BaseButton, BaseInput },
     data() {
         return {
             zoom: 4,
