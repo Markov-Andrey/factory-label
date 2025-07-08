@@ -1,3 +1,5 @@
+import {setTextAlign} from "@/utils/fabricHelpers.js";
+
 function deleteActiveObjects(canvas) {
     const active = canvas.getActiveObjects();
     if (active.length) {
@@ -7,20 +9,35 @@ function deleteActiveObjects(canvas) {
     }
 }
 
-export function registerKeyboardShortcuts(canvas, onUndo, onRedo) {
+export function registerKeyboardShortcuts(canvas, onUndo, onRedo, toggleBold, toggleItalic, setTextAlignLeft, setTextAlignCenter, setTextAlignRight, setTextAlignJustify) {
+    const shortcutMap = {
+        'ctrl+z': onUndo,
+        'ctrl+y': onRedo,
+        'ctrl+b': toggleBold,
+        'ctrl+i': toggleItalic,
+        'ctrl+l': setTextAlignLeft,
+        'ctrl+e': setTextAlignCenter,
+        'ctrl+r': setTextAlignRight,
+        'ctrl+j': setTextAlignJustify,
+    };
+
     function handleKeyDown(e) {
-        // Удаление по Delete
-        if (e.key === 'Delete' || e.keyCode === 46) {
+        const key = e.key.toLowerCase();
+
+        if (key === 'delete' || e.keyCode === 46) {
             deleteActiveObjects(canvas);
+            return;
         }
-        // Ctrl+Z - undo
-        else if (e.ctrlKey && !e.shiftKey && e.key.toLowerCase() === 'z') {
-            if (typeof onUndo === 'function') onUndo();
-            e.preventDefault();
-        }
-        // Ctrl+Y - redo
-        else if (e.ctrlKey && e.key.toLowerCase() === 'y') {
-            if (typeof onRedo === 'function') onRedo();
+
+        const combination = [
+            e.ctrlKey ? 'ctrl' : '',
+            e.shiftKey ? 'shift' : '',
+            key
+        ].filter(Boolean).join('+');
+
+        const handler = shortcutMap[combination];
+        if (typeof handler === 'function') {
+            handler();
             e.preventDefault();
         }
     }
