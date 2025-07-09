@@ -1,11 +1,18 @@
 <template>
     <div>
-        <textarea v-model="inputValue" rows="4" placeholder="DataMatrix GS1"></textarea>
-        <div class="preview">
+    <textarea
+        v-model="inputValue"
+        rows="4"
+        placeholder="DataMatrix GS1"
+        class="w-full font-mono text-sm mb-2 p-2 border border-gray-300 rounded resize-y focus:outline-none focus:ring-2 focus:ring-blue-500"
+    ></textarea>
+
+        <div class="preview font-mono bg-gray-100 p-2 break-words mb-4 text-gray-800">
             <strong>Введено:</strong>
             <pre v-html="escapedString"></pre>
         </div>
-        <canvas ref="canvas"></canvas>
+
+        <canvas ref="canvas" class="border border-gray-300 block"></canvas>
     </div>
 </template>
 
@@ -26,7 +33,7 @@ const escapedString = computed(() => {
             .replace(/'/g, "&#039;")
 
     const escaped = escapeHtml(inputValue.value)
-    return `<span class="green">${escaped.replace(/\x1D/g, '<span class="gs">&lt;GS&gt;</span>')}</span>`
+    return `<span class="text-green-700 font-semibold">${escaped.replace(/\x1D/g, '<span class="bg-green-200 text-green-900 font-bold px-1 rounded select-none">&lt;GS&gt;</span>')}</span>`
 })
 
 const drawBarcode = (text) => {
@@ -57,44 +64,3 @@ onMounted(() => {
     canvas.value.height = 300
 })
 </script>
-
-<style scoped>
-textarea {
-    width: 100%;
-    font-family: monospace;
-    font-size: 14px;
-    margin-bottom: 8px;
-    box-sizing: border-box;
-    padding: 6px;
-}
-
-canvas {
-    border: 1px solid #ccc;
-    margin-top: 10px;
-    display: block;
-}
-
-.preview {
-    font-family: monospace;
-    background: #f7f7f7;
-    padding: 5px;
-    white-space: pre-wrap;
-    word-break: break-all;
-    margin-bottom: 10px;
-    color: #333;
-}
-
-.green {
-    color: #2e7d32;
-    font-weight: 600;
-}
-
-.gs {
-    background-color: #c8e6c9;
-    color: #1b5e20;
-    font-weight: bold;
-    padding: 0 3px;
-    border-radius: 3px;
-    user-select: none;
-}
-</style>

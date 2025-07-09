@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "generate": "node generate.js"
+    "generate": "node generate_json.js && node generate_image.js"
   },
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
