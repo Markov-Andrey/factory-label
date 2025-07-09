@@ -1,9 +1,9 @@
 <template>
     <BaseButton
             @click="showModal = true"
-            color="bg-green-600" icon="DocumentPlusIcon"
+            color="bg-green-600" icon="PlusCircleIcon"
     >
-        Добавить иконку
+        Иконка
     </BaseButton>
 
     <div
@@ -16,7 +16,7 @@
         <div class="relative w-full max-w-[90%] max-h-full">
             <div class="bg-white rounded-lg shadow-sm border border-gray-300">
                 <header class="flex items-center justify-between p-4 border-b border-gray-200 rounded-t">
-                    <h3 class="text-xl font-semibold text-gray-900">Выберите иконку</h3>
+                    <h3 class="text-xl font-semibold text-gray-900">Добавить иконку</h3>
                     <button
                             type="button"
                             class="text-gray-400 hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ml-auto flex justify-center items-center"

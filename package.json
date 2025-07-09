@@ -16,6 +16,7 @@
     "canvas": "^2.11.2",
     "fabric": "^6.7.0",
     "flowbite": "^3.1.2",
+    "jsbarcode": "^3.12.1",
     "tailwindcss": "^4.1.10",
     "vue": "^3.5.17"
   },

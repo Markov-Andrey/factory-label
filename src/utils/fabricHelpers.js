@@ -27,6 +27,34 @@ export function addText(canvas, options = {}) {
 }
 
 /**
+ * Добавляет новый прямоугольник в canvas и возвращает его.
+ * @param {fabric.Canvas} canvas - экземпляр fabric.Canvas
+ * @param {Object} options - дополнительные опции для прямоугольника
+ * @returns {fabric.Rect} созданный объект прямоугольника
+ */
+export function addRect(canvas, options = {}) {
+    const rect = new fabric.Rect({
+        left: 100,
+        top: 100,
+        width: 150,
+        height: 100,
+        fill: '',
+        stroke: '#000000',
+        strokeWidth: 1,
+        rx: 2,
+        ry: 2,
+        id: '',
+        ...options,
+    });
+
+    canvas.add(rect);
+    canvas.setActiveObject(rect);
+    canvas.requestRenderAll();
+
+    return rect;
+}
+
+/**
  * Асинхронно загружает SVG-изображение по URL, создаёт объект fabric.Image и добавляет его на canvas.
  * @param {fabric.Canvas} canvas - Экземпляр fabric.Canvas, на который добавляется изображение.
  * @param {string} svgUrl - URL файла SVG (относительный или абсолютный путь).

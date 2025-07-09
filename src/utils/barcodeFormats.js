@@ -1,0 +1,25 @@
+// src/utils/barcodeFormats.js
+
+export default {
+    'Code 128': 'CODE128',
+    'Code 128 A': 'CODE128A',
+    'Code 128 B': 'CODE128B',
+    'Code 128 C': 'CODE128C',
+    'Code 39': 'CODE39',
+    'Code 93': 'CODE93',
+    'EAN-13': 'EAN13',
+    'EAN-8': 'EAN8',
+    'EAN-5': 'EAN5',
+    'EAN-2': 'EAN2',
+    'UPC-A': 'UPCA',
+    'UPC-E': 'UPCE',
+    'ITF': 'ITF',
+    'ITF-14': 'ITF14',
+    'MSI': 'MSI',
+    'MSI-10': 'MSI10',
+    'MSI-11': 'MSI11',
+    'MSI-1010': 'MSI1010',
+    'MSI-1110': 'MSI1110',
+    'Pharmacode': 'pharmacode',
+    'Codabar': 'codabar',
+};

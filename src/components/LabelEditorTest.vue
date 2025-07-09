@@ -1,20 +1,22 @@
 <template>
     <div class="space-y-2 p-4">
         <div class="flex gap-2">
+            <BaseInput type="text" label="Наименование:" class="w-32" />
             <BaseInput v-model="widthMM" type="number" label="Ширина (мм):" class="w-32" />
             <BaseInput v-model="heightMM" type="number" label="Высота (мм):" class="w-32" />
         </div>
 
         <div class="flex gap-2">
-            <BaseButton @click="saveCanvas(this.canvas, widthMM, heightMM)" color="bg-yellow-500" icon="FolderArrowDownIcon">Сохранить шаблон</BaseButton>
-            <BaseButton @click="() => $refs.fileInput.click()" color="bg-gray-500" icon="FolderPlusIcon">Загрузить шаблон</BaseButton>
+            <BaseButton @click="saveCanvas(this.canvas, widthMM, heightMM)" color="bg-yellow-500" icon="DocumentArrowUpIcon">Сохранить</BaseButton>
+            <BaseButton @click="() => $refs.fileInput.click()" color="bg-gray-500" icon="DocumentArrowDownIcon">Загрузить</BaseButton>
             <input type="file" ref="fileInput" class="hidden" @change="handleLoadFile" accept=".json" />
-            <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusIcon">Добавить текст</BaseButton>
-            <BaseButton @click="addSVG(this.canvas, '/asset/my-svg.svg');" color="bg-green-600" icon="DocumentPlusIcon">Добавить SVG</BaseButton>
-            <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PhotoIcon">
-                Добавить изображение
-            </BaseButton>
+            <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Текст</BaseButton>
+            <BaseButton @click="addRect(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Рамка</BaseButton>
+            <BaseButton @click="addSVG(this.canvas, '/assets/my-svg.svg');" color="bg-green-600" icon="PlusCircleIcon">Datamatrix</BaseButton>
+            <BaseButton @click="addSVG(this.canvas, '/assets/barcode.gif');" color="bg-green-600" icon="PlusCircleIcon">Barcode</BaseButton>
+            <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PlusCircleIcon">Изображение</BaseButton>
             <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
+            <SelectGalleryIcons @icon-selected="icon => addSVG(this.canvas, icon.path)" />
         </div>
 
         <div class="flex gap-2">
@@ -31,9 +33,6 @@
             <BaseColorPicker :disabled="isTextboxSelected" tooltip="Фон текста" v-model="backgroundColor" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
             <BaseColorPicker :disabled="isTextboxSelected" tooltip="Цвет текста" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
             <BaseSelect :disabled="isTextboxSelected" tooltip="Шрифт текста" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
-        </div>
-        <div class="flex gap-2">
-            <BaseSelectGallery @icon-selected="icon => addSVG(this.canvas, icon.path)" />
         </div>
 
         <div class="flex mt-4 gap-4 items-start">
@@ -75,17 +74,18 @@ import {
     updateFontSize,
     updateLineHeight,
     onColorChange,
-    setTextFont
+    setTextFont,
+    addRect
 } from '@/utils/fabricHelpers.js';
 import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
 import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
 import {initRecording, undo, redo, record, canUndo, canRedo} from '@/utils/fabricHistory.js'
 import BaseColorPicker from "@/components/base/BaseColorPicker.vue";
 import BaseSelect from "@/components/base/BaseSelect.vue";
-import BaseSelectGallery from "@/components/base/BaseSelectGallery.vue";
+import SelectGalleryIcons from "@/components/base/SelectGalleryIcons.vue";
 
 export default {
-    components: {BaseSelectGallery, BaseSelect, BaseColorPicker, BaseButton, BaseInput },
+    components: {SelectGalleryIcons, BaseSelect, BaseColorPicker, BaseButton, BaseInput },
     data() {
         return {
             zoom: 4,
@@ -158,7 +158,7 @@ export default {
         this.unregister();
     },
     methods: {
-        setTextFont, addText, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
+        setTextFont, addText, addRect, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
         saveCanvas, loadCanvas, registerKeyboardShortcuts,
         undo, redo, onColorChange,
 
