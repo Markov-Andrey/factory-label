@@ -11,18 +11,18 @@ function deleteActiveObjects(canvas) {
 
 export function registerKeyboardShortcuts(canvas, onUndo, onRedo, toggleBold, toggleItalic, setTextAlignLeft, setTextAlignCenter, setTextAlignRight, setTextAlignJustify) {
     const shortcutMap = {
-        'ctrl+z': onUndo,
-        'ctrl+y': onRedo,
-        'ctrl+b': toggleBold,
-        'ctrl+i': toggleItalic,
-        'ctrl+l': setTextAlignLeft,
-        'ctrl+e': setTextAlignCenter,
-        'ctrl+r': setTextAlignRight,
-        'ctrl+j': setTextAlignJustify,
+        'ctrl+keyz': onUndo,
+        'ctrl+keyy': onRedo,
+        'ctrl+keyb': toggleBold,
+        'ctrl+keyi': toggleItalic,
+        'ctrl+keyl': setTextAlignLeft,
+        'ctrl+keye': setTextAlignCenter,
+        'ctrl+keyr': setTextAlignRight,
+        'ctrl+keyj': setTextAlignJustify,
     };
 
     function handleKeyDown(e) {
-        const key = e.key.toLowerCase();
+        const key = e.code.toLowerCase();
 
         if (key === 'delete' || e.keyCode === 46) {
             deleteActiveObjects(canvas);
