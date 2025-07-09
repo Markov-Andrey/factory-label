@@ -7,7 +7,7 @@ import BarcodeGenerator from "@/components/BarcodeGenerator.vue";
 </script>
 
 <template>
-  <DataMatrixGS1/>
+  <LabelEditorTest/>
 </template>
 
 <style scoped>
