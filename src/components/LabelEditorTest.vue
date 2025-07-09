@@ -13,10 +13,10 @@
             <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Текст</BaseButton>
             <BaseButton @click="addRect(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Рамка</BaseButton>
             <BaseButton @click="addSVG(this.canvas, '/assets/my-svg.svg');" color="bg-green-600" icon="PlusCircleIcon">Datamatrix</BaseButton>
-            <BaseButton @click="addSVG(this.canvas, '/assets/barcode.gif');" color="bg-green-600" icon="PlusCircleIcon">Barcode</BaseButton>
             <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PlusCircleIcon">Изображение</BaseButton>
             <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
-            <SelectGalleryIcons @icon-selected="icon => addSVG(this.canvas, icon.path)" />
+            <SelectGalleryIcons button-text="Иконка" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите иконку" :icons="fabricIconsSpecial()" @icon-selected="icon => addSVG(this.canvas, icon.path)" />
+            <SelectGalleryIcons button-text="Баркод" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите баркод" :icons="fabricIconsBarcodes()" @icon-selected="icon => addSVG(this.canvas, icon.path)" />
         </div>
 
         <div class="flex gap-2">
@@ -75,7 +75,7 @@ import {
     updateLineHeight,
     onColorChange,
     setTextFont,
-    addRect
+    addRect,
 } from '@/utils/fabricHelpers.js';
 import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
 import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
@@ -83,6 +83,8 @@ import {initRecording, undo, redo, record, canUndo, canRedo} from '@/utils/fabri
 import BaseColorPicker from "@/components/base/BaseColorPicker.vue";
 import BaseSelect from "@/components/base/BaseSelect.vue";
 import SelectGalleryIcons from "@/components/base/SelectGalleryIcons.vue";
+import {fabricIconsSpecial} from "@/utils/fabricIconsSpecial.js";
+import {fabricIconsBarcodes} from "@/utils/fabricIconsBarcodes.js";
 
 export default {
     components: {SelectGalleryIcons, BaseSelect, BaseColorPicker, BaseButton, BaseInput },
@@ -117,22 +119,6 @@ export default {
         record();
         this.canUpd(); // запуск истории
 
-        // поддержка id и остальные настройки
-        if (!fabric.Object.prototype.stateProperties) {
-            fabric.Object.prototype.stateProperties = [];
-        }
-        if (!fabric.Object.prototype.stateProperties.includes('id')) {
-            fabric.Object.prototype.stateProperties.push('id');
-        }
-
-        fabric.Object.prototype.toObject = (function(toObject) {
-            return function(propertiesToInclude) {
-                const obj = toObject.call(this, propertiesToInclude);
-                if (this.id) obj.id = this.id;
-                return obj;
-            };
-        })(fabric.Object.prototype.toObject);
-
         const c = this.canvas;
         const unregister = registerKeyboardShortcuts(
             c,
@@ -160,6 +146,7 @@ export default {
     methods: {
         setTextFont, addText, addRect, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
         saveCanvas, loadCanvas, registerKeyboardShortcuts,
+        fabricIconsSpecial, fabricIconsBarcodes,
         undo, redo, onColorChange,
 
         onSelectionChanged() {
