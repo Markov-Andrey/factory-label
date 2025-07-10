@@ -12,6 +12,7 @@
   "dependencies": {
     "@heroicons/vue": "^2.2.0",
     "@tailwindcss/vite": "^4.1.10",
+    "axios": "^1.10.0",
     "bwip-js": "^4.6.0",
     "canvas": "^2.11.2",
     "fabric": "^6.7.0",

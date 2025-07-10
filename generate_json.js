@@ -2,7 +2,8 @@ import fs from 'fs/promises';
 import path from 'path';
 import { createCanvas } from 'canvas';
 import JsBarcode from 'jsbarcode';
-import bwipjs from 'bwip-js'
+import bwipjs from 'bwip-js';
+import axios from 'axios';
 
 const templatePath = 'C:\\Program Files\\OSPanel\\domains\\fabric\\public\\template\\test_canvas_1.json';
 const testDataPath = 'C:\\Program Files\\OSPanel\\domains\\fabric\\public\\test\\test.json';
@@ -32,15 +33,15 @@ function updateBarcode(obj, value) {
 }
 
 async function updateDatamatix(obj, value) {
-    const pngBuffer = await bwipjs.toBuffer({
-        bcid: 'datamatrix',
-        text: value,
-        scale: 5,
-        includetext: false,
-        gs1: true,
-    });
-    const pngBase64 = pngBuffer.toString('base64');
-    obj.src = `data:image/png;base64,${pngBase64}`;
+    const postData = { codes: [value] };
+
+    try {
+        const response = await axios.post('http://127.0.0.1:8000/api/get-svg', postData);
+        const svgBase64 = response.data.data[0];
+        obj.src = `data:image/svg+xml;base64,${svgBase64}`;
+    } catch (error) {
+        console.error('Ошибка запроса:', error);
+    }
 }
 
 async function process() {

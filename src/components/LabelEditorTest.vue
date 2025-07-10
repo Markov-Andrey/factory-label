@@ -12,7 +12,7 @@
             <input type="file" ref="fileInput" class="hidden" @change="handleLoadFile" accept=".json" />
             <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Текст</BaseButton>
             <BaseButton @click="addRect(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Рамка</BaseButton>
-            <BaseButton @click="addSVG(this.canvas, '/assets/datamatrix.png');" color="bg-green-600" icon="PlusCircleIcon">Datamatrix</BaseButton>
+            <BaseButton @click="addSVG(this.canvas, '/assets/datamatrix.svg');" color="bg-green-600" icon="PlusCircleIcon">Datamatrix</BaseButton>
             <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PlusCircleIcon">Изображение</BaseButton>
             <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
             <SelectGalleryIcons button-text="Иконка" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите иконку" :icons="fabricIconsSpecial()" @icon-selected="icon => addSVG(this.canvas, icon.path)" />
