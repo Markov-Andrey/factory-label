@@ -56,6 +56,19 @@
                   {{ JSON.stringify(selectedObject, null, 2) }}
                 </pre>
             </div>
+            <!-- Карта ключей -->
+            <div v-if="canvasMeta().length" class="relative p-4 bg-gray-100 rounded-md font-mono text-sm text-gray-800 select-text whitespace-pre-wrap">
+                <div class="absolute top-2 right-2">
+                    <BaseButton @click="copyToClipboard" color="bg-green-600" icon="ClipboardDocumentIcon" tooltip="Копировать в буфер обмена" />
+                </div>
+                <h3 class="mb-2 font-semibold text-gray-900">Карта ключей:</h3>
+                <div>{</div>
+                <div v-for="(item, index) in canvasMeta()" :key="index" class="pl-4">
+                    "<span class="text-blue-700">{{ item.id }}</span>": "",<span class="text-gray-400"> // {{ item.meta }}</span>
+                </div>
+                <div>}</div>
+            </div>
+
         </div>
     </div>
 </template>
@@ -65,16 +78,7 @@ import * as fabric from 'fabric';
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import {
-    addText,
-    addImage,
-    setTextAlign,
-    toggleBold,
-    toggleItalic,
-    updateFontSize,
-    updateLineHeight,
-    onColorChange,
-    setTextFont,
-    addRect,
+    addText, addImage, addRect, toggleBold, toggleItalic, updateFontSize, updateLineHeight, setTextAlign, onColorChange, setTextFont,
 } from '@/utils/fabricHelpers.js';
 import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
 import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
@@ -149,6 +153,7 @@ export default {
         undo, redo, onColorChange,
 
         onSelectionChanged() {
+            this.canvasMeta();
             const active = this.canvas.getActiveObject();
             this.selectedObject = active || null;
             this.selectedObjectId = active?.id || '';
@@ -161,11 +166,27 @@ export default {
                 this.fontFamily = active.fontFamily;
             }
         },
-
+        canvasMeta() {
+            if (!this.canvas) return [];
+            const json = this.canvas.toJSON();
+            if (!json.objects) return [];
+            return json.objects
+                .filter(obj => obj.meta !== undefined && obj.id && obj.id.trim() !== '')
+                .map(obj => ({
+                    meta: obj.meta,
+                    id: obj.id || '',
+                }));
+        },
+        copyToClipboard() {
+            const obj = {};
+            this.canvasMeta().forEach(item => {
+                obj[item.id || ''] = '';
+            });
+            const jsonString = JSON.stringify(obj, null, 2);
+            navigator.clipboard.writeText(jsonString);
+        },
         updateSelectedObjectId() {
-            if (this.selectedObject) {
-                this.selectedObject.set('id', this.selectedObjectId);
-            }
+            if (this.selectedObject) this.selectedObject.set('id', this.selectedObjectId);
         },
 
         mmToPx(mm) { return mm * this.zoom; },
