@@ -12,11 +12,10 @@
             <input type="file" ref="fileInput" class="hidden" @change="handleLoadFile" accept=".json" />
             <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Текст</BaseButton>
             <BaseButton @click="addRect(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Рамка</BaseButton>
-            <BaseButton @click="addSVG(this.canvas, '/assets/datamatrix.svg');" color="bg-green-600" icon="PlusCircleIcon">Datamatrix</BaseButton>
             <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PlusCircleIcon">Изображение</BaseButton>
             <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
-            <SelectGalleryIcons button-text="Иконка" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите иконку" :icons="fabricIconsSpecial()" @icon-selected="icon => addSVG(this.canvas, icon.path)" />
-            <SelectGalleryIcons button-text="Баркод" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите баркод" :icons="fabricIconsBarcodes()" @icon-selected="icon => addSVG(this.canvas, icon.path)" />
+            <SelectGalleryIcons button-text="Иконка" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите иконку" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta)" />
+            <SelectGalleryIcons button-text="Код" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите баркод" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta)" />
         </div>
 
         <div class="flex gap-2">
@@ -67,7 +66,7 @@ import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import {
     addText,
-    addSVG,
+    addImage,
     setTextAlign,
     toggleBold,
     toggleItalic,
@@ -144,7 +143,7 @@ export default {
         this.unregister();
     },
     methods: {
-        setTextFont, addText, addRect, addSVG, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
+        setTextFont, addText, addRect, addImage, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
         saveCanvas, loadCanvas, registerKeyboardShortcuts,
         fabricIconsSpecial, fabricIconsBarcodes,
         undo, redo, onColorChange,

@@ -1,15 +1,17 @@
 [
   {
+    "qr": "test1",
     "art": "123",
-    "barcode": "123",
+    "barcode": "978020137962",
     "date": "01.01.2027",
     "datamatrix": "0100194502876031213RhOJV25E&rmk\u001D91KZF0\u001D92uLM7CO5MBKijWebalThibHT0C8o=uLM7CO5MBKijWebalThibHT0C8o=uLM7CO5MBKijWebalThibHT0C8oM7",
     "title": "Текстовочка 1",
     "description": "Прорылоарылвра ловыр аловрыалорф лаорфолыв ралофрывалорывлофар ыфащшфыр"
   },
   {
+    "qr": "test2",
     "art": "241",
-    "barcode": "241",
+    "barcode": "978020137962",
     "date": "12.12.2029",
     "datamatrix": "0100194502876031213RhOJV25E&rmk\u001D91KZF0\u001D92uLM7CO5MBKijWebalThibHT0C8o=uLM7CO5MBKijWebalThibHT0C8o=uLM7CO5MBKijWebalThibHT0C8oM711",
     "title": "Текстовочка 2",

@@ -2,10 +2,10 @@ import fs from 'fs/promises';
 import path from 'path';
 import { createCanvas } from 'canvas';
 import JsBarcode from 'jsbarcode';
-import bwipjs from 'bwip-js';
+import QRCode from 'qrcode';
 import axios from 'axios';
 
-const templatePath = 'C:\\Program Files\\OSPanel\\domains\\fabric\\public\\template\\test_canvas_1.json';
+const templatePath = 'C:\\Program Files\\OSPanel\\domains\\fabric\\public\\template\\test_canvas_2.json';
 const testDataPath = 'C:\\Program Files\\OSPanel\\domains\\fabric\\public\\test\\test.json';
 const outputDir = 'C:\\Program Files\\OSPanel\\domains\\fabric\\public\\input\\';
 
@@ -44,6 +44,18 @@ async function updateDatamatix(obj, value) {
     }
 }
 
+async function updateQr(obj, value) {
+    const canvas = createCanvas(100, 100);
+    await QRCode.toCanvas(canvas, value, {
+        type: 'svg',
+        margin: 1,
+        version: 7,
+        width: 100,
+        errorCorrectionLevel: 'H',
+    });
+    obj.src = canvas.toDataURL();
+}
+
 async function process() {
     const template = await loadJson(templatePath);
     const testData = await loadJson(testDataPath);
@@ -54,17 +66,18 @@ async function process() {
 
         for (const obj of newObj.objects) {
             const key = obj.id;
-            if (key && key in dataItem) {
-                const val = dataItem[key];
-                if (obj.type === 'Textbox') {
-                    updateTextbox(obj, val);
-                } else if (obj.type === 'Image') {
-                    if (key === 'barcode') {
-                        updateBarcode(obj, val);
-                    } else if (key === 'datamatrix') {
-                        await updateDatamatix(obj, val);
-                    }
-                }
+            const meta = obj.meta;
+
+            if (!key || !(key in dataItem)) continue;
+
+            const val = dataItem[key];
+
+            switch (meta) {
+                case 'text': updateTextbox(obj, val); break;
+                case 'qr': await updateQr(obj, val); break;
+                case 'barcode': updateBarcode(obj, val); break;
+                case 'datamatrix': await updateDatamatix(obj, val); break;
+                default: break;
             }
         }
 

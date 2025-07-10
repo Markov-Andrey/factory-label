@@ -16,6 +16,7 @@ export function addText(canvas, options = {}) {
         fill: '#000000',
         backgroundColor: '',
         id: '',
+        meta: 'text',
         ...options,
     });
 
@@ -44,6 +45,7 @@ export function addRect(canvas, options = {}) {
         rx: 2,
         ry: 2,
         id: '',
+        meta: 'rect',
         ...options,
     });
 
@@ -55,23 +57,24 @@ export function addRect(canvas, options = {}) {
 }
 
 /**
- * Асинхронно загружает SVG-изображение по URL, создаёт объект fabric.Image и добавляет его на canvas.
+ * Асинхронно загружает Изображение по URL, создаёт объект fabric.Image и добавляет его на canvas.
  * @param {fabric.Canvas} canvas - Экземпляр fabric.Canvas, на который добавляется изображение.
- * @param {string} svgUrl - URL файла SVG (относительный или абсолютный путь).
+ * @param {string} imageUrl - URL файла (относительный или абсолютный путь).
+ * @param {string} meta - ключ к типу вставляемого изображения.
  * @returns {Promise<fabric.Image>} Промис, который разрешается после добавления изображения на canvas с объектом fabric.Image.
  * @throws {Error} В случае ошибки загрузки изображения промис будет отклонён.
  */
-export function addSVG(canvas, svgUrl) {
+export function addImage(canvas, imageUrl, meta = '') {
     return new Promise((res, rej) => {
         const img = new Image();
         img.crossOrigin = 'anonymous'; // на случай CORS
         img.onload = () => {
-            canvas.add(new fabric.Image(img, { left: 150, top: 150 }));
+            canvas.add(new fabric.Image(img, { left: 150, top: 150, meta: meta }));
             canvas.requestRenderAll();
             res();
         };
         img.onerror = rej;
-        img.src = svgUrl;
+        img.src = imageUrl;
     });
 }
 
