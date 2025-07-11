@@ -64,7 +64,7 @@
                 <h3 class="mb-2 font-semibold text-gray-900">Карта ключей:</h3>
                 <div>{</div>
                 <div v-for="(item, index) in canvasMeta()" :key="index" class="pl-4">
-                    "<span class="text-blue-700">{{ item.id }}</span>": "",<span class="text-gray-400"> // {{ item.meta }}</span>
+                    "<span class="text-blue-700">{{ item.id }}</span>": "<span class="text-gray-600">{{ item.meta }}</span>",
                 </div>
                 <div>}</div>
             </div>
@@ -178,12 +178,9 @@ export default {
                 }));
         },
         copyToClipboard() {
-            const obj = {};
-            this.canvasMeta().forEach(item => {
-                obj[item.id || ''] = '';
-            });
-            const jsonString = JSON.stringify(obj, null, 2);
-            navigator.clipboard.writeText(jsonString);
+            navigator.clipboard.writeText(JSON.stringify(
+                Object.fromEntries(this.canvasMeta().map(item => [item.id || '', item.meta || ''])), null, 2
+            ));
         },
         updateSelectedObjectId() {
             if (this.selectedObject) this.selectedObject.set('id', this.selectedObjectId);
