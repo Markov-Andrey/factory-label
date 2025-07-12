@@ -1,10 +1,11 @@
 <script setup>
-import LabelEditorTest from "@/components/LabelEditorTest.vue";
-
 </script>
 
 <template>
-  <LabelEditorTest/>
+  <nav class="flex">
+      <router-link to="/">Home</router-link>
+  </nav>
+  <router-view />
 </template>
 
 <style scoped>
