@@ -1,29 +1,30 @@
-# .
+Импорт таблицы:
+CREATE SEQUENCE LABELER_TEMPLATES_SEQ START WITH 1 INCREMENT BY 1 NOCACHE;
 
-This template should help get you started developing with Vue 3 in Vite.
+CREATE TABLE LABELER_TEMPLATES (
+ID NUMBER PRIMARY KEY,
+NAME VARCHAR2(255) NOT NULL,
+PREVIEW_PATH VARCHAR2(512),
+TAGS VARCHAR2(1000),
+TEMPLATE CLOB,
+CREATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL,
+UPDATED_AT TIMESTAMP DEFAULT SYSTIMESTAMP NOT NULL
+);
 
-## Recommended IDE Setup
-
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
-
-### Compile and Minify for Production
-
-```sh
-npm run build
-```
+CREATE OR REPLACE TRIGGER LABELER_TEMPLATES_TRIGGER
+BEFORE INSERT OR UPDATE ON LABELER_TEMPLATES
+FOR EACH ROW
+BEGIN
+IF INSERTING THEN
+IF :NEW.ID IS NULL THEN
+SELECT LABELER_TEMPLATES_SEQ.NEXTVAL INTO :NEW.ID FROM DUAL;
+END IF;
+IF :NEW.CREATED_AT IS NULL THEN
+:NEW.CREATED_AT := SYSTIMESTAMP;
+END IF;
+:NEW.UPDATED_AT := SYSTIMESTAMP;
+ELSIF UPDATING THEN
+:NEW.UPDATED_AT := SYSTIMESTAMP;
+END IF;
+END;
+/

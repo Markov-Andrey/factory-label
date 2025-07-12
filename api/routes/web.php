@@ -1,18 +1,25 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
-*/
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\App;
 
 Route::get('/', function () {
-    return view('welcome');
+    $dbStatus = 'not connected';
+
+    try {
+        DB::connection()->getPdo();
+        $dbStatus = 'connected';
+    } catch (\Throwable $e) {
+        $dbStatus = 'error: ' . $e->getMessage();
+    }
+
+    return response()->json([
+        'status' => 'OK',
+        'message' => 'Laravel server is running',
+        'app_env' => App::environment(),
+        'laravel_version' => app()->version(),
+        'db_connection' => config('database.default'),
+        'db_status' => $dbStatus,
+    ]);
 });

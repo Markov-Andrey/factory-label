@@ -43,6 +43,18 @@ return [
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
         ],
 
+        'oracle' => [
+            'driver' => env('DB_CONNECTION','oracle'),
+            'host' => env('DB_HOST','192.168.241.10'),
+            'port' =>  env('DB_PORT','1521'),
+            'database' =>  env('DB_DATABASE',''),
+            'service_name' =>   env('DB_TNS',''),
+            'username' =>  env('DB_USERNAME', ''),
+            'password' =>  env('DB_PASSWORD',''),
+            'charset' => 'UTF8',
+            'prefix' => '',
+        ],
+
         'mysql' => [
             'driver' => 'mysql',
             'url' => env('DATABASE_URL'),
