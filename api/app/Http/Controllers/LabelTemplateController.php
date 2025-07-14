@@ -39,4 +39,10 @@ class LabelTemplateController extends Controller
         TemplateService::delete($id);
         return response()->json(null, 204);
     }
+
+    public function duplicate(Request $request)
+    {
+        $id = TemplateService::duplicate($request->all());
+        return response()->json(['id' => $id], 201);
+    }
 }

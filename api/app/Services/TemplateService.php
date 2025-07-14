@@ -2,6 +2,7 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TemplateService
 {
@@ -30,7 +31,23 @@ class TemplateService
     {
         return DB::table('LABELER_TEMPLATES')->where('ID', $id)->first();
     }
+    public static function duplicate(array $data)
+    {
+        $template = DB::table('LABELER_TEMPLATES')->where('ID', $data['id'])->first();
+        if (!$template) {
+            throw new \Exception("Template not found");
+        }
+        $nextId = DB::selectOne('SELECT LABELER_TEMPLATES_SEQ.NEXTVAL as id FROM dual')->id;
+        $newData = [
+            'ID' => $nextId,
+            'NAME' => $data['name'],
+            'TAGS' => $data['tags'],
+            'TEMPLATE' => $template->template,
+        ];
+        DB::table('LABELER_TEMPLATES')->insert($newData);
 
+        return $nextId;
+    }
     public static function create(array $data)
     {
         return DB::table('LABELER_TEMPLATES')->insertGetId([
@@ -48,11 +65,12 @@ class TemplateService
             'tags'         => 'TAGS',
         ];
 
-        // Если есть base64-картинка, вызовем метод сервиса, который сохранит файл и вернет путь
-        if (!empty($data['preview_png'])) {
-            $data['preview_path'] = \App\Services\ThumbnailService::savePreviewImage($id, $data['preview_png']);
-            unset($data['preview_png']);
+
+        $template = DB::table('LABELER_TEMPLATES')->where('ID', $id)->first();
+        if ($template && !empty($template->preview_path)) {
+            ThumbnailService::delete($template->preview_path);
         }
+        $data['preview_path'] = ThumbnailService::savePreviewImage($id, $data['preview_png']);
 
         $updateData = collect($fieldsMap)
             ->filter(fn($dbField, $key) => array_key_exists($key, $data))
@@ -66,6 +84,9 @@ class TemplateService
 
     public static function delete(int $id)
     {
+        $template = DB::table('LABELER_TEMPLATES')->where('ID', $id)->first();
+        if (!$template) return;
+        if ($template->preview_path) ThumbnailService::delete($template->preview_path);
         DB::table('LABELER_TEMPLATES')->where('ID', $id)->delete();
     }
 }

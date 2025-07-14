@@ -13,6 +13,7 @@ Route::prefix('templates')->controller(LabelTemplateController::class)->group(fu
     Route::post('/store', 'store'); // создать пустой
     Route::patch('{id}', 'update');
     Route::delete('{id}', 'destroy');
+    Route::post('duplicate', 'duplicate'); // копия
 });
 Route::post('/generate-preview', [PreviewController::class, 'preview']); // предпросмотр 1 элемента
 Route::post('/upload-data', [PreviewController::class, 'upload']); // получить весь архив

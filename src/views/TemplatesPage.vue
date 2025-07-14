@@ -17,47 +17,36 @@
                 :key="tpl.id"
                 :template="tpl"
                 :apiBaseUrl="api"
+                @duplicate="handleDuplicate"
+                @edit="handleEdit"
+                @delete="handleDelete"
             />
         </div>
 
-        <PaginationControls
-            :currentPage="page"
-            :totalPages="pages"
-            @page-change="go"
-        />
+        <PaginationControls :currentPage="page" :totalPages="pages" @page-change="go" />
 
-        <div
-            v-if="modal"
-            class="fixed inset-0 flex items-center justify-center bg-opacity-30 backdrop-blur-sm"
-        >
+        <!-- Модалка создания -->
+        <div v-if="modal" class="fixed inset-0 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
             <div class="bg-white p-6 rounded shadow-md w-96">
                 <h2 class="text-xl mb-4">Создать новый шаблон</h2>
-                <input
-                    v-model="name"
-                    type="text"
-                    placeholder="Название"
-                    class="w-full mb-4 border border-gray-300 rounded px-3 py-2"
-                />
-                <input
-                    v-model="tags"
-                    type="text"
-                    placeholder="Теги"
-                    class="w-full mb-4 border border-gray-300 rounded px-3 py-2"
-                />
+                <BaseInput v-model="name" type="text" label="Название" class="w-full" />
+                <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
                 <div class="flex justify-end space-x-2">
-                    <button
-                        @click="modal = false"
-                        class="px-4 py-2 border rounded hover:bg-gray-100"
-                    >
-                        Отмена
-                    </button>
-                    <button
-                        @click="create"
-                        :disabled="!name.trim() || loading"
-                        class="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-                    >
-                        Создать
-                    </button>
+                    <BaseButton @click="modal = false" color="bg-gray-500">Отмена</BaseButton>
+                    <BaseButton @click="create" :disabled="!name.trim() || loading" color="bg-blue-600">Создать</BaseButton>
+                </div>
+            </div>
+        </div>
+
+        <!-- Модалка дублирования -->
+        <div v-if="duplicateModal" class="fixed inset-0 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
+            <div class="bg-white p-6 rounded shadow-md w-96">
+                <h2 class="text-xl mb-4">Дублировать шаблон</h2>
+                <BaseInput v-model="name" type="text" label="Название" class="w-full" />
+                <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
+                <div class="flex justify-end space-x-2">
+                    <BaseButton @click="duplicateModal = false" color="bg-gray-500">Отмена</BaseButton>
+                    <BaseButton @click="duplicateCreate" :disabled="!name.trim() || loading" color="bg-blue-600">Создать копию</BaseButton>
                 </div>
             </div>
         </div>
@@ -68,11 +57,12 @@
 import TemplateCard from '../components/TemplateCard.vue';
 import PaginationControls from '../components/PaginationControls.vue';
 import axios from 'axios';
-import LabelEditor from "@/views/LabelEditor.vue";
+import BaseInput from "@/components/base/BaseInput.vue";
+import BaseButton from "@/components/base/BaseButton.vue";
 
 export default {
     name: 'TemplatesPage',
-    components: { TemplateCard, PaginationControls },
+    components: {BaseButton, BaseInput, TemplateCard, PaginationControls },
     data() {
         return {
             list: [],
@@ -81,6 +71,8 @@ export default {
             perPage: 20,
             api: import.meta.env.VITE_API_BASE_URL,
             modal: false,
+            duplicateModal: false,
+            duplicateId: null,
             name: '',
             tags: '',
             loading: false,
@@ -113,6 +105,43 @@ export default {
                 this.tags = '';
                 this.$router.push({ name: 'LabelEditor', params: { id: data.id } });
             } catch {} finally {
+                this.loading = false;
+            }
+        },
+        async handleDuplicate(template) {
+            this.template = template.name;
+            this.tags = template.tags;
+            this.duplicateId = template.id;
+            this.duplicateModal = true;
+        },
+        handleEdit(template) {
+            this.$router.push({ name: 'LabelEditor', params: { id: template.id } });
+        },
+        async handleDelete(template) {
+            if (!confirm(`Удалить шаблон "${template.name}"?`)) return;
+            try {
+                await axios.delete(`${this.api}/api/templates/${template.id}`);
+                await this.fetch(this.page);
+            } catch (error) {
+                console.error('Ошибка при удалении шаблона:', error);
+            }
+        },
+        async duplicateCreate() {
+            if (!this.name.trim()) return;
+            this.loading = true;
+            try {
+                const { data } = await axios.post(`${this.api}/api/templates/duplicate`, {
+                    name: this.name.trim(),
+                    tags: this.tags.trim(),
+                    id: this.duplicateId,
+                });
+                this.duplicateModal = false;
+                this.name = '';
+                this.tags = '';
+                this.$router.push({ name: 'LabelEditor', params: { id: data.id } });
+            } catch (e) {
+                console.error('Ошибка при дублировании:', e);
+            } finally {
                 this.loading = false;
             }
         },
