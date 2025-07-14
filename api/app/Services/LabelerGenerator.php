@@ -13,86 +13,35 @@ class LabelerGenerator
 {
     public function preview(array $data)
     {
-        $template = DB::table('LABELER_TEMPLATES')->where('id', $data['template_id'])->value('template');
-        $templateArr = json_decode($template, true);
+        $templateArr = $this->getTemplateArray($data['template_id']);
+        $this->fillTemplateObjects($templateArr['objects'], $data['data']);
 
-        if (!isset($templateArr['objects'])) {
-            throw new \Exception('Template objects not found');
-        }
-
-        foreach ($templateArr['objects'] as &$obj) {
-            $key = $obj['id'] ?? null;
-            $meta = $obj['meta'] ?? null;
-            $meta_type = $obj['meta_type'] ?? null;
-
-            if (!$key || !array_key_exists($key, $data['data'])) continue;
-
-            $val = $data['data'][$key];
-
-            if ($meta === 'datamatrix') {
-                $obj['src'] = $this->getDatamatrixSvgBase64($val);
-            } elseif ($meta === 'barcode') {
-                $obj['src'] = $this->generateBarcode($val, $meta_type);
-            } elseif ($meta === 'qr') {
-                $obj['src'] = $this->generateQr($val);
-            } elseif ($meta === 'text') {
-                $obj['text'] = $val;
-            }
-        }
-
-        $directory = storage_path('app/public/previews');
+        $directory = storage_path('app/public/tmp');
         if (!is_dir($directory)) mkdir($directory, 0755, true);
 
         $filePath = $directory . DIRECTORY_SEPARATOR . 'tmp.json';
         file_put_contents($filePath, json_encode($templateArr, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
         $nodeOutput = trim(NodeService::runNodeScript($filePath));
-
         unlink($filePath);
 
-        return url('storage/previews/' . $nodeOutput);
+        return url('storage/tmp/' . $nodeOutput);
     }
+
     public function upload(array $data)
     {
-        $template = DB::table('LABELER_TEMPLATES')->where('id', $data['template_id'])->value('template');
-        $templateArr = json_decode($template, true);
-
-        if (!isset($templateArr['objects'])) {
-            throw new \Exception('Template objects not found');
-        }
-
+        $templateArr = $this->getTemplateArray($data['template_id']);
         $uploadDir = storage_path('app/public/uploads');
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
-        $tempJsonPaths = [];
         $resultFiles = [];
 
         foreach ($data['data'] as $index => $item) {
             $tempCopy = $templateArr;
-
-            foreach ($tempCopy['objects'] as &$obj) {
-                $key = $obj['id'] ?? null;
-                $meta = $obj['meta'] ?? null;
-                $meta_type = $obj['meta_type'] ?? null;
-
-                if (!$key || !array_key_exists($key, $item)) continue;
-
-                $val = $item[$key];
-
-                if ($meta === 'datamatrix') {
-                    $obj['src'] = $this->getDatamatrixSvgBase64($val);
-                } elseif ($meta === 'barcode') {
-                    $obj['src'] = $this->generateBarcode($val, $meta_type);
-                } elseif ($meta === 'qr') {
-                    $obj['src'] = $this->generateQr($val);
-                } elseif ($meta === 'text') {
-                    $obj['text'] = $val;
-                }
-            }
+            $this->fillTemplateObjects($tempCopy['objects'], $item);
 
             $jsonFilePath = $uploadDir . DIRECTORY_SEPARATOR . 'upload_' . time() . "_{$index}.json";
             file_put_contents($jsonFilePath, json_encode($tempCopy, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-            $tempJsonPaths[] = $jsonFilePath;
 
             $nodeOutput = trim(NodeService::runNodeScript($jsonFilePath));
             $resultFiles[] = $uploadDir . DIRECTORY_SEPARATOR . $nodeOutput;
@@ -100,11 +49,10 @@ class LabelerGenerator
             unlink($jsonFilePath);
         }
 
-        // Создаем архив с результатами
-        $zip = new ZipArchive();
         $zipName = 'upload_results_' . time() . '.zip';
         $zipPath = $uploadDir . DIRECTORY_SEPARATOR . $zipName;
 
+        $zip = new ZipArchive();
         if ($zip->open($zipPath, ZipArchive::CREATE) !== true) {
             throw new \Exception('Не удалось создать архив');
         }
@@ -117,12 +65,43 @@ class LabelerGenerator
 
         $zip->close();
 
-        // Опционально: удалить исходные результаты, если не нужны
         foreach ($resultFiles as $file) {
             if (file_exists($file)) unlink($file);
         }
 
         return url('storage/uploads/' . $zipName);
+    }
+
+    private function getTemplateArray(int $templateId): array
+    {
+        $template = DB::table('LABELER_TEMPLATES')->where('id', $templateId)->value('template');
+        $templateArr = json_decode($template, true);
+
+        if (!isset($templateArr['objects'])) {
+            throw new \Exception('Template objects not found');
+        }
+
+        return $templateArr;
+    }
+
+    private function fillTemplateObjects(array &$objects, array $data): void
+    {
+        foreach ($objects as &$obj) {
+            $key = $obj['id'] ?? null;
+            $meta = $obj['meta'] ?? null;
+            $meta_type = $obj['meta_type'] ?? null;
+
+            if (!$key || !array_key_exists($key, $data)) continue;
+
+            $val = $data[$key];
+
+            switch ($meta) {
+                case 'datamatrix': $obj['src'] = $this->getDatamatrixSvgBase64($val); break;
+                case 'barcode':    $obj['src'] = $this->generateBarcode($val, $meta_type); break;
+                case 'qr':         $obj['src'] = $this->generateQr($val); break;
+                case 'text':       $obj['text'] = $val; break;
+            }
+        }
     }
 
     protected function getDatamatrixSvgBase64(string $value): string

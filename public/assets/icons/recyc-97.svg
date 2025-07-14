@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
-    <text x="38" y="55" font-family="Nimbus Sans L" font-weight="bold" font-size="22" fill="#000">97</text>
+    <text x="38" y="55" font-family="Times New Roman" font-weight="bold" font-size="22" fill="#000">97</text>
     <path fill="none" stroke="#000" stroke-width="7" d="m32 32 13-22c0 0 5-5 10-1l12 21m5 9 12 23c0 0 2 7-4 9l-25 0m-10 0-26-1c0 0-7-2-5-8l11-21"/>
     <path d="m46 70 15-9v18zm-29-30 15-8v18zm40-10 15-8v17z" fill="#000"/>
 </svg>
