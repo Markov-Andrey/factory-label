@@ -7,43 +7,36 @@ use Illuminate\Http\Request;
 
 class LabelTemplateController extends Controller
 {
-    protected TemplateService $templates;
-
-    public function __construct(TemplateService $templates)
-    {
-        $this->templates = $templates;
-    }
-
     public function index()
     {
-        return response()->json($this->templates->all());
+        return response()->json(TemplateService::all());
     }
 
     public function tags()
     {
-        return response()->json($this->templates->tags());
+        return response()->json(TemplateService::tags());
     }
 
     public function show($id)
     {
-        return response()->json($this->templates->find($id));
+        return response()->json(TemplateService::find($id));
     }
 
     public function store(Request $request)
     {
-        $id = $this->templates->create($request->all());
+        $id = TemplateService::create($request->all());
         return response()->json(['id' => $id], 201);
     }
 
     public function update(Request $request, $id)
     {
-        $this->templates->update($id, $request->all());
+        TemplateService::update($id, $request->all());
         return response()->json(null, 204);
     }
 
     public function destroy($id)
     {
-        $this->templates->delete($id);
+        TemplateService::delete($id);
         return response()->json(null, 204);
     }
 }

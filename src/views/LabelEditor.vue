@@ -1,15 +1,16 @@
 <template>
     <div class="space-y-2 p-4">
         <div class="flex gap-2">
-            <BaseInput type="text" label="Наименование:" class="w-32" />
+            <div class="grid">
+                <div>Наименование:</div>
+                <div>{{ name }}</div>
+            </div>
             <BaseInput v-model="widthMM" type="number" label="Ширина (мм):" class="w-32" />
             <BaseInput v-model="heightMM" type="number" label="Высота (мм):" class="w-32" />
         </div>
 
         <div class="flex gap-2">
             <BaseButton @click="saveCanvas(this.canvas, widthMM, heightMM)" color="bg-yellow-500" icon="DocumentArrowUpIcon">Сохранить</BaseButton>
-            <BaseButton @click="() => $refs.fileInput.click()" color="bg-gray-500" icon="DocumentArrowDownIcon">Загрузить</BaseButton>
-            <input type="file" ref="fileInput" class="hidden" @change="handleLoadFile" accept=".json" />
             <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Текст</BaseButton>
             <BaseButton @click="addRect(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Рамка</BaseButton>
             <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PlusCircleIcon">Изображение</BaseButton>
@@ -75,6 +76,7 @@
 
 <script>
 import * as fabric from 'fabric';
+import axios from "axios";
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import {
@@ -93,6 +95,8 @@ export default {
     components: {SelectGalleryIcons, BaseSelect, BaseColorPicker, BaseButton, BaseInput },
     data() {
         return {
+            apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
+            name: '',
             zoom: 4,
             widthMM: 150,
             heightMM: 100,
@@ -142,6 +146,7 @@ export default {
             this.selectedObject = null;
             this.selectedObjectId = '';
         });
+        this.handleLoadTemplate(this.$route.params.id);
     },
     beforeDestroy() {
         this.unregister();
@@ -213,20 +218,25 @@ export default {
             event.target.value = null;
         },
 
-        async handleLoadFile(e) {
-            const file = e.target.files?.[0];
-            if (!file) return;
-            const { widthPx, heightPx } = await loadCanvas(
-                this.canvas,
-                file,
-                this.$refs.canvas,
-                this.mmToPx
-            );
-
-            this.widthMM = widthPx / this.zoom;
-            this.heightMM = heightPx / this.zoom;
-
-            e.target.value = null;
+        async handleLoadTemplate(id) {
+            try {
+                const { data } = await axios.get(`${this.apiBaseUrl}/api/templates/${id}`);
+                this.name = data.name || '';
+                if (!data || !data.template) {
+                    return;
+                }
+                const templateJson = JSON.parse(data.template);
+                const { widthPx, heightPx } = await loadCanvas(
+                    this.canvas,
+                    templateJson,
+                    this.$refs.canvas,
+                    this.mmToPx
+                );
+                this.widthMM = widthPx / this.zoom;
+                this.heightMM = heightPx / this.zoom;
+            } catch (error) {
+                console.error('Ошибка при загрузке шаблона:', error);
+            }
         },
         canUpd() {
             this.canUndo = canUndo();

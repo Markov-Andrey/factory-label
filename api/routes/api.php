@@ -10,7 +10,7 @@ Route::prefix('templates')->controller(LabelTemplateController::class)->group(fu
     Route::get('/', 'index'); // пагинация
     Route::get('/tags', 'tags');
     Route::get('{id}', 'show');
-    Route::post('/', 'store');
+    Route::post('/store', 'store'); // создать пустой
     Route::put('{id}', 'update');
     Route::delete('{id}', 'destroy');
 });

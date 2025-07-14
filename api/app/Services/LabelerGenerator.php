@@ -74,7 +74,7 @@ class LabelerGenerator
 
     private function getTemplateArray(int $templateId): array
     {
-        $template = DB::table('LABELER_TEMPLATES')->where('id', $templateId)->value('template');
+        $template = TemplateService::find($templateId);
         $templateArr = json_decode($template, true);
 
         if (!isset($templateArr['objects'])) {

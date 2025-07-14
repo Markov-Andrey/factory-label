@@ -5,8 +5,8 @@ import TemplatesView from '../views/TemplatesPage.vue';
 import TemplateSinglePage from '../views/TemplateSinglePage.vue';
 
 const routes = [
-    { path: '/', name: 'LabelEditor', component: LabelEditor },
-    { path: '/templates', name: 'TemplatesView', component: TemplatesView },
+    { path: '/editor/:id', name: 'LabelEditor', component: LabelEditor },
+    { path: '/', name: 'TemplatesView', component: TemplatesView },
     { path: '/templates/:id', name: 'TemplateSinglePage', component: TemplateSinglePage },
 ];
 
