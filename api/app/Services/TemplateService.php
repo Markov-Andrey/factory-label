@@ -41,24 +41,32 @@ class TemplateService
 
     public static function update(int $id, array $data)
     {
-        $old = self::find($id);
-        DB::table('LABELER_TEMPLATES')
-            ->where('ID', $id)
-            ->update([
-                'NAME'         => $data['name'],
-                'TEMPLATE'     => $data['template'],
-                'PREVIEW_PATH' => $data['preview_path'],
-                'TAGS'         => $data['tags'],
-            ]);
+        $fieldsMap = [
+            'name'         => 'NAME',
+            'template'     => 'TEMPLATE',
+            'preview_path' => 'PREVIEW_PATH',
+            'tags'         => 'TAGS',
+        ];
 
-        ThumbnailService::update($old->PREVIEW_PATH, $data['preview_path']);
+        // Если есть base64-картинка, вызовем метод сервиса, который сохранит файл и вернет путь
+        if (!empty($data['preview_png'])) {
+            $data['preview_path'] = \App\Services\ThumbnailService::savePreviewImage($id, $data['preview_png']);
+            unset($data['preview_png']);
+        }
+
+        $updateData = collect($fieldsMap)
+            ->filter(fn($dbField, $key) => array_key_exists($key, $data))
+            ->mapWithKeys(fn($dbField, $key) => [$dbField => $data[$key]])
+            ->toArray();
+
+        if ($updateData) {
+            DB::table('LABELER_TEMPLATES')->where('ID', $id)->update($updateData);
+        }
     }
 
     public static function delete(int $id)
     {
-        $old = self::find($id);
         DB::table('LABELER_TEMPLATES')->where('ID', $id)->delete();
-        ThumbnailService::delete($old->PREVIEW_PATH);
     }
 }
 

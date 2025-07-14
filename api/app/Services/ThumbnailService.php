@@ -6,28 +6,22 @@ use Illuminate\Support\Facades\File;
 
 class ThumbnailService
 {
-    public static function generate(string $path): void
+    public static function savePreviewImage(int $id, string $base64png): string
     {
-        // Генерация превью из шаблона или другого источника
-        // Пока просто заглушка:
-        if (!File::exists(public_path($path))) {
-            File::put(public_path($path), ''); // создаёт пустой файл
-        }
-    }
+        $storagePath = storage_path('app/public/previews');
 
-    public static function update(string $oldPath, string $newPath): void
-    {
-        if ($oldPath !== $newPath) {
-            self::delete($oldPath);
-            self::generate($newPath);
+        if (!file_exists($storagePath)) {
+            mkdir($storagePath, 0755, true);
         }
-    }
 
-    public static function delete(string $path): void
-    {
-        $fullPath = public_path($path);
-        if (File::exists($fullPath)) {
-            File::delete($fullPath);
-        }
+        $fileName = 'preview_' . $id . '_' . time() . '.png';
+
+        // Убираем префикс base64
+        $base64 = preg_replace('#^data:image/\w+;base64,#i', '', $base64png);
+        $decoded = base64_decode($base64);
+
+        file_put_contents($storagePath . DIRECTORY_SEPARATOR . $fileName, $decoded);
+
+        return 'storage/previews/' . $fileName;
     }
 }

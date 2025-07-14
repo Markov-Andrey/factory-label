@@ -11,7 +11,7 @@ Route::prefix('templates')->controller(LabelTemplateController::class)->group(fu
     Route::get('/tags', 'tags');
     Route::get('{id}', 'show');
     Route::post('/store', 'store'); // создать пустой
-    Route::put('{id}', 'update');
+    Route::patch('{id}', 'update');
     Route::delete('{id}', 'destroy');
 });
 Route::post('/generate-preview', [PreviewController::class, 'preview']); // предпросмотр 1 элемента

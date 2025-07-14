@@ -1,19 +1,25 @@
-export function saveCanvas(canvas, widthMM, heightMM) {
+import axios from 'axios';
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
+
+export async function saveCanvas(canvas, widthMM, heightMM, id) {
     const json = canvas.toJSON();
     json.custom = {
         widthMM: Number(widthMM),
         heightMM: Number(heightMM),
     };
-
-    const blob = new Blob([JSON.stringify(json, null, 2)], {
-        type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'canvas.json';
-    a.click();
-    URL.revokeObjectURL(url);
+    const pngDataUrl = canvas.toDataURL();
+    try {
+        await axios.patch(`${apiBaseUrl}/api/templates/${id}`, {
+            template: JSON.stringify(json, null, 2),
+            widthMM,
+            heightMM,
+            preview_png: pngDataUrl,
+        });
+        console.log('Шаблон и превью успешно сохранены');
+    } catch (error) {
+        console.error('Ошибка при сохранении шаблона:', error);
+        throw error;
+    }
 }
 
 export async function loadCanvas(canvas, json, canvasEl, mmToPx) {

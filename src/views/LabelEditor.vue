@@ -10,7 +10,7 @@
         </div>
 
         <div class="flex gap-2">
-            <BaseButton @click="saveCanvas(this.canvas, widthMM, heightMM)" color="bg-yellow-500" icon="DocumentArrowUpIcon">Сохранить</BaseButton>
+            <BaseButton @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-yellow-500" icon="DocumentArrowUpIcon">Сохранить</BaseButton>
             <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Текст</BaseButton>
             <BaseButton @click="addRect(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Рамка</BaseButton>
             <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PlusCircleIcon">Изображение</BaseButton>
