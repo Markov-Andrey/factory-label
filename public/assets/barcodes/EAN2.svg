@@ -1,1 +1,13 @@
-<svg width="60px" height="122px" x="0px" y="0px" viewBox="0 0 60 122" xmlns="http://www.w3.org/2000/svg" version="1.1" style="transform: translate(0,0)"><g transform="translate(10, 10)" style="fill:#000000;"><rect x="0" y="0" width="2" height="80"/><rect x="4" y="0" width="4" height="80"/><rect x="12" y="0" width="4" height="80"/><rect x="20" y="0" width="2" height="80"/><rect x="24" y="0" width="2" height="80"/><rect x="30" y="0" width="2" height="80"/><rect x="36" y="0" width="4" height="80"/><text style="font: 20px monospace" text-anchor="middle" x="20" y="102">12</text></g></svg>
+<?xml version="1.0" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg width="40" height="50" version="1.1" xmlns="http://www.w3.org/2000/svg">
+	<g id="bars" fill="black" stroke="none">
+		<rect x="0" y="0" width="2" height="50" />
+		<rect x="4" y="0" width="4" height="50" />
+		<rect x="12" y="0" width="4" height="50" />
+		<rect x="20" y="0" width="2" height="50" />
+		<rect x="24" y="0" width="2" height="50" />
+		<rect x="30" y="0" width="2" height="50" />
+		<rect x="36" y="0" width="4" height="50" />
+	</g>
+</svg>

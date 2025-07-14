@@ -1,6 +1,15 @@
 <template>
     <div class="max-w-6xl mx-auto p-6">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <BaseButton
+            :disabled="!(objectCount > 0 && previewImageUrl)"
+            color="bg-blue-600"
+            icon="PlusCircleIcon"
+            @click="upload"
+        >
+            Обработать все
+        </BaseButton>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
             <div class="border p-4 rounded">
                 <h2 class="text-lg font-semibold mb-2">{{ template?.name || 'Шаблон' }}</h2>
                 <div class="w-full h-64 bg-gray-100 flex items-center justify-center">
@@ -22,6 +31,9 @@
                     @change="handleFileUpload"
                     class="mb-4"
                 />
+                <div v-if="objectCount !== null" class="text-sm text-gray-600 mb-2">
+                    Количество объектов: <strong>{{ objectCount }}</strong>
+                </div>
                 <div v-if="previewImageUrl" class="max-h-full object-contain">
                     <img
                         :src="previewImageUrl"
@@ -39,15 +51,19 @@
 
 <script>
 import axios from 'axios'
+import BaseButton from "@/components/base/BaseButton.vue";
 
 export default {
     name: 'TemplateSinglePage',
+    components: { BaseButton },
     data() {
         return {
             template: null,
             apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
             previewImageUrl: null,
             errorMessage: null,
+            objectCount: null,
+            fullJson: null,
         }
     },
     async mounted() {
@@ -66,13 +82,17 @@ export default {
             reader.onload = async (e) => {
                 try {
                     const json = JSON.parse(e.target.result)
-                    const obj = Array.isArray(json) && json.length ? json[0] : json
+                    this.fullJson = json
+                    const firstObj = Array.isArray(json) && json.length ? json[0] : json
                     this.errorMessage = null
                     this.previewImageUrl = null
-                    await this.sendPreview(obj)
+                    this.objectCount = Array.isArray(json) ? json.length : 0
+                    await this.sendPreview(firstObj)
                 } catch {
                     this.errorMessage = 'Ошибка при разборе JSON файла.'
                     this.previewImageUrl = null
+                    this.objectCount = null
+                    this.fullJson = null
                 }
             }
             reader.readAsText(file)
@@ -89,6 +109,29 @@ export default {
                 console.error(e)
             }
         },
+        async upload() {
+            if (!this.fullJson || !this.template) {
+                this.errorMessage = 'Нет данных для отправки.'
+                return
+            }
+            try {
+                const { data } = await axios.post(`${this.apiBaseUrl}/api/upload-data`, {
+                    template_id: this.template.id,
+                    data: this.fullJson
+                })
+                const url = typeof data === 'string' ? data : data.url
+                if (url) {
+                    const a = document.createElement('a')
+                    a.href = url
+                    a.download = ''
+                    document.body.appendChild(a)
+                    a.click()
+                    a.remove()
+                }
+            } catch {
+                this.errorMessage = 'Ошибка при отправке данных.'
+            }
+        }
     },
 }
 </script>
