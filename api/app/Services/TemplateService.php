@@ -70,7 +70,9 @@ class TemplateService
         if ($template && !empty($template->preview_path)) {
             ThumbnailService::delete($template->preview_path);
         }
-        $data['preview_path'] = ThumbnailService::savePreviewImage($id, $data['preview_png']);
+        if (!empty($data['preview_png'])) {
+            $data['preview_path'] = ThumbnailService::savePreviewImage($id, $data['preview_png']);
+        }
 
         $updateData = collect($fieldsMap)
             ->filter(fn($dbField, $key) => array_key_exists($key, $data))

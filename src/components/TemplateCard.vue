@@ -31,8 +31,9 @@
                 class="button-overlay absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm px-3 py-2 flex justify-center gap-2 opacity-0 pointer-events-none transition-opacity duration-200"
         >
             <div class="pointer-events-auto flex gap-2">
+                <BaseButton @click="onRename" icon="PencilSquareIcon" color="bg-yellow-600" tooltip="Переименовать" />
                 <BaseButton @click="onDuplicate" icon="DocumentDuplicateIcon" color="bg-blue-600" tooltip="Создать дубликат" />
-                <BaseButton @click="onEdit" icon="PencilSquareIcon" color="bg-green-600" tooltip="Редактировать" />
+                <BaseButton @click="onEdit" icon="PaintBrushIcon" color="bg-green-600" tooltip="Редактировать" />
                 <BaseButton @click="onDelete" icon="XCircleIcon" color="bg-red-600" tooltip="Удалить" />
             </div>
         </div>
@@ -56,7 +57,7 @@ export default {
         template: { type: Object, required: true },
         apiBaseUrl: { type: String, required: true },
     },
-    emits: ['duplicate', 'edit', 'delete'],
+    emits: ['duplicate', 'edit', 'delete', 'rename'],
     methods: {
         onDuplicate(e) {
             e.stopPropagation()
@@ -69,6 +70,10 @@ export default {
         onDelete(e) {
             e.stopPropagation()
             this.$emit('delete', this.template)
+        },
+        onRename(e) {
+            e.stopPropagation()
+            this.$emit('rename', this.template)
         },
     },
 }

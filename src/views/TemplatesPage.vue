@@ -20,6 +20,7 @@
                 @duplicate="handleDuplicate"
                 @edit="handleEdit"
                 @delete="handleDelete"
+                @rename="handleRename"
             />
         </div>
 
@@ -50,6 +51,19 @@
                 </div>
             </div>
         </div>
+
+        <!-- Модалка переименования -->
+        <div v-if="renameModal" class="fixed inset-0 flex items-center justify-center bg-opacity-30 backdrop-blur-sm">
+            <div class="bg-white p-6 rounded shadow-md w-96">
+                <h2 class="text-xl mb-4">Переименовать шаблон</h2>
+                <BaseInput v-model="name" type="text" label="Название" class="w-full" />
+                <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
+                <div class="flex justify-end space-x-2">
+                    <BaseButton @click="renameModal = false" color="bg-gray-500">Отмена</BaseButton>
+                    <BaseButton @click="renameTemplate" :disabled="!name.trim() || loading" color="bg-blue-600">Переименовать</BaseButton>
+                </div>
+            </div>
+        </div>
     </div>
 </template>
 
@@ -73,6 +87,8 @@ export default {
             modal: false,
             duplicateModal: false,
             duplicateId: null,
+            renameId: null,
+            renameModal: false,
             name: '',
             tags: '',
             loading: false,
@@ -114,6 +130,13 @@ export default {
             this.duplicateId = template.id;
             this.duplicateModal = true;
         },
+        async handleRename(template) {
+            this.name = template.name;
+            this.tags = template.tags;
+            this.template = template.name;
+            this.renameId = template.id;
+            this.renameModal = true;
+        },
         handleEdit(template) {
             this.$router.push({ name: 'LabelEditor', params: { id: template.id } });
         },
@@ -145,6 +168,24 @@ export default {
                 this.loading = false;
             }
         },
+        async renameTemplate() {
+            if (!this.name.trim()) return;
+            this.loading = true;
+            try {
+                const { data } = await axios.patch(`${this.api}/api/templates/${this.renameId}`, {
+                    name: this.name.trim(),
+                    tags: this.tags.trim(),
+                });
+                this.renameModal = false;
+                this.name = '';
+                this.tags = '';
+                await this.fetch(this.page);
+            } catch (e) {
+                console.error('Ошибка при переименовании:', e);
+            } finally {
+                this.loading = false;
+            }
+        }
     },
     mounted() {
         this.fetch();
