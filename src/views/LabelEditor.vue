@@ -14,8 +14,8 @@
             <BaseButton @click="addRect(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Рамка</BaseButton>
             <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PlusCircleIcon">Изображение</BaseButton>
             <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
-            <SelectGalleryIcons button-text="Иконка" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите иконку" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta)" />
-            <SelectGalleryIcons button-text="Код" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите код" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta)" />
+            <SelectGalleryIcons button-text="Иконка" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите иконку" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
+            <SelectGalleryIcons button-text="Код" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите код" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
         </div>
 
         <div class="flex gap-2">

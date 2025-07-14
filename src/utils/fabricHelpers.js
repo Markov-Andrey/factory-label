@@ -61,15 +61,16 @@ export function addRect(canvas, options = {}) {
  * @param {fabric.Canvas} canvas - Экземпляр fabric.Canvas, на который добавляется изображение.
  * @param {string} imageUrl - URL файла (относительный или абсолютный путь).
  * @param {string} meta - ключ к типу вставляемого изображения.
+ * @param {string} meta_type - ключ к подтипу вставляемого изображения.
  * @returns {Promise<fabric.Image>} Промис, который разрешается после добавления изображения на canvas с объектом fabric.Image.
  * @throws {Error} В случае ошибки загрузки изображения промис будет отклонён.
  */
-export function addImage(canvas, imageUrl, meta = '') {
+export function addImage(canvas, imageUrl, meta = '', meta_type = '') {
     return new Promise((res, rej) => {
         const img = new Image();
         img.crossOrigin = 'anonymous'; // на случай CORS
         img.onload = () => {
-            canvas.add(new fabric.Image(img, { left: 150, top: 150, meta: meta }));
+            canvas.add(new fabric.Image(img, { left: 150, top: 150, meta: meta, meta_type: meta_type }));
             canvas.requestRenderAll();
             res();
         };

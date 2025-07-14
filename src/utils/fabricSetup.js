@@ -11,19 +11,22 @@ export function initFabricGlobalProps() {
             fabric.Object.prototype.stateProperties = [];
         }
 
-        if (!fabric.Object.prototype.stateProperties.includes('id')) {
-            fabric.Object.prototype.stateProperties.push('id');
-        }
+        const customProps = ['id', 'meta', 'meta_type'];
 
-        if (!fabric.Object.prototype.stateProperties.includes('meta')) {
-            fabric.Object.prototype.stateProperties.push('meta');
-        }
+        customProps.forEach(prop => {
+            if (!fabric.Object.prototype.stateProperties.includes(prop)) {
+                fabric.Object.prototype.stateProperties.push(prop);
+            }
+        });
 
         const originalToObject = fabric.Object.prototype.toObject;
         fabric.Object.prototype.toObject = function(propertiesToInclude) {
             const obj = originalToObject.call(this, propertiesToInclude);
-            if (this.id) obj.id = this.id;
-            if (this.meta) obj.meta = this.meta;
+            customProps.forEach(prop => {
+                if (this[prop] !== undefined) {
+                    obj[prop] = this[prop];
+                }
+            });
             return obj;
         };
 
