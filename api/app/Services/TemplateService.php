@@ -37,23 +37,25 @@ class TemplateService
         if (!$template) {
             throw new \Exception("Template not found");
         }
-        $nextId = DB::selectOne('SELECT LABELER_TEMPLATES_SEQ.NEXTVAL as id FROM dual')->id;
-        $newData = [
-            'ID' => $nextId,
+
+        $newPreviewPath = ThumbnailService::duplicate($template->preview_path);
+
+        DB::table('LABELER_TEMPLATES')->insert([
             'NAME' => $data['name'],
             'TAGS' => $data['tags'],
             'TEMPLATE' => $template->template,
-        ];
-        DB::table('LABELER_TEMPLATES')->insert($newData);
+            'PREVIEW_PATH' => $newPreviewPath,
+        ]);
 
-        return $nextId;
+        return DB::table('LABELER_TEMPLATES')->max('ID');
     }
     public static function create(array $data)
     {
-        return DB::table('LABELER_TEMPLATES')->insertGetId([
+        DB::table('LABELER_TEMPLATES')->insert([
             'NAME' => $data['name'],
             'TAGS' => $data['tags'],
         ]);
+        return DB::table('LABELER_TEMPLATES')->max('ID');
     }
 
     public static function update(int $id, array $data)
@@ -65,12 +67,12 @@ class TemplateService
             'tags'         => 'TAGS',
         ];
 
-
         $template = DB::table('LABELER_TEMPLATES')->where('ID', $id)->first();
-        if ($template && !empty($template->preview_path)) {
-            ThumbnailService::delete($template->preview_path);
-        }
+
         if (!empty($data['preview_png'])) {
+            if ($template && !empty($template->preview_path)) {
+                ThumbnailService::delete($template->preview_path);
+            }
             $data['preview_path'] = ThumbnailService::savePreviewImage($id, $data['preview_png']);
         }
 

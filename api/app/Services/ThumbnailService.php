@@ -29,4 +29,27 @@ class ThumbnailService
         }
         return false;
     }
+    public static function duplicate(?string $previewPath): ?string
+    {
+        if (empty($previewPath)) {
+            return null;
+        }
+
+        $fullPath = public_path($previewPath);
+
+        if (!file_exists($fullPath)) {
+            return null;
+        }
+
+        $pathInfo = pathinfo($fullPath);
+        $newFileName = $pathInfo['filename'] . '_copy_' . time() . '.' . $pathInfo['extension'];
+        $storageDir = $pathInfo['dirname'];
+        $newFullPath = $storageDir . DIRECTORY_SEPARATOR . $newFileName;
+
+        if (copy($fullPath, $newFullPath)) {
+            return str_replace(public_path() . DIRECTORY_SEPARATOR, '', $newFullPath);
+        }
+
+        return null;
+    }
 }
