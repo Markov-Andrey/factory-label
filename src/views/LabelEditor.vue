@@ -1,15 +1,6 @@
 <template>
     <div class="space-y-2 p-4">
         <div class="flex gap-2">
-            <div class="grid">
-                <div>Наименование:</div>
-                <div>{{ name }}</div>
-            </div>
-            <BaseInput v-model="widthMM" type="number" label="Ширина (мм):" class="w-32" />
-            <BaseInput v-model="heightMM" type="number" label="Высота (мм):" class="w-32" />
-        </div>
-
-        <div class="flex gap-2">
             <BaseInput :disabled="isTextboxSelected" @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
             <BaseInput :disabled="isTextboxSelected" @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
             <BaseButton :disabled="isTextboxSelected" @click="toggleBold(this.canvas)" color="bg-gray-700" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" />
@@ -29,6 +20,7 @@
                 <div class="bg-gray-200 p-2 rounded shadow-floating">
                     <div class="grid grid-cols-1 gap-1">
                         <BaseButton tooltip="Сохранить (Ctrl+S)" @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-gray-600" icon="CloudArrowUpIcon"/>
+                        <hr class="m-1 border-t-2 border-gray-400">
                         <BaseButton @click="undo(); this.canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" color="bg-gray-600" />
                         <BaseButton @click="redo(); this.canUpd()" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть (Ctrl+Y)" color="bg-gray-600" />
                         <hr class="m-1 border-t-2 border-gray-400">
@@ -53,6 +45,23 @@
 
             <!-- Правая панель -->
             <div class="w-[30%] bg-gray-200 p-2 rounded shadow-floating space-y-2 text-sm">
+                <div class="flex gap-2 items-center justify-center">
+                    <div>Шаблон:</div>
+                    <div class="font-bold">{{ name }}</div>
+                </div>
+
+                <details class="group border border-gray-300 rounded">
+                    <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
+                        <span class="font-semibold">Размеры</span>
+                        <SvgArrow/>
+                    </summary>
+                    <div class="bg-white border-t border-gray-300 p-2 max-h-[200px] overflow-y-auto space-y-1">
+                        <div class="flex gap-2">
+                            <BaseInput v-model="widthMM" type="number" label="Ширина (мм):" class="w-32" />
+                            <BaseInput v-model="heightMM" type="number" label="Высота (мм):" class="w-32" />
+                        </div>
+                    </div>
+                </details>
                 <!-- Аккордеон: Слои -->
                 <details class="group border border-gray-300 rounded">
                     <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
@@ -98,10 +107,13 @@
                 </details>
 
                 <!-- Аккордеон: Текущий объект -->
-                <details v-if="selectedObject" class="group border border-gray-300 rounded">
+                <details
+                    :open="!!selectedObject"
+                    :class="{ 'opacity-50 pointer-events-none': !selectedObject }"
+                >
                     <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
                         <span class="font-semibold">Текущий объект</span>
-                        <SvgArrow/>
+                        <SvgArrow />
                     </summary>
                     <div class="bg-white border-t border-gray-300 p-2 space-y-2">
                         <label class="block font-semibold">ID выбранного объекта:</label>
@@ -109,10 +121,13 @@
                             type="text"
                             v-model="selectedObjectId"
                             @input="updateSelectedObjectId"
+                            :disabled="!selectedObject"
                             class="w-full border px-2 py-1 rounded"
                         />
-                        <pre class="bg-gray-100 text-xs p-2 overflow-auto max-h-64 border rounded">
-                            {{ JSON.stringify(selectedObject, null, 2) }}
+                        <pre
+                            class="bg-gray-100 text-xs p-2 overflow-auto max-h-64 border rounded"
+                        >
+                          {{ JSON.stringify(selectedObject, null, 2) }}
                         </pre>
                     </div>
                 </details>
