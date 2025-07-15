@@ -1,4 +1,5 @@
 import {setTextAlign} from "@/utils/fabricHelpers.js";
+import {saveCanvas} from "@/utils/fabricSaveLoad.js";
 
 function deleteActiveObjects(canvas) {
     const active = canvas.getActiveObjects();
@@ -9,7 +10,18 @@ function deleteActiveObjects(canvas) {
     }
 }
 
-export function registerKeyboardShortcuts(canvas, onUndo, onRedo, toggleBold, toggleItalic, setTextAlignLeft, setTextAlignCenter, setTextAlignRight, setTextAlignJustify) {
+export function registerKeyboardShortcuts(
+    canvas,
+    onUndo,
+    onRedo,
+    toggleBold,
+    toggleItalic,
+    setTextAlignLeft,
+    setTextAlignCenter,
+    setTextAlignRight,
+    setTextAlignJustify,
+    saveCanvas
+) {
     const shortcutMap = {
         'ctrl+keyz': onUndo,
         'ctrl+keyy': onRedo,
@@ -19,6 +31,7 @@ export function registerKeyboardShortcuts(canvas, onUndo, onRedo, toggleBold, to
         'ctrl+keye': setTextAlignCenter,
         'ctrl+keyr': setTextAlignRight,
         'ctrl+keyj': setTextAlignJustify,
+        'ctrl+keys': saveCanvas,
     };
 
     function handleKeyDown(e) {

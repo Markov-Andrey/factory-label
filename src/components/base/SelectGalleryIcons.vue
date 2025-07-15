@@ -4,6 +4,7 @@
             @click="showModal = true"
             :color="buttonColor"
             :icon="buttonIcon"
+            :tooltip="tooltip"
         >
             {{ buttonText }}
         </BaseButton>
@@ -71,9 +72,13 @@ export default {
     name: 'BaseSelectGallery',
     components: { BaseButton },
     props: {
+        tooltip: {
+            type: String,
+            default: ''
+        },
         buttonText: {
             type: String,
-            default: 'Выбрать иконку'
+            default: ''
         },
         buttonColor: {
             type: String,

@@ -10,18 +10,6 @@
         </div>
 
         <div class="flex gap-2">
-            <BaseButton @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-yellow-500" icon="DocumentArrowUpIcon">Сохранить</BaseButton>
-            <BaseButton @click="addText(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Текст</BaseButton>
-            <BaseButton @click="addRect(this.canvas);" color="bg-blue-600" icon="PlusCircleIcon">Рамка</BaseButton>
-            <BaseButton @click="() => $refs.imageInput.click()" color="bg-purple-600" icon="PlusCircleIcon">Изображение</BaseButton>
-            <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
-            <SelectGalleryIcons button-text="Иконка" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите иконку" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
-            <SelectGalleryIcons button-text="Код" button-color="bg-blue-600" button-icon="PlusCircleIcon" modal-title="Выберите код" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
-        </div>
-
-        <div class="flex gap-2">
-            <BaseButton @click="undo(); this.canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" color="bg-blue-600" />
-            <BaseButton @click="redo(); this.canUpd()" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть (Ctrl+Y)" color="bg-green-600" />
             <BaseInput :disabled="isTextboxSelected" @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
             <BaseInput :disabled="isTextboxSelected" @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
             <BaseButton :disabled="isTextboxSelected" @click="toggleBold(this.canvas)" color="bg-gray-700" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" />
@@ -35,42 +23,56 @@
             <BaseSelect :disabled="isTextboxSelected" tooltip="Шрифт текста" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
         </div>
 
-        <div class="flex mt-4 gap-4 items-start">
-            <!-- Левая часть: Canvas -->
-            <div
-                class="border border-black overflow-hidden"
-                :style="{ width: mmToPx(widthMM) + 'px', height: mmToPx(heightMM) + 'px' }"
-            >
-                <canvas ref="canvas"></canvas>
+        <div class="mt-4 flex">
+            <!-- Левая панель -->
+            <div>
+                <div class="bg-gray-200 p-2 rounded shadow-floating">
+                    <div class="grid grid-cols-1 gap-1">
+                        <BaseButton tooltip="Сохранить (Ctrl+S)" @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-gray-600" icon="CloudArrowUpIcon"/>
+                        <BaseButton @click="undo(); this.canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" color="bg-gray-600" />
+                        <BaseButton @click="redo(); this.canUpd()" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть (Ctrl+Y)" color="bg-gray-600" />
+                        <hr class="m-1 border-t-2 border-gray-400">
+                        <BaseButton tooltip="Добавить текст" @click="addText(this.canvas);" color="bg-gray-600" icon="ItalicIcon"/>
+                        <BaseButton tooltip="Добавить рамку" @click="addRect(this.canvas);" color="bg-gray-600" icon="Squares2X2Icon"/>
+                        <SelectGalleryIcons tooltip="Добавить QR" button-color="bg-gray-600" button-icon="QrCodeIcon" modal-title="Выберите код" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
+                        <SelectGalleryIcons tooltip="Добавить символ" button-color="bg-gray-600" button-icon="AtSymbolIcon" modal-title="Выберите символ" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
+                        <BaseButton tooltip="Добавить изображение" @click="() => $refs.imageInput.click()" color="bg-gray-600" icon="PhotoIcon"/>
+                        <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
+                    </div>
+                </div>
             </div>
 
-            <!-- Правая часть: Панель выбранного объекта -->
-            <div v-if="selectedObject" class="w-64 space-y-2">
-                <label class="block mb-1 font-semibold">ID выбранного объекта:</label>
-                <input
-                    type="text"
-                    v-model="selectedObjectId"
-                    @input="updateSelectedObjectId"
-                    class="border px-2 py-1 rounded w-full"
+            <!-- Центр: Canvas -->
+            <div class="flex-1 flex justify-center items-start">
+                <div
+                    class="border border-black"
+                    :style="{ width: mmToPx(widthMM) + 'px', height: mmToPx(heightMM) + 'px' }"
+                >
+                    <canvas ref="canvas"></canvas>
+                </div>
+            </div>
+
+            <!-- Правая панель -->
+            <div class="w-[30%] bg-gray-200 p-2 rounded shadow-floating">
+                <div v-if="selectedObject" class="space-y-2 mb-4">
+                    <label class="block mb-1 font-semibold">ID выбранного объекта:</label>
+                    <input
+                        type="text"
+                        v-model="selectedObjectId"
+                        @input="updateSelectedObjectId"
+                        class="border px-2 py-1 rounded w-full"
+                    />
+                    <pre class="bg-gray-100 text-sm p-2 overflow-auto max-h-64">
+                      {{ JSON.stringify(selectedObject, null, 2) }}
+                    </pre>
+                </div>
+                <KeyMapComponent
+                    :meta="canvasMeta()"
+                    :onCopy="copyToClipboard"
                 />
-                <pre class="bg-gray-100 text-sm p-2 overflow-auto max-h-64">
-                  {{ JSON.stringify(selectedObject, null, 2) }}
-                </pre>
             </div>
-            <!-- Карта ключей -->
-            <div v-if="canvasMeta().length" class="relative p-4 bg-gray-100 rounded-md font-mono text-sm text-gray-800 select-text whitespace-pre-wrap">
-                <div class="absolute top-2 right-2">
-                    <BaseButton @click="copyToClipboard" color="bg-green-600" icon="ClipboardDocumentIcon" tooltip="Копировать в буфер обмена" />
-                </div>
-                <h3 class="mb-2 font-semibold text-gray-900">Карта ключей:</h3>
-                <div>{</div>
-                <div v-for="(item, index) in canvasMeta()" :key="index" class="pl-4">
-                    "<span class="text-blue-700">{{ item.id }}</span>": "<span class="text-gray-600">{{ item.meta }}</span>",
-                </div>
-                <div>}</div>
-            </div>
-
         </div>
+
     </div>
 </template>
 
@@ -79,6 +81,7 @@ import * as fabric from 'fabric';
 import axios from "axios";
 import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
+import KeyMapComponent from '@/components/KeyMapComponent.vue';
 import {
     addText, addImage, addRect, toggleBold, toggleItalic, updateFontSize, updateLineHeight, setTextAlign, onColorChange, setTextFont,
 } from '@/utils/fabricHelpers.js';
@@ -92,7 +95,7 @@ import {fabricIconsSpecial} from "@/utils/fabricIconsSpecial.js";
 import {fabricIconsBarcodes} from "@/utils/fabricIconsBarcodes.js";
 
 export default {
-    components: {SelectGalleryIcons, BaseSelect, BaseColorPicker, BaseButton, BaseInput },
+    components: {SelectGalleryIcons, BaseSelect, BaseColorPicker, BaseButton, BaseInput, KeyMapComponent },
     data() {
         return {
             apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
@@ -136,7 +139,8 @@ export default {
             () => setTextAlign(c, 'left'),
             () => setTextAlign(c, 'center'),
             () => setTextAlign(c, 'right'),
-            () => setTextAlign(c, 'justify')
+            () => setTextAlign(c, 'justify'),
+            () => saveCanvas(c, this.widthMM, this.heightMM, this.$route.params.id)
         );
 
         this.canvas.on('selection:created', this.onSelectionChanged);
