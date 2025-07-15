@@ -52,56 +52,73 @@
             </div>
 
             <!-- Правая панель -->
-            <div class="w-[30%] bg-gray-200 p-2 rounded shadow-floating">
-                <!-- Слои -->
-                <div class="bg-gray-100 p-1 rounded my-2">
-                    <span>Слои</span>
-                    <div
-                        v-for="(layer, i) in layers"
-                        :key="i"
-                        class="flex items-center justify-between bg-white p-2 rounded shadow text-sm hover:bg-gray-100 cursor-pointer"
-                        @click="onLayerClick($event, layer.index)"
-                    >
-                        <div class="flex items-center gap-2">
-                            <span class="font-mono text-gray-500">#{{ layer.index }}</span>
-                            <span class="font-semibold capitalize">{{ layer.type }}</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <BaseButton
-                                color="bg-gray-500"
-                                :tooltip="layer.visible ? 'Слой видим' : 'Слой скрыт'"
-                                :icon="layer.visible ? 'EyeIcon' : 'EyeSlashIcon'"
-                                @click.prevent="toggleVisibility(layer.index)"
-                            />
-                            <BaseButton
-                                color="bg-gray-500"
-                                :tooltip="layer.selectable ? 'Можно выбрать' : 'Нельзя выбрать'"
-                                :icon="layer.selectable ? 'LockOpenIcon' : 'LockClosedIcon'"
-                                @click.prevent="toggleSelectable(layer.index)"
-                            />
+            <div class="w-[30%] bg-gray-200 p-2 rounded shadow-floating space-y-2 text-sm">
+                <!-- Аккордеон: Текущий объект -->
+                <details v-if="selectedObject" class="group border border-gray-300 rounded">
+                    <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
+                        <span class="font-semibold">Текущий объект</span>
+                        <SvgArrow/>
+                    </summary>
+                    <div class="bg-white border-t border-gray-300 p-2 space-y-2">
+                        <label class="block font-semibold">ID выбранного объекта:</label>
+                        <input
+                            type="text"
+                            v-model="selectedObjectId"
+                            @input="updateSelectedObjectId"
+                            class="w-full border px-2 py-1 rounded"
+                        />
+                        <pre class="bg-gray-100 text-xs p-2 overflow-auto max-h-64 border rounded">
+                            {{ JSON.stringify(selectedObject, null, 2) }}
+                        </pre>
+                    </div>
+                </details>
+
+                <!-- Аккордеон: Слои -->
+                <details class="group border border-gray-300 rounded">
+                    <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
+                        <span class="font-semibold">Слои</span>
+                        <SvgArrow/>
+                    </summary>
+                    <div class="bg-white border-t border-gray-300 p-2 max-h-[200px] overflow-y-auto space-y-1">
+                        <div
+                            v-for="(layer, i) in layers"
+                            :key="i"
+                            class="flex justify-between items-center bg-gray-50 p-2 rounded shadow hover:bg-gray-100 cursor-pointer"
+                            @click="onLayerClick($event, layer.index)"
+                        >
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-gray-500">#{{ layer.index }}</span>
+                                <span class="font-semibold capitalize">{{ layer.type }}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <BaseButton
+                                    color="bg-gray-500"
+                                    :tooltip="layer.visible ? 'Слой видим' : 'Слой скрыт'"
+                                    :icon="layer.visible ? 'EyeIcon' : 'EyeSlashIcon'"
+                                    @click.prevent="toggleVisibility(layer.index)"
+                                />
+                                <BaseButton
+                                    color="bg-gray-500"
+                                    :tooltip="layer.selectable ? 'Можно выбрать' : 'Нельзя выбрать'"
+                                    :icon="layer.selectable ? 'LockOpenIcon' : 'LockClosedIcon'"
+                                    @click.prevent="toggleSelectable(layer.index)"
+                                />
+                            </div>
                         </div>
                     </div>
-                </div>
+                </details>
 
-                <!-- Текущий объект -->
-                <div v-if="selectedObject" class="space-y-2 mb-4">
-                    <label class="block mb-1 font-semibold">ID выбранного объекта:</label>
-                    <input
-                        type="text"
-                        v-model="selectedObjectId"
-                        @input="updateSelectedObjectId"
-                        class="border px-2 py-1 rounded w-full"
-                    />
-                    <pre class="bg-gray-100 text-sm p-2 overflow-auto max-h-64">
-                      {{ JSON.stringify(selectedObject, null, 2) }}
-                    </pre>
-                </div>
+                <!-- Аккордеон: Карта ключей -->
+                <details class="group border border-gray-300 rounded">
+                    <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
+                        <span class="font-semibold">Карта ключей</span>
+                        <SvgArrow/>
+                    </summary>
+                    <div class="bg-white border-t border-gray-300 p-2">
+                        <KeyMapComponent :meta="canvasMeta()" :onCopy="copyToClipboard" />
+                    </div>
+                </details>
 
-                <!-- Карта ключей -->
-                <KeyMapComponent
-                    :meta="canvasMeta()"
-                    :onCopy="copyToClipboard"
-                />
             </div>
         </div>
 
@@ -125,9 +142,10 @@ import BaseSelect from "@/components/base/BaseSelect.vue";
 import SelectGalleryIcons from "@/components/base/SelectGalleryIcons.vue";
 import {fabricIconsSpecial} from "@/utils/fabricIconsSpecial.js";
 import {fabricIconsBarcodes} from "@/utils/fabricIconsBarcodes.js";
+import SvgArrow from "@/components/SvgArrow.vue";
 
 export default {
-    components: {SelectGalleryIcons, BaseSelect, BaseColorPicker, BaseButton, BaseInput, KeyMapComponent },
+    components: {SvgArrow, SelectGalleryIcons, BaseSelect, BaseColorPicker, BaseButton, BaseInput, KeyMapComponent },
     data() {
         return {
             apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
@@ -227,7 +245,6 @@ export default {
                 selectable: obj.selectable !== false,
                 index: i,
             }));
-            console.log(this.layers);
         },
         onSelectionChanged() {
             this.canvasMeta();
