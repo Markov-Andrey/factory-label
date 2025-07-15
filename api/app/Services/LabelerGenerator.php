@@ -75,7 +75,7 @@ class LabelerGenerator
     private function getTemplateArray(int $templateId): array
     {
         $template = TemplateService::find($templateId);
-        $templateArr = json_decode($template, true);
+        $templateArr = json_decode($template['template'], true);
 
         if (!isset($templateArr['objects'])) {
             throw new \Exception('Template objects not found');

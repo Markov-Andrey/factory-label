@@ -7,9 +7,11 @@ use Illuminate\Http\Request;
 
 class LabelTemplateController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return response()->json(TemplateService::all());
+        $tag = $request->query('tag');
+        $templates = TemplateService::all($tag);
+        return response()->json($templates);
     }
 
     public function tags()

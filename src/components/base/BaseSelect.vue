@@ -28,7 +28,7 @@ import { ref, defineProps, defineEmits } from 'vue'
 const props = defineProps({
     options: Array,
     modelValue: { type: [String, Number], default: '' },
-    placeholder: { type: String, default: 'Select an option' },
+    placeholder: { type: String, default: '' },
     tooltip: { type: String, default: '' },
     disabled: { type: Boolean, default: false }
 })

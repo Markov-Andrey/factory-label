@@ -2,34 +2,34 @@
 namespace App\Services;
 
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class TemplateService
 {
-    public static function all()
+    public static function all(?string $tag = null)
     {
-        return DB::table('LABELER_TEMPLATES')
+        $query = DB::table('LABELER_TEMPLATES')
             ->select('ID', 'NAME', 'TAGS', 'PREVIEW_PATH', 'UPDATED_AT')
-            ->orderByDesc('UPDATED_AT')
-            ->paginate(20);
+            ->orderByDesc('UPDATED_AT');
+
+        if ($tag !== null && $tag !== '') {
+            $query->where('TAGS', $tag);
+        }
+
+        return $query->paginate(20);
     }
 
     // Все уникальные теги
     public static function tags(): array
     {
-        return DB::table('LABELER_TEMPLATES')
-            ->select('TAGS')
-            ->distinct()
-            ->whereNotNull('TAGS')
-            ->pluck('TAGS')
-            ->filter()
-            ->values()
-            ->all();
+        $rows = DB::select('SELECT DISTINCT TAGS FROM LABELER_TEMPLATES WHERE TAGS IS NOT NULL');
+        return array_values(array_filter(array_map(fn($row) => $row->tags, $rows)));
     }
 
     public static function find(int $id)
     {
-        return DB::table('LABELER_TEMPLATES')->where('ID', $id)->first();
+        $result = DB::selectOne("SELECT * FROM LABELER_TEMPLATES WHERE ID = ?", [$id]);
+        if (empty($result)) return null;
+        return (array) $result;
     }
     public static function duplicate(array $data)
     {

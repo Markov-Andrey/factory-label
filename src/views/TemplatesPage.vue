@@ -2,6 +2,7 @@
     <div class="max-w-6xl mx-auto p-6">
         <div class="my-2 flex gap-2">
             <BaseButton @click="openModal('create')" color="bg-blue-600">Создать</BaseButton>
+            <BaseSelect v-model="selectedTag" :options="tags" tooltip="Выбрать тег"/>
         </div>
 
         <div v-if="list.length === 0" class="text-center text-gray-500 mt-10">
@@ -48,10 +49,11 @@ import PaginationControls from '../components/PaginationControls.vue'
 import axios from 'axios'
 import BaseInput from '@/components/base/BaseInput.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
+import BaseSelect from "@/components/base/BaseSelect.vue";
 
 export default {
     name: 'TemplatesPage',
-    components: { BaseButton, BaseInput, TemplateCard, PaginationControls },
+    components: {BaseSelect, BaseButton, BaseInput, TemplateCard, PaginationControls },
     data() {
         return {
             list: [],
@@ -63,8 +65,14 @@ export default {
             modalType: '',
             currentId: null,
             name: '',
-            tags: '',
-            loading: false
+            tags: [],
+            selectedTag: null,
+            loading: false,
+        }
+    },
+    watch: {
+        selectedTag(newTag) {
+            this.go(1, newTag);
         }
     },
     computed: {
@@ -83,19 +91,38 @@ export default {
             }[this.modalType] || ''
         }
     },
+    created() {
+        this.selectedTag = this.$route.query.tag || null
+        this.page = Number(this.$route.query.page) || 1
+        this.fetch(this.page, this.selectedTag)
+    },
     methods: {
+        async fetchTags() {
+            try {
+                const res = await axios.get(`${this.api}/api/templates/tags`)
+                this.tags = [null, ...res.data]
+            } catch (e) {
+                console.error('Ошибка при загрузке тегов:', e)
+            }
+        },
         async fetch(p = 1) {
             try {
                 const { data } = await axios.get(`${this.api}/api/templates`, {
-                    params: { page: p, per_page: this.perPage }
+                    params: { page: p, per_page: this.perPage, tag: this.selectedTag || undefined
+                    }
                 })
                 this.list = data.data
                 this.page = data.current_page
                 this.pages = data.last_page
             } catch {}
         },
-        go(p) {
-            if (p >= 1 && p <= this.pages) this.fetch(p)
+        go(page = this.page, tag = this.selectedTag) {
+            this.page = page
+            this.selectedTag = tag
+            this.fetch(page, tag)
+            this.$router.replace({
+                query: { page, tag }
+            })
         },
         openModal(type, template = null) {
             this.modalType = type
@@ -159,7 +186,8 @@ export default {
         }
     },
     mounted() {
-        this.fetch()
+        this.fetch();
+        this.fetchTags();
     }
 }
 </script>
