@@ -81,7 +81,7 @@ export default {
             list: [],
             page: 1,
             pages: 1,
-            perPage: 20,
+            perPage: 9,
             api: import.meta.env.VITE_API_BASE_URL,
             modalVisible: false,
             modalType: '',

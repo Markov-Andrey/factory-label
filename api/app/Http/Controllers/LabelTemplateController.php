@@ -11,7 +11,8 @@ class LabelTemplateController extends Controller
     {
         $tag = $request->query('tag');
         $name = $request->query('name');
-        $templates = TemplateService::all($tag,$name);
+        $per_page = $request->query('per_page');
+        $templates = TemplateService::all($tag,$name,$per_page);
         return response()->json($templates);
     }
 
