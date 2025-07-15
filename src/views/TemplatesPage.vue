@@ -1,11 +1,8 @@
 <template>
     <div class="max-w-6xl mx-auto p-6">
-        <button
-            @click="openModal('create')"
-            class="mb-6 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-            Создать
-        </button>
+        <div class="my-2 flex gap-2">
+            <BaseButton @click="openModal('create')" color="bg-blue-600">Создать</BaseButton>
+        </div>
 
         <div v-if="list.length === 0" class="text-center text-gray-500 mt-10">
             Пока нет ни одного шаблона.
@@ -25,21 +22,21 @@
         </div>
 
         <PaginationControls :currentPage="page" :totalPages="pages" @page-change="go" />
+    </div>
 
-        <div
-            v-if="modalVisible"
-            class="fixed inset-0 flex items-center justify-center bg-opacity-30 backdrop-blur-sm"
-        >
-            <div class="bg-white p-6 rounded shadow-md w-96">
-                <h2 class="text-xl mb-4">{{ modalTitle }}</h2>
-                <BaseInput v-model="name" type="text" label="Название" class="w-full" />
-                <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
-                <div class="flex justify-end space-x-2">
-                    <BaseButton @click="closeModal" color="bg-gray-500">Отмена</BaseButton>
-                    <BaseButton @click="submitModal" :disabled="!name.trim() || loading" color="bg-blue-600">
-                        {{ modalButtonText }}
-                    </BaseButton>
-                </div>
+    <div
+        v-if="modalVisible"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm"
+    >
+        <div class="bg-white p-6 rounded shadow-md w-96">
+            <h2 class="text-xl mb-4">{{ modalTitle }}</h2>
+            <BaseInput v-model="name" type="text" label="Название" class="w-full" />
+            <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
+            <div class="flex justify-end space-x-2">
+                <BaseButton @click="closeModal" color="bg-gray-500">Отмена</BaseButton>
+                <BaseButton @click="submitModal" :disabled="!name.trim() || loading" color="bg-blue-600">
+                    {{ modalButtonText }}
+                </BaseButton>
             </div>
         </div>
     </div>
@@ -73,9 +70,9 @@ export default {
     computed: {
         modalTitle() {
             return {
-                create: 'Создать новый шаблон',
-                duplicate: 'Дублировать шаблон',
-                rename: 'Переименовать шаблон'
+                create: 'Создать',
+                duplicate: 'Создать копию',
+                rename: 'Переименовать'
             }[this.modalType] || ''
         },
         modalButtonText() {
@@ -122,29 +119,19 @@ export default {
             this.loading = false
         },
         async submitModal() {
-            if (!this.name.trim()) return
+            const name = this.name.trim()
+            if (!name) return
             this.loading = true
             try {
-                if (this.modalType === 'create') {
-                    const { data } = await axios.post(`${this.api}/api/templates/store`, {
-                        name: this.name.trim(),
-                        tags: this.tags.trim()
-                    })
-                    this.$router.push({ name: 'LabelEditor', params: { id: data.id } })
-                } else if (this.modalType === 'duplicate') {
-                    const { data } = await axios.post(`${this.api}/api/templates/duplicate`, {
-                        id: this.currentId,
-                        name: this.name.trim(),
-                        tags: this.tags.trim()
-                    })
-                    this.$router.push({ name: 'LabelEditor', params: { id: data.id } })
-                } else if (this.modalType === 'rename') {
-                    await axios.patch(`${this.api}/api/templates/${this.currentId}`, {
-                        name: this.name.trim(),
-                        tags: this.tags.trim()
-                    })
-                    await this.fetch(this.page)
+                const payload = { name, tags: this.tags.trim() }
+                const urls = {
+                    create: () => axios.post(`${this.api}/api/templates/store`, payload),
+                    duplicate: () => axios.post(`${this.api}/api/templates/duplicate`, { ...payload, id: this.currentId }),
+                    rename: () => axios.patch(`${this.api}/api/templates/${this.currentId}`, payload)
                 }
+                const res = await urls[this.modalType]()
+                if (res?.data?.id) this.$router.push({ name: 'LabelEditor', params: { id: res.data.id } })
+                if (this.modalType === 'rename') await this.fetch(this.page)
                 this.closeModal()
             } catch (e) {
                 console.error('Ошибка:', e)
