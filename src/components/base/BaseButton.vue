@@ -83,26 +83,6 @@ export default {
             return this.icon ? heroicons[this.icon] : null
         },
     },
-
-    watch: {
-        show(val) {
-            this.$nextTick(() => {
-                if (val && this.tooltipEl && this.buttonEl) {
-                    const t = this.tooltipEl.getBoundingClientRect()
-                    const b = this.buttonEl.getBoundingClientRect()
-                    const w = window.innerWidth
-                    let left = b.left + b.width / 2
-                    const m = 8
-                    if (left + t.width / 2 + m > w) left = w - t.width / 2 - m
-                    if (left - t.width / 2 - m < 0) left = t.width / 2 + m
-                    const offsetX = left - (b.left + b.width / 2)
-                    this.tooltipStyles.left = '50%'
-                    this.tooltipStyles.transform = `translateX(calc(-50% + ${offsetX}px))`
-                }
-            })
-        },
-    },
-
     methods: {
         handleClick(e) {
             if (this.disabled) {
