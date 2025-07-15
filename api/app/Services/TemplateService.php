@@ -5,15 +5,14 @@ use Illuminate\Support\Facades\DB;
 
 class TemplateService
 {
-    public static function all(?string $tag = null)
+    public static function all(?string $tag = null, ?string $name = null)
     {
         $query = DB::table('LABELER_TEMPLATES')
             ->select('ID', 'NAME', 'TAGS', 'PREVIEW_PATH', 'UPDATED_AT')
             ->orderByDesc('UPDATED_AT');
 
-        if ($tag !== null && $tag !== '') {
-            $query->where('TAGS', $tag);
-        }
+        if ($tag !== null && $tag !== '') $query->where('TAGS', $tag);
+        if ($name !== null && $name !== '') $query->where('NAME', 'like', '%' . $name . '%');
 
         return $query->paginate(20);
     }

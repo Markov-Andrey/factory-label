@@ -10,7 +10,8 @@ class LabelTemplateController extends Controller
     public function index(Request $request)
     {
         $tag = $request->query('tag');
-        $templates = TemplateService::all($tag);
+        $name = $request->query('name');
+        $templates = TemplateService::all($tag,$name);
         return response()->json($templates);
     }
 

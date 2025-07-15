@@ -3,6 +3,7 @@
         <div class="my-2 flex gap-2">
             <BaseButton @click="openModal('create')" color="bg-blue-600">Создать</BaseButton>
             <BaseSelect v-model="selectedTag" :options="tags" tooltip="Выбрать тег"/>
+            <BaseInput v-model="nameTemplate" type="text" label="Название" class="" />
         </div>
 
         <div v-if="list.length === 0" class="text-center text-gray-500 mt-10">
@@ -65,6 +66,7 @@ export default {
             modalType: '',
             currentId: null,
             name: '',
+            nameTemplate: '',
             tags: [],
             selectedTag: null,
             loading: false,
@@ -72,7 +74,10 @@ export default {
     },
     watch: {
         selectedTag(newTag) {
-            this.go(1, newTag);
+            this.go(1, newTag, this.nameTemplate)
+        },
+        nameTemplate(newName) {
+            this.go(1, this.selectedTag, newName)
         }
     },
     computed: {
@@ -93,6 +98,7 @@ export default {
     },
     created() {
         this.selectedTag = this.$route.query.tag || null
+        this.nameTemplate = this.$route.query.name || null
         this.page = Number(this.$route.query.page) || 1
         this.fetch(this.page, this.selectedTag)
     },
@@ -108,20 +114,31 @@ export default {
         async fetch(p = 1) {
             try {
                 const { data } = await axios.get(`${this.api}/api/templates`, {
-                    params: { page: p, per_page: this.perPage, tag: this.selectedTag || undefined
+                    params: {
+                        page: p,
+                        per_page: this.perPage,
+                        tag: this.selectedTag || undefined,
+                        name: this.nameTemplate || undefined
                     }
                 })
                 this.list = data.data
                 this.page = data.current_page
                 this.pages = data.last_page
-            } catch {}
+            } catch (e) {
+                console.error(e)
+            }
         },
-        go(page = this.page, tag = this.selectedTag) {
+        go(page = this.page, tag = this.selectedTag, name = this.nameTemplate) {
             this.page = page
-            this.selectedTag = tag
-            this.fetch(page, tag)
+            if (this.selectedTag !== tag) this.selectedTag = tag
+            if (this.nameTemplate !== name) this.nameTemplate = name
+            this.fetch(page)
             this.$router.replace({
-                query: { page, tag }
+                query: {
+                    page,
+                    tag: tag || undefined,
+                    name: name || undefined
+                }
             })
         },
         openModal(type, template = null) {
