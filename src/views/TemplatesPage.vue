@@ -1,47 +1,47 @@
 <template>
-    <div class="max-w-6xl py-10 mx-auto">
-        <div class="my-4 bg-gray-200">
+    <div class="max-w-6xl mb-12 mx-auto">
+        <header class="sticky top-0 bg-white shadow-md z-50 py-4">
             <div class="flex flex-wrap justify-center items-center gap-4">
-                <BaseButton icon="PlusCircleIcon" @click="openModal('create')" color="bg-blue-600">
+                <BaseButton icon="PlusCircleIcon" @click="openModal('create')" color="bg-gray-600">
                     Создать
                 </BaseButton>
-                Тег
+                <span>Тег</span>
                 <BaseSelect
                     v-model="selectedTag"
                     :options="tags"
                     tooltip="Выбрать тег"
                     class="min-w-[150px]"
                 />
-                Название
+                <span>Название</span>
                 <BaseInput
                     v-model="nameTemplate"
                     type="text"
                     class="min-w-[250px]"
                 />
             </div>
-        </div>
+        </header>
 
-        <!-- Список -->
-        <div v-if="list.length === 0" class="text-center text-gray-500 mt-10">
-            Пока нет ни одного шаблона.
-        </div>
+        <main class="pt-6">
+            <div v-if="list.length === 0" class="text-center text-gray-500 mt-10">
+                Пока нет ни одного шаблона.
+            </div>
 
-        <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <TemplateCard
-                v-for="tpl in list"
-                :key="tpl.id"
-                :template="tpl"
-                :apiBaseUrl="api"
-                @duplicate="handleDuplicate"
-                @edit="handleEdit"
-                @delete="handleDelete"
-                @rename="handleRename"
-            />
-        </div>
+            <div v-else class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+                <TemplateCard
+                    v-for="tpl in list"
+                    :key="tpl.id"
+                    :template="tpl"
+                    :apiBaseUrl="api"
+                    @duplicate="handleDuplicate"
+                    @edit="handleEdit"
+                    @delete="handleDelete"
+                    @rename="handleRename"
+                />
+            </div>
 
-        <PaginationControls :currentPage="page" :totalPages="pages" @page-change="go" />
+            <PaginationControls :currentPage="page" :totalPages="pages" @page-change="go" />
+        </main>
 
-        <!-- Модалка -->
         <div
             v-if="modalVisible"
             class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm"
@@ -81,7 +81,7 @@ export default {
             list: [],
             page: 1,
             pages: 1,
-            perPage: 9,
+            perPage: 16,
             api: import.meta.env.VITE_API_BASE_URL,
             modalVisible: false,
             modalType: '',

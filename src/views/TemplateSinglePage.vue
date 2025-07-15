@@ -5,15 +5,22 @@
                 {{ template?.name || 'Шаблон' }}
             </h2>
 
-            <h3 class="text-md font-semibold border rounded p-4 flex flex-col">
+            <h3 class="text-md font-semibold border rounded p-4 flex flex-col items-center">
                 Загрузите JSON-файл
+
+                <!-- Скрытый инпут -->
                 <input
                     id="json-upload"
                     type="file"
                     accept=".json"
                     @change="handleFileUpload"
-                    class="mt-2 w-full"
+                    class="hidden"
+                    ref="fileInput"
                 />
+
+                <BaseButton tooltip="Назад" @click="$refs.fileInput.click()" color="bg-gray-600" icon="ArrowDownOnSquareIcon">
+                    Выбрать файл
+                </BaseButton>
                 <div v-if="objectCount !== null" class="text-sm text-gray-600 mt-2 text-center">
                     Количество объектов: <strong>{{ objectCount }}</strong>
                 </div>
@@ -46,14 +53,18 @@
                 <div v-else class="text-gray-400 italic">Нет превью</div>
             </section>
         </div>
-        <div class="flex items-center justify-center m-5">
+        <div class="flex gap-2 items-center justify-center m-5">
+            <BaseButton tooltip="К выбору шаблона" @click="exit" color="bg-gray-600" icon="ArrowLeftEndOnRectangleIcon">
+                Назад
+            </BaseButton>
             <BaseButton
                 :disabled="!(objectCount > 0 && previewImageUrl)"
-                color="bg-blue-600"
+                tooltip="Полная обработка файла"
+                color="bg-gray-600"
                 icon="PlusCircleIcon"
                 @click="upload"
             >
-                Обработать все
+                Обработать
             </BaseButton>
         </div>
     </div>
@@ -72,8 +83,8 @@ export default {
             apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
             previewImageUrl: null,
             errorMessage: null,
-            objectCount: null,
             fullJson: null,
+            objectCount: null,
         }
     },
     async mounted() {
@@ -107,6 +118,7 @@ export default {
             }
             reader.readAsText(file)
         },
+        exit() { this.$router.push('/'); },
         async sendPreview(previewData) {
             try {
                 const payload = { template_id: this.template?.id, data: previewData }
