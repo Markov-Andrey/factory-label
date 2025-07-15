@@ -1,11 +1,27 @@
 <template>
-    <div class="max-w-6xl mx-auto p-6">
-        <div class="my-2 flex gap-2">
-            <BaseButton @click="openModal('create')" color="bg-blue-600">Создать</BaseButton>
-            <BaseSelect v-model="selectedTag" :options="tags" tooltip="Выбрать тег"/>
-            <BaseInput v-model="nameTemplate" type="text" label="Название" class="" />
+    <div class="max-w-6xl py-10 mx-auto">
+        <div class="my-4 bg-gray-200">
+            <div class="flex flex-wrap justify-center items-center gap-4">
+                <BaseButton icon="PlusCircleIcon" @click="openModal('create')" color="bg-blue-600">
+                    Создать
+                </BaseButton>
+                Тег
+                <BaseSelect
+                    v-model="selectedTag"
+                    :options="tags"
+                    tooltip="Выбрать тег"
+                    class="min-w-[150px]"
+                />
+                Название
+                <BaseInput
+                    v-model="nameTemplate"
+                    type="text"
+                    class="min-w-[250px]"
+                />
+            </div>
         </div>
 
+        <!-- Список -->
         <div v-if="list.length === 0" class="text-center text-gray-500 mt-10">
             Пока нет ни одного шаблона.
         </div>
@@ -24,21 +40,26 @@
         </div>
 
         <PaginationControls :currentPage="page" :totalPages="pages" @page-change="go" />
-    </div>
 
-    <div
-        v-if="modalVisible"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm"
-    >
-        <div class="bg-white p-6 rounded shadow-md w-96">
-            <h2 class="text-xl mb-4">{{ modalTitle }}</h2>
-            <BaseInput v-model="name" type="text" label="Название" class="w-full" />
-            <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
-            <div class="flex justify-end space-x-2">
-                <BaseButton @click="closeModal" color="bg-gray-500">Отмена</BaseButton>
-                <BaseButton @click="submitModal" :disabled="!name.trim() || loading" color="bg-blue-600">
-                    {{ modalButtonText }}
-                </BaseButton>
+        <!-- Модалка -->
+        <div
+            v-if="modalVisible"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm"
+        >
+            <div class="bg-white p-6 rounded shadow-md w-96">
+                <h2 class="text-xl mb-4">{{ modalTitle }}</h2>
+                <BaseInput v-model="name" type="text" label="Название" class="w-full" />
+                <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
+                <div class="flex justify-end space-x-2 mt-4">
+                    <BaseButton @click="closeModal" color="bg-gray-500">Отмена</BaseButton>
+                    <BaseButton
+                        @click="submitModal"
+                        :disabled="!name.trim() || loading"
+                        color="bg-blue-600"
+                    >
+                        {{ modalButtonText }}
+                    </BaseButton>
+                </div>
             </div>
         </div>
     </div>

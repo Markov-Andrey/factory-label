@@ -2,8 +2,8 @@
     <div
             class="template-card relative border rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow hover-with-buttons"
     >
-        <div class="flex justify-between items-center px-2 bg-green-50 border-b rounded-t-lg">
-            <h2 class="text-lg font-semibold truncate max-w-[70%] text-gray-900">
+        <div class="flex justify-between items-center px-2 bg-gray-600 border-b rounded-t-lg">
+            <h2 class="text-lg font-semibold truncate max-w-[70%] text-white">
                 {{ template.name }}
             </h2>
             <span
@@ -16,7 +16,7 @@
         </div>
 
         <router-link :to="`/templates/${template.id}`" class="block">
-            <div class="relative w-full h-48 sm:h-56 md:h-48 lg:h-56 flex items-center justify-center">
+            <div class="relative w-full flex items-center justify-center">
                 <img
                         v-if="template.preview_path"
                         :src="apiBaseUrl + '/' + template.preview_path"
@@ -31,7 +31,7 @@
                 class="button-overlay absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm px-3 py-2 flex justify-center gap-2 opacity-0 pointer-events-none transition-opacity duration-200"
         >
             <div class="pointer-events-auto flex gap-2">
-                <BaseButton @click="onRename" icon="PencilSquareIcon" color="bg-yellow-600" tooltip="Переименовать" />
+                <BaseButton @click="onRename" icon="PencilSquareIcon" color="bg-yellow-500" tooltip="Переименовать" />
                 <BaseButton @click="onDuplicate" icon="DocumentDuplicateIcon" color="bg-blue-600" tooltip="Создать дубликат" />
                 <BaseButton @click="onEdit" icon="PaintBrushIcon" color="bg-green-600" tooltip="Редактировать" />
                 <BaseButton @click="onDelete" icon="XCircleIcon" color="bg-red-600" tooltip="Удалить" />
