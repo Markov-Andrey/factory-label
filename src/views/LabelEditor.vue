@@ -53,6 +53,50 @@
 
             <!-- Правая панель -->
             <div class="w-[30%] bg-gray-200 p-2 rounded shadow-floating space-y-2 text-sm">
+                <!-- Аккордеон: Слои -->
+                <details class="group border border-gray-300 rounded">
+                    <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
+                        <span class="font-semibold">Слои</span>
+                        <SvgArrow/>
+                    </summary>
+                    <div class="bg-white border-t border-gray-300 p-2 max-h-[200px] overflow-y-auto space-y-1">
+                        <div
+                            v-for="(layer, i) in layers"
+                            :key="i"
+                            class="flex justify-between items-center bg-gray-50 p-2 rounded shadow hover:bg-gray-100 cursor-pointer"
+                            @click="onLayerClick(this.canvas, $event, layer.index)"
+                        >
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono text-gray-500">#{{ layer.index }}</span>
+                                <span class="font-semibold capitalize">{{ layer.type }}</span>
+                            </div>
+                            <div class="flex gap-2">
+                                <BaseButton
+                                    color="bg-gray-500"
+                                    :icon="layer.visible ? 'EyeIcon' : 'EyeSlashIcon'"
+                                    @click.prevent="toggleVisibility(layer.index)"
+                                />
+                                <BaseButton
+                                    color="bg-gray-500"
+                                    :icon="layer.selectable ? 'LockOpenIcon' : 'LockClosedIcon'"
+                                    @click.prevent="toggleSelectable(layer.index)"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </details>
+
+                <!-- Аккордеон: Карта ключей -->
+                <details class="group border border-gray-300 rounded">
+                    <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
+                        <span class="font-semibold">Карта ключей</span>
+                        <SvgArrow/>
+                    </summary>
+                    <div class="bg-white border-t border-gray-300 p-2">
+                        <KeyMapComponent :meta="canvasMeta()" :onCopy="copyToClipboard" />
+                    </div>
+                </details>
+
                 <!-- Аккордеон: Текущий объект -->
                 <details v-if="selectedObject" class="group border border-gray-300 rounded">
                     <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
@@ -73,52 +117,6 @@
                     </div>
                 </details>
 
-                <!-- Аккордеон: Слои -->
-                <details class="group border border-gray-300 rounded">
-                    <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
-                        <span class="font-semibold">Слои</span>
-                        <SvgArrow/>
-                    </summary>
-                    <div class="bg-white border-t border-gray-300 p-2 max-h-[200px] overflow-y-auto space-y-1">
-                        <div
-                            v-for="(layer, i) in layers"
-                            :key="i"
-                            class="flex justify-between items-center bg-gray-50 p-2 rounded shadow hover:bg-gray-100 cursor-pointer"
-                            @click="onLayerClick($event, layer.index)"
-                        >
-                            <div class="flex items-center gap-2">
-                                <span class="font-mono text-gray-500">#{{ layer.index }}</span>
-                                <span class="font-semibold capitalize">{{ layer.type }}</span>
-                            </div>
-                            <div class="flex gap-2">
-                                <BaseButton
-                                    color="bg-gray-500"
-                                    :tooltip="layer.visible ? 'Слой видим' : 'Слой скрыт'"
-                                    :icon="layer.visible ? 'EyeIcon' : 'EyeSlashIcon'"
-                                    @click.prevent="toggleVisibility(layer.index)"
-                                />
-                                <BaseButton
-                                    color="bg-gray-500"
-                                    :tooltip="layer.selectable ? 'Можно выбрать' : 'Нельзя выбрать'"
-                                    :icon="layer.selectable ? 'LockOpenIcon' : 'LockClosedIcon'"
-                                    @click.prevent="toggleSelectable(layer.index)"
-                                />
-                            </div>
-                        </div>
-                    </div>
-                </details>
-
-                <!-- Аккордеон: Карта ключей -->
-                <details class="group border border-gray-300 rounded">
-                    <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-100 rounded group-open:rounded-b-none">
-                        <span class="font-semibold">Карта ключей</span>
-                        <SvgArrow/>
-                    </summary>
-                    <div class="bg-white border-t border-gray-300 p-2">
-                        <KeyMapComponent :meta="canvasMeta()" :onCopy="copyToClipboard" />
-                    </div>
-                </details>
-
             </div>
         </div>
 
@@ -132,7 +130,7 @@ import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import KeyMapComponent from '@/components/KeyMapComponent.vue';
 import {
-    addText, addImage, addRect, toggleBold, toggleItalic, updateFontSize, updateLineHeight, setTextAlign, onColorChange, setTextFont,
+    addText, addImage, addRect, toggleBold, toggleItalic, updateFontSize, updateLineHeight, setTextAlign, onColorChange, setTextFont, onLayerClick, toggleProperty,
 } from '@/utils/fabricHelpers.js';
 import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
 import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
@@ -211,32 +209,13 @@ export default {
         setTextFont, addText, addRect, addImage, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
         saveCanvas, loadCanvas, registerKeyboardShortcuts,
         fabricIconsSpecial, fabricIconsBarcodes,
-        undo, redo, onColorChange,
+        undo, redo, onColorChange, onLayerClick, toggleProperty,
 
-        onLayerClick(event, index) {
-            if (event.target.closest('button')) return;
-            const objects = this.canvas.getObjects();
-            const obj = objects[index];
-            if (obj && obj.selectable && obj.evented) {
-                this.canvas.setActiveObject(obj);
-            } else {
-                this.canvas.discardActiveObject();
-            }
-            this.canvas.requestRenderAll();
-        },
         toggleVisibility(index) {
-            const obj = this.canvas.getObjects()[index]
-            if (!obj) return
-            obj.visible = !obj.visible
-            this.canvas.renderAll()
-            this.updateLayers()
+            toggleProperty(this.canvas, index, 'visible'); this.updateLayers();
         },
         toggleSelectable(index) {
-            const obj = this.canvas.getObjects()[index]
-            if (!obj) return
-            obj.selectable = !obj.selectable
-            this.canvas.renderAll()
-            this.updateLayers()
+            toggleProperty(this.canvas, index, 'selectable'); this.updateLayers();
         },
         updateLayers() {
             this.layers = this.canvas.getObjects().map((obj, i) => ({

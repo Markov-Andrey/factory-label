@@ -171,3 +171,34 @@ export function setTextFont(canvas, fontName) {
         canvas.requestRenderAll();
     }
 }
+
+/**
+ * Устанавливает активный объект на canvas по индексу слоя при клике. Игнорирует клики по кнопкам внутри слоя.
+ * @param {fabric.Canvas} canvas
+ * @param {MouseEvent} event
+ * @param {number} index
+ */
+export function onLayerClick(canvas, event, index) {
+    if (event.target.closest('button')) return;
+    const objects = canvas.getObjects();
+    const obj = objects[index];
+    if (obj && obj.selectable && obj.evented) {
+        canvas.setActiveObject(obj);
+    } else {
+        canvas.discardActiveObject();
+    }
+    canvas.requestRenderAll();
+}
+
+/**
+ * Переключает булево свойство объекта на canvas по индексу слоя.
+ * @param {fabric.Canvas} canvas
+ * @param {number} index - Индекс объекта в списке объектов canvas
+ * @param {string} prop - Имя свойства для переключения (например, 'visible' или 'selectable')
+ */
+export function toggleProperty(canvas, index, prop) {
+    const obj = canvas.getObjects()[index];
+    if (!obj) return;
+    obj[prop] = !obj[prop];
+    canvas.renderAll();
+}
