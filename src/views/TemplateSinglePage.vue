@@ -1,50 +1,60 @@
 <template>
     <div class="max-w-6xl mx-auto p-6">
-        <BaseButton
-            :disabled="!(objectCount > 0 && previewImageUrl)"
-            color="bg-blue-600"
-            icon="PlusCircleIcon"
-            @click="upload"
-        >
-            Обработать все
-        </BaseButton>
+        <div class="grid grid-cols-2 grid-rows-[auto_1fr] gap-6 mt-4">
+            <h2 class="text-lg font-semibold border rounded p-4 flex items-center justify-center">
+                {{ template?.name || 'Шаблон' }}
+            </h2>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-            <div class="border p-4 rounded">
-                <h2 class="text-lg font-semibold mb-2">{{ template?.name || 'Шаблон' }}</h2>
-                <div class="w-full h-64 bg-gray-100 flex items-center justify-center">
-                    <img
-                        v-if="template?.preview_path"
-                        :src="`${apiBaseUrl}/${template.preview_path}`"
-                        alt="preview"
-                        class="max-h-full object-contain"
-                    />
-                    <div v-else class="text-gray-400 italic">Нет превью</div>
-                </div>
-            </div>
-
-            <div class="border p-4 rounded">
-                <h3 class="text-md font-semibold mb-2">Загрузите JSON-файл</h3>
+            <h3 class="text-md font-semibold border rounded p-4 flex flex-col">
+                Загрузите JSON-файл
                 <input
+                    id="json-upload"
                     type="file"
                     accept=".json"
                     @change="handleFileUpload"
-                    class="mb-4"
+                    class="mt-2 w-full"
                 />
-                <div v-if="objectCount !== null" class="text-sm text-gray-600 mb-2">
+                <div v-if="objectCount !== null" class="text-sm text-gray-600 mt-2 text-center">
                     Количество объектов: <strong>{{ objectCount }}</strong>
                 </div>
-                <div v-if="previewImageUrl" class="max-h-full object-contain">
-                    <img
-                        :src="previewImageUrl"
-                        alt="Предпросмотр"
-                        class="max-w-full max-h-64 object-contain"
-                    />
-                </div>
-                <div v-else-if="errorMessage" class="mt-4 text-red-600 font-semibold">
+            </h3>
+
+            <section
+                class="border rounded p-4 flex items-center justify-center overflow-hidden min-h-[256px]"
+            >
+                <img
+                    v-if="template?.preview_path"
+                    :src="`${apiBaseUrl}/${template.preview_path}`"
+                    alt="preview"
+                    class="max-h-full max-w-full object-contain"
+                />
+                <div v-else class="text-gray-400 italic">Нет превью</div>
+            </section>
+
+            <section
+                class="border rounded p-4 flex items-center justify-center overflow-hidden min-h-[256px]"
+            >
+                <img
+                    v-if="previewImageUrl"
+                    :src="previewImageUrl"
+                    alt="Предпросмотр"
+                    class="max-h-full max-w-full object-contain"
+                />
+                <div v-else-if="errorMessage" class="text-red-600 font-semibold italic p-4 text-center">
                     {{ errorMessage }}
                 </div>
-            </div>
+                <div v-else class="text-gray-400 italic">Нет превью</div>
+            </section>
+        </div>
+        <div class="flex items-center justify-center m-5">
+            <BaseButton
+                :disabled="!(objectCount > 0 && previewImageUrl)"
+                color="bg-blue-600"
+                icon="PlusCircleIcon"
+                @click="upload"
+            >
+                Обработать все
+            </BaseButton>
         </div>
     </div>
 </template>
