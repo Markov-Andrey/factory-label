@@ -44,16 +44,45 @@
 
             <!-- Центр: Canvas -->
             <div class="flex-1 flex justify-center items-start">
-                <div
-                    class="border border-black"
-                    :style="{ width: mmToPx(widthMM) + 'px', height: mmToPx(heightMM) + 'px' }"
-                >
-                    <canvas ref="canvas"></canvas>
+                <div class="border border-black">
+                    <div :style="{ width: mmToPx(widthMM) + 'px', height: mmToPx(heightMM) + 'px' }" >
+                        <canvas ref="canvas"></canvas>
+                    </div>
                 </div>
             </div>
 
             <!-- Правая панель -->
             <div class="w-[30%] bg-gray-200 p-2 rounded shadow-floating">
+                <!-- Слои -->
+                <div v-if="layers.length" class="space-y-1 border p-1 rounded">
+                    <span class="text-center">Слои</span>
+                    <div
+                        v-for="(layer, i) in layers"
+                        :key="i"
+                        class="flex items-center justify-between bg-white p-2 rounded shadow text-sm hover:bg-gray-100 cursor-pointer"
+                    >
+                        <div class="flex items-center gap-2">
+                            <span class="font-mono text-gray-500">#{{ layer.index }}</span>
+                            <span class="font-semibold capitalize">{{ layer.type }}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <BaseButton
+                                color="bg-gray-500"
+                                :tooltip="layer.visible ? 'Слой видим' : 'Слой скрыт'"
+                                :icon="layer.visible ? 'EyeIcon' : 'EyeSlashIcon'"
+                                @click.prevent="toggleVisibility(layer.index)"
+                            />
+                            <BaseButton
+                                color="bg-gray-500"
+                                :tooltip="layer.selectable ? 'Можно выбрать' : 'Нельзя выбрать'"
+                                :icon="layer.selectable ? 'LockOpenIcon' : 'LockClosedIcon'"
+                                @click.prevent="toggleSelectable(layer.index)"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Текущий объект -->
                 <div v-if="selectedObject" class="space-y-2 mb-4">
                     <label class="block mb-1 font-semibold">ID выбранного объекта:</label>
                     <input
@@ -66,6 +95,8 @@
                       {{ JSON.stringify(selectedObject, null, 2) }}
                     </pre>
                 </div>
+
+                <!-- Карта ключей -->
                 <KeyMapComponent
                     :meta="canvasMeta()"
                     :onCopy="copyToClipboard"
@@ -101,8 +132,8 @@ export default {
             apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
             name: '',
             zoom: 4,
-            widthMM: 150,
-            heightMM: 100,
+            widthMM: 100,
+            heightMM: 60,
             fontSize: 30,
             lineHeight: 1.0,
             isBold: false,
@@ -114,6 +145,7 @@ export default {
             backgroundColor: '#fff',
             fontColor: '#000000',
             fontFamily: 'Times New Roman',
+            layers: [],
         };
     },
     mounted() {
@@ -125,6 +157,7 @@ export default {
 
         initRecording(this.canvas, () => {
             this.canUpd();
+            this.updateLayers();
         });
         record();
         this.canUpd(); // запуск истории
@@ -161,6 +194,29 @@ export default {
         fabricIconsSpecial, fabricIconsBarcodes,
         undo, redo, onColorChange,
 
+        toggleVisibility(index) {
+            const obj = this.canvas.getObjects()[index]
+            if (!obj) return
+            obj.visible = !obj.visible
+            this.canvas.renderAll()
+            this.updateLayers()
+        },
+        toggleSelectable(index) {
+            const obj = this.canvas.getObjects()[index]
+            if (!obj) return
+            obj.selectable = !obj.selectable
+            this.canvas.renderAll()
+            this.updateLayers()
+        },
+        updateLayers() {
+            this.layers = this.canvas.getObjects().map((obj, i) => ({
+                type: obj.type,
+                visible: obj.visible !== false,
+                selectable: obj.selectable !== false,
+                index: i,
+            }));
+            console.log(this.layers);
+        },
         onSelectionChanged() {
             this.canvasMeta();
             const active = this.canvas.getActiveObject();
