@@ -54,12 +54,13 @@
             <!-- Правая панель -->
             <div class="w-[30%] bg-gray-200 p-2 rounded shadow-floating">
                 <!-- Слои -->
-                <div v-if="layers.length" class="space-y-1 border p-1 rounded">
-                    <span class="text-center">Слои</span>
+                <div class="bg-gray-100 p-1 rounded my-2">
+                    <span>Слои</span>
                     <div
                         v-for="(layer, i) in layers"
                         :key="i"
                         class="flex items-center justify-between bg-white p-2 rounded shadow text-sm hover:bg-gray-100 cursor-pointer"
+                        @click="onLayerClick($event, layer.index)"
                     >
                         <div class="flex items-center gap-2">
                             <span class="font-mono text-gray-500">#{{ layer.index }}</span>
@@ -194,6 +195,17 @@ export default {
         fabricIconsSpecial, fabricIconsBarcodes,
         undo, redo, onColorChange,
 
+        onLayerClick(event, index) {
+            if (event.target.closest('button')) return;
+            const objects = this.canvas.getObjects();
+            const obj = objects[index];
+            if (obj && obj.selectable && obj.evented) {
+                this.canvas.setActiveObject(obj);
+            } else {
+                this.canvas.discardActiveObject();
+            }
+            this.canvas.requestRenderAll();
+        },
         toggleVisibility(index) {
             const obj = this.canvas.getObjects()[index]
             if (!obj) return
