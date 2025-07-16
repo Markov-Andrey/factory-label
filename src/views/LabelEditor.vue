@@ -18,7 +18,7 @@
         </header>
 
         <!-- Правая панель -->
-        <aside class="fixed top-0 right-0 w-[450px] h-full bg-gray-200 border-l border-gray-300 p-4 overflow-auto z-20">
+        <aside class="fixed top-0 right-0 w-[450px] h-full bg-gray-200 border-l border-gray-300 py-4 pl-4 pr-2 overflow-auto z-20 scroll-all">
             <div class="flex justify-between items-center px-4 py-2 rounded-t">
                 <div class="flex items-center gap-2">
                     <span class="text-gray-600 font-medium">Шаблон:</span>
