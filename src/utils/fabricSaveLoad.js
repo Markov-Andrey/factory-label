@@ -15,10 +15,9 @@ export async function saveCanvas(canvas, widthMM, heightMM, id) {
             heightMM,
             preview_png: pngDataUrl,
         });
-        alert('Шаблон успешно сохранен');
-        console.log('Шаблон успешно сохранен');
+        this.$alert('Шаблон успешно сохранен!', 'success');
     } catch (error) {
-        console.error('Ошибка при сохранении шаблона:', error);
+        this.$alert(`Ошибка при сохранении шаблона: ${error}`, 'error');
         throw error;
     }
 }

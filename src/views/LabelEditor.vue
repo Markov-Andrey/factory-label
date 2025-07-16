@@ -276,7 +276,7 @@ export default {
             navigator.clipboard.writeText(JSON.stringify(
                 Object.fromEntries(this.canvasMeta().map(item => [item.id || '', item.meta || ''])), null, 2
             ));
-            this.$alert('Данные скопированы в буфер обмена!', 'success');
+            this.$alert('Данные скопированы в буфер обмена!', 'info');
         },
         updateSelectedObjectId() {
             if (this.selectedObject) this.selectedObject.set('id', this.selectedObjectId);
