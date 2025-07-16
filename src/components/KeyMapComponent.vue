@@ -16,13 +16,7 @@
 import BaseButton from "@/components/base/BaseButton.vue";
 
 defineProps({
-    meta: {
-        type: Array,
-        required: true,
-    },
-    onCopy: {
-        type: Function,
-        required: true,
-    }
+    meta: { type: Array, required: true, },
+    onCopy: { type: Function, required: true, }
 });
 </script>
