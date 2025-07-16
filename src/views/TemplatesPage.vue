@@ -2,7 +2,7 @@
     <div class="max-w-6xl mb-12 mx-auto">
         <header class="sticky top-0 bg-white shadow-md z-50 py-4">
             <div class="flex flex-wrap justify-center items-center gap-4">
-                <BaseButton icon="PlusCircleIcon" @click="openModal('create')" color="bg-gray-600">
+                <BaseButton placement="bottom" tooltip="Создать новый шаблон" icon="PlusCircleIcon" @click="openModal('create')" color="bg-gray-600">
                     Создать
                 </BaseButton>
                 <span>Тег</span>
@@ -10,6 +10,7 @@
                     v-model="selectedTag"
                     :options="tags"
                     tooltip="Выбрать тег"
+                    placement="bottom"
                     class="min-w-[150px]"
                 />
                 <span>Название</span>
@@ -72,6 +73,7 @@ import axios from 'axios'
 import BaseInput from '@/components/base/BaseInput.vue'
 import BaseButton from '@/components/base/BaseButton.vue'
 import BaseSelect from "@/components/base/BaseSelect.vue";
+import debounce from 'lodash/debounce';
 
 export default {
     name: 'TemplatesPage',
@@ -91,14 +93,7 @@ export default {
             tags: [],
             selectedTag: null,
             loading: false,
-        }
-    },
-    watch: {
-        selectedTag(newTag) {
-            this.go(1, newTag, this.nameTemplate)
-        },
-        nameTemplate(newName) {
-            this.go(1, this.selectedTag, newName)
+            debouncedFetch: null,
         }
     },
     computed: {
@@ -119,6 +114,18 @@ export default {
         this.page = Number(this.$route.query.page) || 1
         this.fetch(this.page)
         this.fetchTags()
+
+        this.debouncedFetch = debounce(() => {
+            this.go(1, this.selectedTag, this.nameTemplate)
+        }, 300)
+    },
+    watch: {
+        selectedTag() {
+            this.debouncedFetch()
+        },
+        nameTemplate() {
+            this.debouncedFetch()
+        }
     },
     methods: {
         async fetchTags() {
@@ -150,15 +157,9 @@ export default {
             }
         },
         go(page = this.page, tag = this.selectedTag, name = this.nameTemplate) {
-            const tagChanged = this.selectedTag !== tag
-            const nameChanged = this.nameTemplate !== name
-            const pageChanged = this.page !== page
-
-            if (!tagChanged && !nameChanged && !pageChanged) return
-
             this.page = page
-            if (tagChanged) this.selectedTag = tag
-            if (nameChanged) this.nameTemplate = name
+            this.selectedTag = tag
+            this.nameTemplate = name
 
             this.fetch(page)
             this.$router.replace({

@@ -1,13 +1,15 @@
 <template>
-    <div class="relative inline-block">
+    <div
+            class="relative inline-block"
+            @mouseenter="show = true"
+            @mouseleave="show = false"
+    >
         <button
                 :class="[
         'group relative inline-flex items-center justify-center gap-2 rounded py-1 px-4 overflow-hidden',
         disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer',
       ]"
                 :disabled="disabled"
-                @mouseenter="show = true"
-                @mouseleave="show = false"
                 @click="handleClick"
                 ref="buttonEl"
         >
@@ -15,10 +17,11 @@
               :class="[
           'absolute inset-0 transition duration-150 z-0',
           color,
-          !disabled ? 'group-hover:brightness-85' : '',
+          !disabled ? 'group-hover:brightness-90' : '',
         ]"
               aria-hidden="true"
       ></span>
+
             <span :class="['relative z-10 flex items-center gap-2', textColor]">
         <component
                 v-if="IconComponent"
@@ -26,55 +29,39 @@
                 class="w-5 h-5 flex-shrink-0"
                 aria-hidden="true"
         />
-        <slot/>
+        <slot />
       </span>
         </button>
 
-        <div
+        <BaseTooltip
                 v-if="tooltip && show"
-                ref="tooltipEl"
-                class="absolute bottom-full mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded shadow-lg whitespace-nowrap select-none z-50"
-                :style="tooltipStyles"
-        >
-            {{ tooltip }}
-        </div>
+                :text="tooltip"
+                :tooltipId="tooltipId"
+                :placement="placement"
+        />
     </div>
 </template>
 
 <script>
 import * as heroicons from '@heroicons/vue/24/solid'
+import BaseTooltip from '@/components/base/BaseTooltip.vue'
 
 export default {
+    components: { BaseTooltip },
+
     props: {
-        color: {
-            type: String,
-            default: 'bg-blue-600',
-        },
-        textColor: {
-            type: String,
-            default: 'text-white',
-        },
-        icon: {
-            type: String,
-            default: null,
-        },
-        tooltip: {
-            type: String,
-            default: '',
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
+        color: { type: String, default: 'bg-blue-600' },
+        textColor: { type: String, default: 'text-white' },
+        icon: { type: String, default: null },
+        tooltip: { type: String, default: '' },
+        placement: { type: String, default: 'top' },
+        disabled: { type: Boolean, default: false },
     },
 
     data() {
         return {
             show: false,
-            tooltipStyles: {
-                left: '50%',
-                transform: 'translateX(-50%)',
-            },
+            tooltipId: `tooltip-${Math.random().toString(36).substring(2, 9)}`,
         }
     },
 
@@ -83,6 +70,7 @@ export default {
             return this.icon ? heroicons[this.icon] : null
         },
     },
+
     methods: {
         handleClick(e) {
             if (this.disabled) {
@@ -90,11 +78,6 @@ export default {
                 e.stopImmediatePropagation()
             }
         },
-    },
-
-    mounted() {
-        this.tooltipEl = this.$refs.tooltipEl
-        this.buttonEl = this.$refs.buttonEl
     },
 }
 </script>

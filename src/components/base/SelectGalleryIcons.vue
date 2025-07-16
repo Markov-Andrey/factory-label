@@ -1,14 +1,25 @@
 <template>
-    <div>
-        <BaseButton
-            @click="showModal = true"
-            :color="buttonColor"
-            :icon="buttonIcon"
-            :tooltip="tooltip"
-        >
-            {{ buttonText }}
-        </BaseButton>
+    <div class="relative">
+        <div @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
+            <BaseButton
+                @click="showModal = true"
+                :color="buttonColor"
+                :icon="buttonIcon"
+                :disabled="false"
+            >
+                {{ buttonText }}
+            </BaseButton>
 
+            <!-- Tooltip -->
+            <BaseTooltip
+                v-if="tooltip && showTooltip"
+                :text="tooltip"
+                :placement="placement"
+                tooltip-id="gallery-tooltip"
+            />
+        </div>
+
+        <!-- Modal -->
         <div
             v-if="showModal"
             tabindex="-1"
@@ -66,60 +77,44 @@
 </template>
 
 <script>
-import BaseButton from "@/components/base/BaseButton.vue";
+import BaseButton from '@/components/base/BaseButton.vue'
+import BaseTooltip from '@/components/base/BaseTooltip.vue'
 
 export default {
     name: 'BaseSelectGallery',
-    components: { BaseButton },
+    components: {
+        BaseButton,
+        BaseTooltip,
+    },
     props: {
-        tooltip: {
-            type: String,
-            default: ''
-        },
-        buttonText: {
-            type: String,
-            default: ''
-        },
-        buttonColor: {
-            type: String,
-            default: 'bg-green-600'
-        },
-        buttonIcon: {
-            type: String,
-            default: 'PlusCircleIcon'
-        },
-        modalTitle: {
-            type: String,
-            default: 'Добавить иконку'
-        },
-        icons: {
-            type: Array,
-            required: true
-        }
+        placement: { type: String, default: 'top' },
+        tooltip: { type: String, default: '' },
+        buttonText: { type: String, default: '' },
+        buttonColor: { type: String, default: 'bg-green-600' },
+        buttonIcon: { type: String, default: 'PlusCircleIcon' },
+        modalTitle: { type: String, default: 'Добавить иконку' },
+        icons: { type: Array, required: true },
     },
     emits: ['icon-selected'],
     data() {
         return {
             showModal: false,
-        };
+            showTooltip: false,
+        }
     },
     watch: {
         showModal(newVal) {
-            if (newVal) {
-                document.body.classList.add('overflow-hidden');
-            } else {
-                document.body.classList.remove('overflow-hidden');
-            }
-        }
+            document.body.classList.toggle('overflow-hidden', newVal)
+        },
     },
     methods: {
         selectIcon(icon) {
-            this.$emit('icon-selected', icon);
-            this.showModal = false;
-        }
+            this.$emit('icon-selected', icon)
+            this.showModal = false
+        },
     },
     beforeUnmount() {
-        document.body.classList.remove('overflow-hidden');
-    }
-};
+        document.body.classList.remove('overflow-hidden')
+    },
+}
 </script>

@@ -17,40 +17,27 @@
             ]"
             v-bind="$attrs"
         />
-        <div
+        <BaseTooltip
             v-if="tooltip && show"
-            class="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded shadow-lg whitespace-nowrap select-none z-50"
-        >
-            {{ tooltip }}
-        </div>
+            :text="tooltip"
+            tooltip-id="select-tooltip"
+            :placement="placement"
+        />
     </label>
 </template>
 
 <script setup>
 import { ref } from 'vue'
+import BaseTooltip from '@/components/base/BaseTooltip.vue'
 
 const props = defineProps({
     modelValue: [String, Number],
-    type: {
-        type: String,
-        default: 'text',
-    },
-    label: {
-        type: String,
-        default: '',
-    },
-    className: {
-        type: String,
-        default: '',
-    },
-    step: {
-        type: [String, Number],
-        default: undefined,
-    },
-    tooltip: {
-        type: String,
-        default: '',
-    }
+    type: { type: String, default: 'text', },
+    label: { type: String, default: '' },
+    className: { type: String, default: '', },
+    step: { type: [String, Number], default: undefined, },
+    tooltip: { type: String, default: '', },
+    placement: { type: String, default: '' },
 })
 
 const emit = defineEmits(['update:modelValue'])

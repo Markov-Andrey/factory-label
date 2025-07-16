@@ -13,13 +13,12 @@
             />
         </div>
 
-        <!-- Tooltip -->
-        <div
+        <BaseTooltip
             v-if="tooltip && show"
-            class="absolute bottom-full mb-2 px-3 py-1 text-xs text-white bg-gray-800 rounded shadow-lg whitespace-nowrap select-none z-50"
-        >
-            {{ tooltip }}
-        </div>
+            :text="tooltip"
+            tooltip-id="select-tooltip"
+            :placement="placement"
+        />
 
         <!-- Модалка -->
         <div
@@ -51,12 +50,16 @@
 </template>
 
 <script>
+import BaseTooltip from "@/components/base/BaseTooltip.vue";
+
 export default {
     name: "BaseColorPicker",
+    components: {BaseTooltip},
     props: {
         modelValue: { type: String, default: "rgba(0,0,0,1)" },
         disabled: Boolean,
         tooltip: { type: String, default: "" },
+        placement: { type: String, default: '' },
     },
     data() {
         return {

@@ -35,10 +35,10 @@
 
         <div class="button-overlay rounded absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm px-3 py-2 flex justify-center gap-2 opacity-0 pointer-events-none transition-opacity duration-200">
             <div class="pointer-events-auto flex gap-2">
-                <BaseButton @click="onRename" icon="PencilSquareIcon" color="bg-gray-600" tooltip="Переименовать" />
-                <BaseButton @click="onDuplicate" icon="DocumentDuplicateIcon" color="bg-gray-600" tooltip="Создать дубликат" />
-                <BaseButton @click="onEdit" icon="PaintBrushIcon" color="bg-gray-600" tooltip="Редактировать" />
-                <BaseButton @click="onDelete" icon="XCircleIcon" color="bg-gray-600" tooltip="Удалить" />
+                <BaseButton @click="onRename" icon="PencilSquareIcon" color="bg-gray-600" placement="top" tooltip="Переименовать"/>
+                <BaseButton @click="onDuplicate" icon="DocumentDuplicateIcon" color="bg-gray-600" placement="top" tooltip="Создать дубликат" />
+                <BaseButton @click="onEdit" icon="PaintBrushIcon" color="bg-gray-600" placement="top" tooltip="Редактировать" />
+                <BaseButton @click="onDelete" icon="XCircleIcon" color="bg-gray-600" placement="top" tooltip="Удалить" />
             </div>
         </div>
     </div>

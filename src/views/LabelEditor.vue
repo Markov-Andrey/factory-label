@@ -3,17 +3,17 @@
         <!-- Верхняя строка -->
         <header class="fixed top-0 left-0 right-[450px] h-auto min-h-12 px-4 py-2 bg-gray-100 border-b border-gray-300 z-30 flex items-center justify-center">
             <div class="flex flex-wrap gap-2 items-center justify-center">
-                <BaseInput :disabled="isTextboxSelected" @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
-                <BaseInput :disabled="isTextboxSelected" @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
-                <BaseButton :disabled="isTextboxSelected" @click="toggleBold(this.canvas)" color="bg-gray-700" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" />
-                <BaseButton :disabled="isTextboxSelected" @click="toggleItalic(this.canvas)" color="bg-gray-700" icon="ItalicIcon" tooltip="Курсив (Ctrl+I)" />
-                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю (Ctrl+L)" color="bg-green-600" />
-                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру (Ctrl+E)" color="bg-green-600" />
-                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю (Ctrl+R)" color="bg-green-600" />
-                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине (Ctrl+J)" color="bg-green-600" />
-                <BaseColorPicker :disabled="isTextboxSelected" tooltip="Фон текста" v-model="backgroundColor" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
-                <BaseColorPicker :disabled="isTextboxSelected" tooltip="Цвет текста" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
-                <BaseSelect :disabled="isTextboxSelected" tooltip="Шрифт текста" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
+                <BaseInput :disabled="isTextboxSelected" @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" placement="bottom" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
+                <BaseInput :disabled="isTextboxSelected" @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" placement="bottom" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
+                <BaseButton :disabled="isTextboxSelected" @click="toggleBold(this.canvas)" color="bg-gray-700" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" placement="bottom" />
+                <BaseButton :disabled="isTextboxSelected" @click="toggleItalic(this.canvas)" color="bg-gray-700" icon="ItalicIcon" tooltip="Курсив (Ctrl+I)" placement="bottom" />
+                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю (Ctrl+L)" placement="bottom" color="bg-green-600" />
+                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру (Ctrl+E)" placement="bottom" color="bg-green-600" />
+                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю (Ctrl+R)" placement="bottom" color="bg-green-600" />
+                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине (Ctrl+J)" placement="bottom" color="bg-green-600" />
+                <BaseColorPicker :disabled="isTextboxSelected" tooltip="Фон текста" placement="bottom" v-model="backgroundColor" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
+                <BaseColorPicker :disabled="isTextboxSelected" tooltip="Цвет текста" placement="bottom" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
+                <BaseSelect :disabled="isTextboxSelected" tooltip="Шрифт текста" placement="bottom" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
             </div>
         </header>
 
@@ -89,7 +89,7 @@
             <!-- Аккордеон: Текущий объект -->
             <details
                 :open="!!selectedObject"
-                :class="{ 'opacity-50 pointer-events-none': !selectedObject }"
+                :class="[ 'group', { 'opacity-50 pointer-events-none': !selectedObject } ]"
             >
                 <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-600 text-white rounded group-open:rounded-b-none">
                     <span class="font-semibold">Текущий объект</span>
@@ -116,17 +116,17 @@
         <!-- Инструменты слева -->
         <div class="fixed left-0 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded shadow-floating shadow z-40">
             <div class="grid grid-cols-1 gap-1">
-                <BaseButton tooltip="Сохранить (Ctrl+S)" @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-gray-600" icon="CloudArrowUpIcon"/>
-                <BaseButton tooltip="Выйти" @click="exit" color="bg-gray-600" icon="ArrowLeftEndOnRectangleIcon"/>
+                <BaseButton tooltip="Сохранить (Ctrl+S)" placement="right" @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-gray-600" icon="CloudArrowUpIcon"/>
+                <BaseButton tooltip="Выйти" placement="right" @click="exit" color="bg-gray-600" icon="ArrowLeftEndOnRectangleIcon"/>
                 <hr class="m-1 border-t-2 border-gray-400">
-                <BaseButton @click="undo(); this.canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" color="bg-gray-600" />
-                <BaseButton @click="redo(); this.canUpd()" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть (Ctrl+Y)" color="bg-gray-600" />
+                <BaseButton @click="undo(); this.canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" placement="right" color="bg-gray-600" />
+                <BaseButton @click="redo(); this.canUpd()" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть (Ctrl+Y)" placement="right" color="bg-gray-600" />
                 <hr class="m-1 border-t-2 border-gray-400">
-                <BaseButton tooltip="Добавить текст" @click="addText(this.canvas);" color="bg-gray-600" icon="ItalicIcon"/>
-                <BaseButton tooltip="Добавить рамку" @click="addRect(this.canvas);" color="bg-gray-600" icon="Squares2X2Icon"/>
-                <SelectGalleryIcons tooltip="Добавить QR" button-color="bg-gray-600" button-icon="QrCodeIcon" modal-title="Выберите код" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
-                <SelectGalleryIcons tooltip="Добавить символ" button-color="bg-gray-600" button-icon="AtSymbolIcon" modal-title="Выберите символ" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
-                <BaseButton tooltip="Добавить изображение" @click="() => $refs.imageInput.click()" color="bg-gray-600" icon="PhotoIcon"/>
+                <BaseButton tooltip="Добавить текст" placement="right" @click="addText(this.canvas);" color="bg-gray-600" icon="ItalicIcon"/>
+                <BaseButton tooltip="Добавить рамку" placement="right" @click="addRect(this.canvas);" color="bg-gray-600" icon="Squares2X2Icon"/>
+                <SelectGalleryIcons tooltip="Добавить QR" placement="right" button-color="bg-gray-600" button-icon="QrCodeIcon" modal-title="Выберите код" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
+                <SelectGalleryIcons tooltip="Добавить символ" placement="right" button-color="bg-gray-600" button-icon="AtSymbolIcon" modal-title="Выберите символ" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
+                <BaseButton tooltip="Добавить изображение" placement="right" @click="() => $refs.imageInput.click()" color="bg-gray-600" icon="PhotoIcon"/>
                 <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
             </div>
         </div>
@@ -337,4 +337,13 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.tooltip-arrow {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: inherit;
+    transform: rotate(45deg);
+    z-index: -1;
+}
+</style>

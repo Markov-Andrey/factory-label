@@ -1,7 +1,7 @@
 <template>
     <div v-if="meta.length" class="relative p-4 bg-gray-100 rounded-md font-mono text-sm text-gray-800 select-text whitespace-pre-wrap">
         <div class="absolute top-2 right-2">
-            <BaseButton @click="onCopy" color="bg-green-600" icon="ClipboardDocumentIcon" tooltip="Копировать в буфер обмена" />
+            <BaseButton @click="onCopy" color="bg-gray-600" icon="ClipboardDocumentIcon" placement="left" tooltip="Копировать в буфер обмена" />
         </div>
         <h3 class="mb-2 font-semibold text-gray-900">Карта ключей:</h3>
         <div>{</div>
