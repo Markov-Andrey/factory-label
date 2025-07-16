@@ -2,18 +2,20 @@
     <div class="relative">
         <!-- Верхняя строка -->
         <header class="fixed top-0 left-0 right-[450px] h-auto min-h-12 px-4 py-2 bg-gray-100 border-b border-gray-300 z-30 flex items-center justify-center">
-            <div class="flex flex-wrap gap-2 items-center justify-center">
-                <BaseSelect :disabled="isTextboxSelected" tooltip="Шрифт текста" placement="bottom" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
-                <BaseInput :disabled="isTextboxSelected" @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" placement="bottom" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
-                <BaseInput :disabled="isTextboxSelected" @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" placement="bottom" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
-                <BaseButton :disabled="isTextboxSelected" @click="toggleBold(this.canvas)" color="bg-gray-700" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" placement="bottom" />
-                <BaseButton :disabled="isTextboxSelected" @click="toggleItalic(this.canvas)" color="bg-gray-700" icon="ItalicIcon" tooltip="Курсив (Ctrl+I)" placement="bottom" />
-                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю (Ctrl+L)" placement="bottom" color="bg-green-600" />
-                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру (Ctrl+E)" placement="bottom" color="bg-green-600" />
-                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю (Ctrl+R)" placement="bottom" color="bg-green-600" />
-                <BaseButton :disabled="isTextboxSelected" @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине (Ctrl+J)" placement="bottom" color="bg-green-600" />
-                <BaseColorPicker :disabled="isTextboxSelected" tooltip="Фон текста" placement="bottom" v-model="backgroundColor" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
-                <BaseColorPicker :disabled="isTextboxSelected" tooltip="Цвет текста" placement="bottom" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
+            <div v-if="!isTextboxSelected">
+                <div class="flex flex-wrap gap-2 items-center justify-center">
+                    <BaseSelect tooltip="Шрифт текста" placement="bottom" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
+                    <BaseInput @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" placement="bottom" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
+                    <BaseInput @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" placement="bottom" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
+                    <BaseButton @click="toggleBold(this.canvas)" color="bg-gray-600" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" placement="bottom" />
+                    <BaseButton @click="toggleItalic(this.canvas)" color="bg-gray-600" icon="ItalicIcon" tooltip="Курсив (Ctrl+I)" placement="bottom" />
+                    <BaseButton @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю (Ctrl+L)" placement="bottom" color="bg-gray-600" />
+                    <BaseButton @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру (Ctrl+E)" placement="bottom" color="bg-gray-600" />
+                    <BaseButton @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю (Ctrl+R)" placement="bottom" color="bg-gray-600" />
+                    <BaseButton @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине (Ctrl+J)" placement="bottom" color="bg-gray-600" />
+                    <BaseColorPicker tooltip="Фон текста" placement="bottom" v-model="backgroundColor" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
+                    <BaseColorPicker tooltip="Цвет текста" placement="bottom" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
+                </div>
             </div>
         </header>
 
@@ -104,11 +106,10 @@
                         :disabled="!selectedObject"
                         class="w-full border px-2 py-1 rounded"
                     />
-                    <pre
-                        class="bg-gray-100 text-xs p-2 overflow-auto max-h-64 border rounded"
-                    >
-                          {{ JSON.stringify(selectedObject, null, 2) }}
-                        </pre>
+                    <pre class="bg-gray-100 text-xs p-2 overflow-auto max-h-64 border rounded" >
+                        {{ JSON.stringify(selectedObject, null, 2)
+                        .replace(/[{}"]/g, '') }}
+                    </pre>
                 </div>
             </details>
         </aside>
@@ -339,12 +340,4 @@ export default {
 </script>
 
 <style scoped>
-.tooltip-arrow {
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: inherit;
-    transform: rotate(45deg);
-    z-index: -1;
-}
 </style>
