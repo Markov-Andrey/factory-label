@@ -12,7 +12,7 @@
             :step="step"
             :disabled="$attrs.disabled"
             :class="[
-                `mt-1 rounded border border-gray-300 px-2 py-1 focus:border-blue-500 focus:outline-none focus:ring ${className}`,
+                `rounded border border-gray-300 px-2 py-[6px] focus:border-blue-500 focus:outline-none focus:ring ${className}`,
                 $attrs.disabled ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'
             ]"
             v-bind="$attrs"
