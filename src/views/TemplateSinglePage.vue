@@ -33,7 +33,7 @@
                     v-if="template?.preview_path"
                     :src="`${apiBaseUrl}/${template.preview_path}`"
                     alt="preview"
-                    class="border rounded max-h-full max-w-full object-contain"
+                    class="border rounded h-full max-w-full object-contain"
                 />
                 <div v-else class="text-gray-400 italic">Нет превью</div>
             </section>
@@ -45,7 +45,7 @@
                     v-if="previewImageUrl"
                     :src="previewImageUrl"
                     alt="Предпросмотр"
-                    class="border rounded max-h-full max-w-full object-contain"
+                    class="border rounded h-full max-w-full object-contain"
                 />
                 <div v-else-if="errorMessage" class="text-red-600 font-semibold italic p-4 text-center">
                     {{ errorMessage }}
