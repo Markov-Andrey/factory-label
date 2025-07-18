@@ -27,25 +27,25 @@
             </h3>
 
             <section
-                class="border rounded p-4 flex items-center justify-center overflow-hidden min-h-[256px]"
+                class="flex items-center justify-center overflow-hidden h-[256px]"
             >
                 <img
                     v-if="template?.preview_path"
                     :src="`${apiBaseUrl}/${template.preview_path}`"
                     alt="preview"
-                    class="max-h-full max-w-full object-contain"
+                    class="border rounded max-h-full max-w-full object-contain"
                 />
                 <div v-else class="text-gray-400 italic">Нет превью</div>
             </section>
 
             <section
-                class="border rounded p-4 flex items-center justify-center overflow-hidden min-h-[256px]"
+                class="flex items-center justify-center overflow-hidden h-[256px]"
             >
                 <img
                     v-if="previewImageUrl"
                     :src="previewImageUrl"
                     alt="Предпросмотр"
-                    class="max-h-full max-w-full object-contain"
+                    class="border rounded max-h-full max-w-full object-contain"
                 />
                 <div v-else-if="errorMessage" class="text-red-600 font-semibold italic p-4 text-center">
                     {{ errorMessage }}
