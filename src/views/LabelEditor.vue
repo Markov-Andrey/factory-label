@@ -34,7 +34,7 @@
 
             <details class="group border border-gray-300 rounded">
                 <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-600 text-white rounded group-open:rounded-b-none">
-                    <span class="font-semibold">Размеры</span>
+                    <span class="font-semibold">Размеры шаблона</span>
                     <SvgArrow/>
                 </summary>
                 <div class="bg-white border-t border-gray-300 p-2 max-h-[200px] overflow-y-auto space-y-1">
