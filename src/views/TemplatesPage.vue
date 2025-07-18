@@ -131,7 +131,7 @@ export default {
         async fetchTags() {
             try {
                 const res = await axios.get(`${this.api}/api/templates/tags`)
-                this.tags = [null, ...res.data]
+                this.tags = res.data
             } catch (e) {
                 console.error('Ошибка при загрузке тегов:', e)
             }

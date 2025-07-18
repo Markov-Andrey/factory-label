@@ -5,12 +5,18 @@
             @change="onChange"
             :disabled="disabled"
             :class="[
-              'px-4 pe-9 block w-full border rounded text-sm disabled:opacity-50 disabled:pointer-events-none',
-              disabled ? 'bg-gray-200 cursor-not-allowed border-gray-300' : 'border-gray-300'
-            ]"
+        'px-4 pe-9 block w-full border rounded text-sm disabled:opacity-50 disabled:pointer-events-none',
+        disabled ? 'bg-gray-200 cursor-not-allowed border-gray-300' : 'border-gray-300'
+      ]"
         >
             <option disabled value="">{{ placeholder }}</option>
-            <option v-for="option in options" :key="option" :value="option">{{ option }}</option>
+            <option
+                v-for="option in options"
+                :key="option.key"
+                :value="option.key === null ? 'null' : option.key"
+            >
+                {{ option.value }}
+            </option>
         </select>
 
         <BaseTooltip
@@ -27,8 +33,11 @@ import { ref, defineProps, defineEmits } from 'vue'
 import BaseTooltip from '@/components/base/BaseTooltip.vue'
 
 const props = defineProps({
-    options: Array,
-    modelValue: { type: [String, Number], default: '' },
+    options: {
+        type: Array,
+        default: () => []
+    },
+    modelValue: { type: [String, Number, null], default: null },
     placeholder: { type: String, default: '' },
     tooltip: { type: String, default: '' },
     disabled: { type: Boolean, default: false },
@@ -40,7 +49,7 @@ const show = ref(false)
 
 function onChange(e) {
     if (!props.disabled) {
-        const val = e.target.value
+        const val = e.target.value === 'null' ? null : e.target.value
         emit('update:modelValue', val)
         emit('change', val)
     }

@@ -19,8 +19,12 @@ class TemplateService
     // Все уникальные теги
     public static function tags(): array
     {
-        $rows = DB::select('SELECT DISTINCT TAGS FROM LABELER_TEMPLATES WHERE TAGS IS NOT NULL');
-        return array_values(array_filter(array_map(fn($row) => $row->tags, $rows)));
+        $tags = array_column(DB::select('SELECT DISTINCT TAGS FROM LABELER_TEMPLATES WHERE TAGS IS NOT NULL'), 'tags');
+        $result = [['key' => null, 'value' => '-']];
+        foreach ($tags as $tag) {
+            $result[] = ['key' => $tag, 'value' => $tag];
+        }
+        return $result;
     }
 
     public static function find(int $id)

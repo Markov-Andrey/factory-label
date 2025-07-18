@@ -4,7 +4,7 @@
         <header class="fixed top-0 left-0 right-[450px] h-auto min-h-12 px-4 py-2 bg-gray-100 border-b border-gray-300 z-30 flex items-center justify-center">
             <div v-if="!isTextboxSelected">
                 <div class="flex flex-wrap gap-2 items-center justify-center">
-                    <BaseSelect tooltip="Шрифт текста" placement="bottom" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="['Arial', 'Times New Roman', 'Verdana', 'Helvetica', 'Georgia', 'Courier New', 'Comic Sans MS', 'Trebuchet MS', 'Impact', 'Lucida Sans Unicode' ]"/>
+                    <BaseSelect tooltip="Шрифт текста" placement="bottom" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="fontOptions"/>
                     <BaseInput @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" placement="bottom" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
                     <BaseInput @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" placement="bottom" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
                     <BaseButton @click="toggleBold(this.canvas)" color="bg-gray-600" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" placement="bottom" />
@@ -185,6 +185,18 @@ export default {
             fontColor: '#000000',
             fontFamily: 'Times New Roman',
             layers: [],
+            fontOptions: [
+                { key: 'Arial', value: 'Arial' },
+                { key: 'Times New Roman', value: 'Times New Roman' },
+                { key: 'Verdana', value: 'Verdana' },
+                { key: 'Helvetica', value: 'Helvetica' },
+                { key: 'Georgia', value: 'Georgia' },
+                { key: 'Courier New', value: 'Courier New' },
+                { key: 'Comic Sans MS', value: 'Comic Sans MS' },
+                { key: 'Trebuchet MS', value: 'Trebuchet MS' },
+                { key: 'Impact', value: 'Impact' },
+                { key: 'Lucida Sans Unicode', value: 'Lucida Sans Unicode' }
+            ]
         };
     },
     mounted() {
