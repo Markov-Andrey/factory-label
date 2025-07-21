@@ -284,7 +284,7 @@ export default {
         },
         updateLayers() {
             this.layers = this.canvas.getObjects().map((obj, i) => ({
-                type: obj.type,
+                type: obj.id ? obj.id : obj.type,
                 visible: obj.visible !== false,
                 selectable: obj.selectable !== false,
                 index: i,
