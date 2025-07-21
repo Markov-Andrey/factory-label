@@ -20,7 +20,8 @@ export function registerKeyboardShortcuts(
     setTextAlignCenter,
     setTextAlignRight,
     setTextAlignJustify,
-    saveCanvas
+    saveCanvas,
+    clearTextStyles
 ) {
     const shortcutMap = {
         'ctrl+keyz': onUndo,
@@ -32,6 +33,7 @@ export function registerKeyboardShortcuts(
         'ctrl+keyr': setTextAlignRight,
         'ctrl+keyj': setTextAlignJustify,
         'ctrl+keys': saveCanvas,
+        'ctrl+space': clearTextStyles,
     };
 
     function handleKeyDown(e) {

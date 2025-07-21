@@ -173,6 +173,18 @@ export function setTextFont(canvas, fontName) {
 }
 
 /**
+ * Удаляет все стили символов у выбранного текстового объекта на canvas.
+ * @param {fabric.Canvas} canvas
+ */
+export function clearTextStyles(canvas) {
+    const obj = canvas.getActiveObject();
+    if (obj && obj.isType('textbox')) {
+        obj.styles = {};
+        canvas.requestRenderAll();
+    }
+}
+
+/**
  * Устанавливает активный объект на canvas по индексу слоя при клике. Игнорирует клики по кнопкам внутри слоя.
  * @param {fabric.Canvas} canvas
  * @param {MouseEvent} event

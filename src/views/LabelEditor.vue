@@ -15,6 +15,7 @@
                     <BaseButton @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине (Ctrl+J)" placement="bottom" color="bg-gray-600" />
                     <BaseColorPicker tooltip="Фон текста" placement="bottom" v-model="backgroundColor" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
                     <BaseColorPicker tooltip="Цвет текста" placement="bottom" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
+                    <BaseButton @click="clearTextStyles(this.canvas)" icon="BackspaceIcon" tooltip="Очистить стили (Ctrl+Space)" placement="bottom" color="bg-gray-600" />
                 </div>
             </div>
         </header>
@@ -172,19 +173,12 @@ import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import KeyMapComponent from '@/components/KeyMapComponent.vue';
 import {
-    addImage,
-    addRect,
-    addText,
-    onColorChange,
-    onLayerClick,
-    setTextAlign,
-    setTextFont,
-    toggleBold,
-    toggleItalic,
-    toggleProperty,
-    updateFontSize,
-    updateLineHeight,
-    changeLayer,
+    addImage, addRect, addText,
+    onColorChange, onLayerClick,
+    setTextAlign, setTextFont,
+    toggleBold, toggleItalic, toggleProperty,
+    updateFontSize, updateLineHeight,
+    changeLayer, clearTextStyles,
 } from '@/utils/fabricHelpers.js';
 import {loadCanvas, saveCanvas} from '@/utils/fabricSaveLoad.js';
 import {registerKeyboardShortcuts} from '@/utils/keyboardListeners.js';
@@ -257,7 +251,8 @@ export default {
             () => setTextAlign(c, 'center'),
             () => setTextAlign(c, 'right'),
             () => setTextAlign(c, 'justify'),
-            () => saveCanvas(c, this.widthMM, this.heightMM, this.$route.params.id)
+            () => saveCanvas(c, this.widthMM, this.heightMM, this.$route.params.id),
+            () => clearTextStyles(c)
         );
 
         this.canvas.on('selection:created', this.onSelectionChanged);
@@ -276,7 +271,7 @@ export default {
         setTextFont, addText, addRect, addImage, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
         saveCanvas, loadCanvas, registerKeyboardShortcuts,
         fabricIconsSpecial, fabricIconsBarcodes,
-        undo, redo, onColorChange, onLayerClick, toggleProperty, changeLayer,
+        undo, redo, onColorChange, onLayerClick, toggleProperty, changeLayer, clearTextStyles,
 
         exit() { this.$router.push('/'); },
         toggleVisibility(index) {
