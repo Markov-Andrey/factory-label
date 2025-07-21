@@ -203,7 +203,13 @@ export function toggleProperty(canvas, index, prop) {
     canvas.renderAll();
 }
 
-
+/**
+ * Меняет порядок слоев объекта на canvas, перемещая указанный объект вверх или вниз.
+ * @param {fabric.Canvas} canvas
+ * @param {number} index - Индекс объекта в списке объектов canvas
+ * @param {'up'|'down'} direction - Направление перемещения
+ * @returns {boolean} Был ли выполнен перенос
+ */
 export function changeLayer(canvas, index, direction) {
     const objects = [...canvas.getObjects()];
     if (index < 0 || index >= objects.length) return false;
