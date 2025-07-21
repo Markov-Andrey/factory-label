@@ -2,9 +2,6 @@
 
 namespace App\Services;
 
-use App\Http\Controllers\Gs1DataMarkController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
 use ZipArchive;
@@ -28,48 +25,74 @@ class LabelerGenerator
         return url('storage/tmp/' . $nodeOutput);
     }
 
-    public function upload(array $data)
+    public function upload(array $data): array
     {
+        return LabelerJobService::create($data);
+    }
+
+    public static function getNextQueuedJob()
+    {
+        $job = LabelerJobService::claimNextJob();
+        (new LabelerGenerator)->work((array) $job);
+
+        return $job;
+    }
+
+    public function work(array $data)
+    {
+        $jobId = $data['id'];
+
         $templateArr = $this->getTemplateArray($data['template_id']);
+        $data['data'] = json_decode($data['data'], true);
         $uploadDir = storage_path('app/public/uploads');
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
 
         $resultFiles = [];
+        $done = 0;
 
-        foreach ($data['data'] as $index => $item) {
-            $tempCopy = $templateArr;
-            $this->fillTemplateObjects($tempCopy['objects'], $item);
+        try {
+            foreach ($data['data'] as $index => $item) {
+                $tempCopy = $templateArr;
+                $this->fillTemplateObjects($tempCopy['objects'], $item);
 
-            $jsonFilePath = $uploadDir . DIRECTORY_SEPARATOR . 'upload_' . time() . "_{$index}.json";
-            file_put_contents($jsonFilePath, json_encode($tempCopy, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+                $jsonFilePath = $uploadDir . DIRECTORY_SEPARATOR . 'upload_' . time() . "_{$index}.json";
+                file_put_contents($jsonFilePath, json_encode($tempCopy, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-            $nodeOutput = trim(NodeService::runNodeScript($jsonFilePath));
-            $resultFiles[] = $uploadDir . DIRECTORY_SEPARATOR . $nodeOutput;
+                $nodeOutput = trim(NodeService::runNodeScript($jsonFilePath));
+                $resultFiles[] = $uploadDir . DIRECTORY_SEPARATOR . $nodeOutput;
 
-            unlink($jsonFilePath);
-        }
+                unlink($jsonFilePath);
 
-        $zipName = 'upload_results_' . time() . '.zip';
-        $zipPath = $uploadDir . DIRECTORY_SEPARATOR . $zipName;
-
-        $zip = new ZipArchive();
-        if ($zip->open($zipPath, ZipArchive::CREATE) !== true) {
-            throw new \Exception('Не удалось создать архив');
-        }
-
-        foreach ($resultFiles as $file) {
-            if (file_exists($file)) {
-                $zip->addFile($file, basename($file));
+                $done++;
+                LabelerJobService::updateProgress($jobId, $done);
             }
+
+            $zipName = 'upload_results_' . time() . '.zip';
+            $zipPath = $uploadDir . DIRECTORY_SEPARATOR . $zipName;
+
+            $zip = new ZipArchive();
+            if ($zip->open($zipPath, ZipArchive::CREATE) !== true) {
+                throw new \Exception('Не удалось создать архив');
+            }
+
+            foreach ($resultFiles as $file) {
+                if (file_exists($file)) {
+                    $zip->addFile($file, basename($file));
+                }
+            }
+
+            $zip->close();
+
+            foreach ($resultFiles as $file) {
+                if (file_exists($file)) unlink($file);
+            }
+            LabelerJobService::markCompleted($jobId, 'storage/uploads/' . $zipName);
+
+            return $jobId;
+        } catch (\Exception $e) {
+            LabelerJobService::markFailed($jobId, $e->getMessage());
+            throw $e;
         }
-
-        $zip->close();
-
-        foreach ($resultFiles as $file) {
-            if (file_exists($file)) unlink($file);
-        }
-
-        return url('storage/uploads/' . $zipName);
     }
 
     private function getTemplateArray(int $templateId): array
@@ -104,18 +127,13 @@ class LabelerGenerator
         }
     }
 
-    protected function getDatamatrixSvgBase64(string $value): string
+    private function getDatamatrixSvgBase64(string $value): string
     {
-        $request = new Request(['codes' => [$value]]);
-        $controller = new Gs1DataMarkController();
-        $response = $controller->index($request);
-        $data = json_decode($response->getContent(), true);
-        $svgCode = $data['data'][0] ?? '';
-
-        return 'data:image/svg+xml;base64,' . $svgCode;
+        $svg = GS1DataMatrixTemplateService::template1($value);
+        return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
-    protected function generateBarcode(string $value, string $meta_type = 'C128'): string
+    private function generateBarcode(string $value, string $meta_type = 'C128'): string
     {
         $b = new \Milon\Barcode\DNS1D();
         $svg = $b->getBarcodeSVG($value, $meta_type, h:50, showCode: false);
@@ -124,7 +142,7 @@ class LabelerGenerator
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
-    protected function generateQr(string $value): string
+    private function generateQr(string $value): string
     {
         $result = Builder::create()
             ->writer(new PngWriter())

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\LabelerJobService;
 use Illuminate\Http\Request;
 
 class PreviewController extends Controller
@@ -28,6 +29,20 @@ class PreviewController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 'Ошибка при генерации предпросмотра',
+                'message' => $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function status(Request $request)
+    {
+        $id = $request->input('id');
+        try {
+            $result = LabelerJobService::getStatus((int)$id);
+            return response()->json($result);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => 'Ошибка при обновлении статуса',
                 'message' => $e->getMessage(),
             ], 500);
         }
