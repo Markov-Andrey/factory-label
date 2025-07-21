@@ -202,3 +202,33 @@ export function toggleProperty(canvas, index, prop) {
     obj[prop] = !obj[prop];
     canvas.renderAll();
 }
+
+
+export function changeLayer(canvas, index, direction) {
+    const objects = [...canvas.getObjects()];
+    if (index < 0 || index >= objects.length) return false;
+
+    let moved = false;
+
+    switch (direction) {
+        case 'up':
+            if (index < objects.length - 1) {
+                [objects[index], objects[index + 1]] = [objects[index + 1], objects[index]];
+                moved = true;
+            }
+            break;
+        case 'down':
+            if (index > 0) {
+                [objects[index], objects[index - 1]] = [objects[index - 1], objects[index]];
+                moved = true;
+            }
+            break;
+    }
+
+    if (!moved) return false;
+
+    canvas.clear();
+    objects.forEach(obj => canvas.add(obj));
+    canvas.renderAll();
+    return true;
+}

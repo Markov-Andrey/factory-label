@@ -52,23 +52,44 @@
                 </summary>
                 <div class="bg-white border-t border-gray-300 p-2 max-h-[200px] overflow-y-auto space-y-1">
                     <div
-                        v-for="(layer, i) in layers"
-                        :key="i"
-                        class="flex justify-between items-center bg-gray-50 p-2 rounded shadow hover:bg-gray-100 cursor-pointer"
+                        v-for="(layer, i) in layers" :key="i"
+                        class="flex justify-between items-center bg-gray-100 p-2 rounded shadow transition hover:bg-gray-200 cursor-pointer"
                         @click="onLayerClick(this.canvas, $event, layer.index)"
                     >
                         <div class="flex items-center gap-2">
                             <span class="font-mono text-gray-500">#{{ layer.index }}</span>
                             <span class="font-semibold capitalize">{{ layer.type }}</span>
                         </div>
-                        <div class="flex gap-2">
+                        <div class="flex items-center gap-2">
+                            <div class="grid">
+                                <BaseButton
+                                    size="sm"
+                                    color="bg-gray-500"
+                                    icon="ChevronUpIcon"
+                                    tooltip="Слой вверх"
+                                    placement="left"
+                                    @click.prevent="handleChangeLayer(layer.index, 'up')"
+                                />
+                                <BaseButton
+                                    size="sm"
+                                    color="bg-gray-500"
+                                    icon="ChevronDownIcon"
+                                    tooltip="Слой вниз"
+                                    placement="left"
+                                    @click.prevent="handleChangeLayer(layer.index, 'down')"
+                                />
+                            </div>
                             <BaseButton
                                 color="bg-gray-500"
+                                tooltip="Видимость слоя"
+                                placement="left"
                                 :icon="layer.visible ? 'EyeIcon' : 'EyeSlashIcon'"
                                 @click.prevent="toggleVisibility(layer.index)"
                             />
                             <BaseButton
                                 color="bg-gray-500"
+                                tooltip="Блокировка слоя"
+                                placement="left"
                                 :icon="layer.selectable ? 'LockOpenIcon' : 'LockClosedIcon'"
                                 @click.prevent="toggleSelectable(layer.index)"
                             />
@@ -151,11 +172,23 @@ import BaseButton from '@/components/base/BaseButton.vue';
 import BaseInput from '@/components/base/BaseInput.vue';
 import KeyMapComponent from '@/components/KeyMapComponent.vue';
 import {
-    addText, addImage, addRect, toggleBold, toggleItalic, updateFontSize, updateLineHeight, setTextAlign, onColorChange, setTextFont, onLayerClick, toggleProperty,
+    addImage,
+    addRect,
+    addText,
+    onColorChange,
+    onLayerClick,
+    setTextAlign,
+    setTextFont,
+    toggleBold,
+    toggleItalic,
+    toggleProperty,
+    updateFontSize,
+    updateLineHeight,
+    changeLayer,
 } from '@/utils/fabricHelpers.js';
-import { saveCanvas, loadCanvas } from '@/utils/fabricSaveLoad.js';
-import { registerKeyboardShortcuts } from '@/utils/keyboardListeners.js';
-import {initRecording, undo, redo, record, canUndo, canRedo} from '@/utils/fabricHistory.js'
+import {loadCanvas, saveCanvas} from '@/utils/fabricSaveLoad.js';
+import {registerKeyboardShortcuts} from '@/utils/keyboardListeners.js';
+import {canRedo, canUndo, initRecording, record, redo, undo} from '@/utils/fabricHistory.js'
 import BaseColorPicker from "@/components/base/BaseColorPicker.vue";
 import BaseSelect from "@/components/base/BaseSelect.vue";
 import SelectGalleryIcons from "@/components/base/SelectGalleryIcons.vue";
@@ -243,7 +276,7 @@ export default {
         setTextFont, addText, addRect, addImage, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
         saveCanvas, loadCanvas, registerKeyboardShortcuts,
         fabricIconsSpecial, fabricIconsBarcodes,
-        undo, redo, onColorChange, onLayerClick, toggleProperty,
+        undo, redo, onColorChange, onLayerClick, toggleProperty, changeLayer,
 
         exit() { this.$router.push('/'); },
         toggleVisibility(index) {
@@ -251,6 +284,10 @@ export default {
         },
         toggleSelectable(index) {
             toggleProperty(this.canvas, index, 'selectable'); this.updateLayers();
+        },
+        handleChangeLayer(i, dir) {
+            const success = changeLayer(this.canvas, i, dir);
+            if (success) this.updateLayers();
         },
         updateLayers() {
             this.layers = this.canvas.getObjects().map((obj, i) => ({
