@@ -165,7 +165,7 @@ export default {
             reader.readAsText(file)
         },
         exit() {
-            this.$router.go(-1);
+            this.$router.push('/');
         },
         async sendPreview(previewData) {
             try {
