@@ -34,11 +34,10 @@ class PreviewController extends Controller
         }
     }
 
-    public function status(Request $request)
+    public function status($jobId)
     {
-        $id = $request->input('id');
         try {
-            $result = LabelerJobService::getStatus((int)$id);
+            $result = LabelerJobService::getStatus((int)$jobId);
             return response()->json($result);
         } catch (\Exception $e) {
             return response()->json([

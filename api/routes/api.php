@@ -13,8 +13,8 @@ Route::prefix('templates')->controller(LabelTemplateController::class)->group(fu
     Route::delete('{id}', 'destroy'); // удалить
     Route::post('duplicate', 'duplicate'); // копия
 });
-Route::controller(PreviewController::class)->group(function () {
-    Route::post('/generate-preview', 'preview'); // предпросмотр 1 элемента
-    Route::post('/upload-data', 'upload');       // получить весь архив
-    Route::post('/status-job', 'status');       // обновить статус
+Route::prefix('previews')->controller(PreviewController::class)->group(function () {
+    Route::post('/', 'preview');                // генерация предпросмотра
+    Route::post('/upload', 'upload');           // загрузить полный пакет данных
+    Route::get('/status/{jobId}', 'status');    // получить статус задания
 });

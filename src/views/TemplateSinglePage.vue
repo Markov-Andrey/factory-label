@@ -183,7 +183,7 @@ export default {
         async sendPreview(previewData) {
             try {
                 const payload = { template_id: this.template?.id, data: previewData }
-                const { data } = await axios.post(`${this.apiBaseUrl}/api/generate-preview`, payload)
+                const { data } = await axios.post(`${this.apiBaseUrl}/api/previews`, payload)
                 this.previewImageUrl = typeof data === 'string' ? data : data.url || null
                 this.errorMessage = null
             } catch (e) {
@@ -202,7 +202,7 @@ export default {
                 this.progressPercent = 0;
                 this.displayedPercent = 0;
                 this.status = 'queued';
-                const { data } = await axios.post(`${this.apiBaseUrl}/api/upload-data`, {
+                const { data } = await axios.post(`${this.apiBaseUrl}/api/previews/upload`, {
                     template_id: this.template.id,
                     data: this.fullJson
                 })
@@ -216,9 +216,7 @@ export default {
             if (!this.jobId) return;
 
             try {
-                const { data } = await axios.post(`${this.apiBaseUrl}/api/status-job`, {
-                    id: this.jobId
-                });
+                const { data } = await axios.get(`${this.apiBaseUrl}/api/previews/status/${this.jobId}`);
 
                 if (data.status === 'done') {
                     clearInterval(this.statusInterval);
