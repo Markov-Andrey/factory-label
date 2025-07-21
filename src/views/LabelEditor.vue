@@ -106,15 +106,13 @@
                     <SvgArrow/>
                 </summary>
                 <div class="bg-white border-t border-gray-300 p-2">
-                    <KeyMapComponent :meta="canvasMeta()" :onCopy="copyToClipboard" />
+                    <KeyMapComponent v-if="canvasMeta().length" :meta="canvasMeta()" :onCopy="copyToClipboard" />
+                    <div class="flex items-center justify-center" v-else>Нет ключей</div>
                 </div>
             </details>
 
             <!-- Аккордеон: Текущий объект -->
-            <details
-                :open="!!selectedObject"
-                :class="[ 'group', { 'opacity-50 pointer-events-none': !selectedObject } ]"
-            >
+            <details class="group" >
                 <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-600 text-white rounded group-open:rounded-b-none">
                     <span class="font-semibold">Текущий объект</span>
                     <SvgArrow />
