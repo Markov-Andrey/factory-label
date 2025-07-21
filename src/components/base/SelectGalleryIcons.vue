@@ -1,25 +1,25 @@
 <template>
-    <div class="relative">
-        <div @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
-            <BaseButton
-                @click="showModal = true"
-                :color="buttonColor"
-                :icon="buttonIcon"
-                :disabled="false"
-            >
-                {{ buttonText }}
-            </BaseButton>
+    <div @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
+        <BaseButton
+            @click="showModal = true"
+            :color="buttonColor"
+            :icon="buttonIcon"
+            :disabled="false"
+        >
+            {{ buttonText }}
+        </BaseButton>
 
-            <!-- Tooltip -->
-            <BaseTooltip
-                v-if="tooltip && showTooltip"
-                :text="tooltip"
-                :placement="placement"
-                tooltip-id="gallery-tooltip"
-            />
-        </div>
+        <!-- Tooltip -->
+        <BaseTooltip
+            v-if="tooltip && showTooltip"
+            :text="tooltip"
+            :placement="placement"
+            tooltip-id="gallery-tooltip"
+        />
+    </div>
 
-        <!-- Modal -->
+    <!-- Modal -->
+    <teleport to="body">
         <div
             v-if="showModal"
             tabindex="-1"
@@ -56,7 +56,7 @@
                             </h4>
                             <div
                                 v-if="category.items && category.items.length"
-                                class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-6 lg:grid-cols-8 gap-3"
+                                class="grid grid-cols-6 gap-3"
                             >
                                 <div
                                     v-for="(icon, index) in category.items"
@@ -73,7 +73,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </teleport>
 </template>
 
 <script>
