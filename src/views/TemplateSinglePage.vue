@@ -53,6 +53,32 @@
                 <div v-else class="text-gray-400 italic">Нет превью</div>
             </section>
         </div>
+
+        <div v-if="jobId" class="flex gap-2 items-center justify-center m-5">
+            <div class="w-full" v-if="!result_zip_path">
+                <div class="flex justify-between mb-1">
+                    <span class="text-base font-medium text-blue-700 dark:text-white">{{ statusMap[status] }}</span>
+                    <span class="text-sm font-medium text-blue-700 dark:text-white">{{ progressPercent }}%</span>
+                </div>
+                <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
+                    <div
+                        class="bg-blue-600 h-2.5 rounded-full transition-all duration-700 ease-in-out"
+                        :style="{ width: progressPercent + '%' }"
+                    />
+                </div>
+            </div>
+            <div v-else>
+                <BaseButton
+                    tooltip="Скачать архив"
+                    color="bg-gray-600"
+                    icon="ArchiveBoxArrowDownIcon"
+                    @click="downloadZip"
+                >
+                    Скачать
+                </BaseButton>
+            </div>
+        </div>
+
         <div class="flex gap-2 items-center justify-center m-5">
             <BaseButton tooltip="К выбору шаблона" @click="exit" color="bg-gray-600" icon="ArrowLeftEndOnRectangleIcon">
                 Назад
@@ -66,30 +92,6 @@
             >
                 Обработать
             </BaseButton>
-        </div>
-        <div v-if="jobId" class="flex gap-2 items-center justify-center m-5">
-            <div class="w-full" v-if="!result_zip_path">
-                <div class="flex justify-between mb-1">
-                    <span class="text-base font-medium text-blue-700 dark:text-white">{{ statusMap[status] }}</span>
-                    <span class="text-sm font-medium text-blue-700 dark:text-white">{{ progressPercent }}%</span>
-                </div>
-                <div class="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-                    <div
-                        class="bg-blue-600 h-2.5 rounded-full"
-                        :style="{ width: progressPercent + '%' }"
-                    ></div>
-                </div>
-            </div>
-            <div v-else>
-                <BaseButton
-                    tooltip="Скачать архив"
-                    color="bg-gray-600"
-                    icon="ArchiveBoxArrowDownIcon"
-                    @click="downloadZip"
-                >
-                    Скачать
-                </BaseButton>
-            </div>
         </div>
     </div>
 </template>
@@ -109,7 +111,7 @@ export default {
             errorMessage: null,
             fullJson: null,
             objectCount: null,
-            result_zip_path: '',
+            result_zip_path: null,
             progressPercent: 0,
             status: 'queued',
             statusMap: {
@@ -125,6 +127,13 @@ export default {
             return this.$route.query.id
         }
     },
+    watch: {
+        jobId(newId) {
+            if (newId && !this.statusInterval) {
+                this.startJobPolling()
+            }
+        }
+    },
     async mounted() {
         try {
             const { data } = await axios.get(`${this.apiBaseUrl}/api/templates/${this.$route.params.id}`)
@@ -132,7 +141,7 @@ export default {
         } catch (e) {
             console.error(e)
         }
-        if (this.jobId && this.result_zip_path == '') {
+        if (this.jobId && !this.result_zip_path) {
             this.statusInterval = setInterval(() => {
                 this.checkJobStatus()
             }, 3000)
@@ -190,6 +199,7 @@ export default {
                     data: this.fullJson
                 })
                 this.$router.push({ path: this.$route.path, query: { ...this.$route.query, id: data.id } })
+                this.startJobPolling()
             } catch {
                 this.errorMessage = 'Ошибка при отправке данных.'
             }
@@ -211,11 +221,17 @@ export default {
                     console.error('Ошибка:', data.error_message);
                     this.errorMessage = `Ошибка при генерации: ${data.error_message}`;
                 } else if (data.status === 'processed' && data.records_total > 0) {
+                    this.status = data.status;
                     this.progressPercent = Math.floor((data.records_done / data.records_total) * 100);
                 }
             } catch (e) {
                 console.error('Ошибка при запросе статуса', e);
             }
+        },
+        startJobPolling() {
+            this.statusInterval = setInterval(() => {
+                this.checkJobStatus()
+            }, 3000)
         },
         downloadZip() {
             const url = this.result_zip_path;
