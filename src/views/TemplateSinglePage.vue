@@ -57,12 +57,12 @@
         <div v-if="jobId" class="flex gap-2 items-center justify-center m-5">
             <div class="w-full" v-if="!result_zip_path">
                 <div class="flex justify-between mb-1">
-                    <span class="text-base font-medium text-blue-700 dark:text-white">{{ statusMap[status] }}</span>
-                    <span class="text-sm font-medium text-blue-700 dark:text-white">{{ progressPercent }}%</span>
+                    <span class="text-base font-medium">{{ statusMap[status] }}</span>
+                    <span class="text-sm font-medium">{{ displayedPercent }}%</span>
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                     <div
-                        class="bg-blue-600 h-2.5 rounded-full transition-all duration-700 ease-in-out"
+                        class="bg-gray-600 h-2.5 rounded-full transition-all duration-[1500ms] ease-in-out"
                         :style="{ width: progressPercent + '%' }"
                     />
                 </div>
@@ -113,6 +113,7 @@ export default {
             objectCount: null,
             result_zip_path: null,
             progressPercent: 0,
+            displayedPercent: 0,
             status: 'queued',
             statusMap: {
                 queued: 'В очереди',
@@ -132,6 +133,9 @@ export default {
             if (newId && !this.statusInterval) {
                 this.startJobPolling()
             }
+        },
+        progressPercent(newVal) {
+            this.animatePercent(newVal)
         }
     },
     async mounted() {
@@ -194,6 +198,10 @@ export default {
                 return
             }
             try {
+                this.result_zip_path = null;
+                this.progressPercent = 0;
+                this.displayedPercent = 0;
+                this.status = 'queued';
                 const { data } = await axios.post(`${this.apiBaseUrl}/api/upload-data`, {
                     template_id: this.template.id,
                     data: this.fullJson
@@ -242,7 +250,20 @@ export default {
                 a.click();
                 a.remove();
             }
-        }
+        },
+        animatePercent(target) {
+            if (this.percentInterval) clearInterval(this.percentInterval)
+
+            this.percentInterval = setInterval(() => {
+                if (this.displayedPercent < target) {
+                    this.displayedPercent++
+                } else if (this.displayedPercent > target) {
+                    this.displayedPercent--
+                } else {
+                    clearInterval(this.percentInterval)
+                }
+            }, 100)
+        },
     },
 }
 </script>
