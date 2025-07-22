@@ -1,7 +1,7 @@
 import axios from 'axios';
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL;
 
-export async function saveCanvas(canvas, widthMM, heightMM, id) {
+export async function saveCanvas(canvas, widthMM, heightMM, id, alertHandler) {
     const json = canvas.toJSON();
     json.custom = {
         widthMM: Number(widthMM),
@@ -15,9 +15,9 @@ export async function saveCanvas(canvas, widthMM, heightMM, id) {
             heightMM,
             preview_png: pngDataUrl,
         });
-        this.$alert('Шаблон успешно сохранен!', 'success');
+        alertHandler('Шаблон успешно сохранен!', 'success');
     } catch (error) {
-        this.$alert(`Ошибка при сохранении шаблона: ${error}`, 'error');
+        alertHandler(`Ошибка при сохранении шаблона: ${error}`, 'error');
         throw error;
     }
 }

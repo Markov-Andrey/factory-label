@@ -287,7 +287,7 @@ export default {
             () => setTextAlign(c, 'center'),
             () => setTextAlign(c, 'right'),
             () => setTextAlign(c, 'justify'),
-            () => saveCanvas(c, this.widthMM, this.heightMM, this.$route.params.id),
+            () => saveCanvas(c, this.widthMM, this.heightMM, this.$route.params.id, this.$alert),
             () => clearTextStyles(c)
         );
 
