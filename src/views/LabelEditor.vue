@@ -233,7 +233,7 @@ export default {
             apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
             name: '',
             tags: '',
-            zoom: 4,
+            zoom: 6,
             widthMM: 100,
             heightMM: 60,
             fontSize: 30,

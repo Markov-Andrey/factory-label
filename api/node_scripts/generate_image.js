@@ -5,7 +5,7 @@ import { randomUUID } from 'crypto';
 
 const DPI = 300;
 const MM_TO_PX_REAL = DPI / 25.4;
-const MM_TO_PX_FRONTEND = 4;
+const MM_TO_PX_FRONTEND = 6;
 
 async function processFile(inputFile) {
     if (!fs.existsSync(inputFile)) throw new Error(`File not found: ${inputFile}`);
