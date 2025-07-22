@@ -3,7 +3,7 @@
         <BaseButton
             @click="$emit('page-change', currentPage - 1)"
             :disabled="currentPage === 1"
-            color="bg-gray-600"
+            color="bg-mascot"
         >
             ← Назад
         </BaseButton>
@@ -11,7 +11,7 @@
         <BaseButton
             @click="$emit('page-change', currentPage + 1)"
             :disabled="currentPage === totalPages"
-            color="bg-gray-600"
+            color="bg-mascot"
         >
             Вперёд →
         </BaseButton>
