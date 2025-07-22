@@ -1,14 +1,13 @@
 <template>
     <div class="max-w-6xl mx-auto p-6">
-        <div class="grid grid-cols-2 grid-rows-[auto_1fr] gap-6 mt-4">
-            <h2 class="text-lg font-semibold border rounded p-4 flex items-center justify-center">
-                {{ template?.name || 'Шаблон' }}
-            </h2>
+        <div class="grid grid-cols-2 grid-rows-[auto_1fr_auto] gap-6 mt-4">
+            <div class="border rounded p-4 flex flex-col justify-center items-center">
+                <h2 class="text-2xl font-bold text-black"> {{ template?.name || 'Шаблон' }} </h2>
+                <span v-if="template?.tags" class="text-sm text-gray-500 px-3 py-1 rounded"> #{{ template.tags }} </span>
+            </div>
 
             <h3 class="text-md font-semibold border rounded p-4 flex flex-col items-center">
                 Загрузите JSON-файл
-
-                <!-- Скрытый инпут -->
                 <input
                     id="json-upload"
                     type="file"
@@ -17,7 +16,6 @@
                     class="hidden"
                     ref="fileInput"
                 />
-
                 <BaseButton tooltip="Загрузить файл" @click="$refs.fileInput.click()" color="bg-mascot" icon="ArrowDownOnSquareIcon">
                     Выбрать файл
                 </BaseButton>
@@ -26,9 +24,27 @@
                 </div>
             </h3>
 
-            <section
-                class="flex items-center justify-center overflow-hidden h-[256px]"
-            >
+            <div class="col-span-2 border rounded p-4">
+                <h3 class="text-md font-medium mb-2">Карта ключей</h3>
+                <div class="grid grid-cols-3 gap-4 max-h-48 overflow-auto">
+                    <div
+                        v-for="(value, key) in meta"
+                        :key="key"
+                        :class="[
+                            'px-3 py-1 rounded whitespace-nowrap',
+                            {
+                              'text-gray-500 bg-gray-100': value === null,
+                              'text-green-600 bg-green-100': value === true,
+                              'text-red-600 bg-red-100': value === false,
+                            }
+                        ]"
+                    >
+                        {{ key }}
+                    </div>
+                </div>
+            </div>
+
+            <section class="flex items-center justify-center overflow-hidden h-[256px]">
                 <img
                     v-if="template?.preview_path"
                     :src="`${apiBaseUrl}/${template.preview_path}`"
@@ -38,9 +54,7 @@
                 <div v-else class="text-gray-400 italic">Нет превью</div>
             </section>
 
-            <section
-                class="flex items-center justify-center overflow-hidden h-[256px]"
-            >
+            <section class="flex items-center justify-center overflow-hidden h-[256px]">
                 <img
                     v-if="previewImageUrl"
                     :src="previewImageUrl"
@@ -80,7 +94,7 @@
         </div>
 
         <div class="flex gap-2 items-center justify-center m-5">
-            <BaseButton tooltip="К выбору шаблона" @click="exit" color="bg-mascot" icon="ArrowLeftEndOnRectangleIcon">
+            <BaseButton tooltip="К выбору шаблона" @click="exit" color="bg-danger" icon="ArrowLeftEndOnRectangleIcon">
                 Назад
             </BaseButton>
             <BaseButton
@@ -105,6 +119,8 @@ export default {
     components: { BaseButton },
     data() {
         return {
+            meta: null,
+            metaJson: {},
             template: null,
             apiBaseUrl: import.meta.env.VITE_API_BASE_URL,
             previewImageUrl: null,
@@ -142,6 +158,7 @@ export default {
         try {
             const { data } = await axios.get(`${this.apiBaseUrl}/api/templates/${this.$route.params.id}`)
             this.template = data
+            this.canvasMeta()
         } catch (e) {
             console.error(e)
         }
@@ -164,6 +181,13 @@ export default {
                     const json = JSON.parse(e.target.result)
                     this.fullJson = json
                     const firstObj = Array.isArray(json) && json.length ? json[0] : json
+                    this.metaJson = Object.keys(firstObj);
+                    this.meta = Object.fromEntries(
+                        Object.entries(this.meta).map(([key]) => [
+                            key,
+                            !!this.metaJson.includes(key),
+                        ])
+                    );
                     this.errorMessage = null
                     this.previewImageUrl = null
                     this.objectCount = Array.isArray(json) ? json.length : 0
@@ -261,6 +285,15 @@ export default {
                     clearInterval(this.percentInterval)
                 }
             }, 100)
+        },
+        canvasMeta() {
+            try {
+                const objects = JSON.parse(this.template?.template)?.objects || [];
+                const ids = [...new Set(objects.filter(o => o.meta && o.id?.trim()).map(o => o.id.trim()))];
+                this.meta = Object.fromEntries(ids.map(id => [id, null]));
+            } catch {
+                this.meta = {};
+            }
         },
     },
 }
