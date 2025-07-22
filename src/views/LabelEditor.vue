@@ -288,7 +288,7 @@ export default {
                 visible: obj.visible !== false,
                 selectable: obj.selectable !== false,
                 index: i,
-            }));
+            })).reverse();
         },
         onSelectionChanged() {
             this.canvasMeta();
