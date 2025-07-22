@@ -6,7 +6,7 @@
                 <span v-if="template?.tags" class="text-sm text-gray-500 px-3 py-1 rounded"> #{{ template.tags }} </span>
             </div>
 
-            <h3 class="text-md font-semibold border rounded p-4 flex flex-col items-center">
+            <div class="text-md font-semibold border rounded p-4 flex flex-col items-center">
                 Загрузите JSON-файл
                 <input
                     id="json-upload"
@@ -22,7 +22,7 @@
                 <div v-if="objectCount !== null" class="text-sm text-gray-600 mt-2 text-center">
                     Количество объектов: <strong>{{ objectCount }}</strong>
                 </div>
-            </h3>
+            </div>
 
             <div class="col-span-2 border rounded p-4">
                 <h3 class="text-md font-medium mb-2">Карта ключей</h3>
