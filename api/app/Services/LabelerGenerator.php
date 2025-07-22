@@ -4,14 +4,19 @@ namespace App\Services;
 
 use Endroid\QrCode\Builder\Builder;
 use Endroid\QrCode\Writer\PngWriter;
+use Exception;
+use Milon\Barcode\DNS1D;
 use ZipArchive;
 
 class LabelerGenerator
 {
-    public function preview(array $data)
+    /**
+     * @throws Exception
+     */
+    public static function preview(array $data): string
     {
-        $templateArr = $this->getTemplateArray($data['template_id']);
-        $this->fillTemplateObjects($templateArr['objects'], $data['data']);
+        $templateArr = self::getTemplateArray($data['template_id']);
+        self::fillTemplateObjects($templateArr['objects'], $data['data']);
 
         $directory = storage_path('app/public/tmp');
         if (!is_dir($directory)) mkdir($directory, 0755, true);
@@ -25,27 +30,33 @@ class LabelerGenerator
         return url('storage/tmp/' . $nodeOutput);
     }
 
-    public function upload(array $data): array
+    public static function upload(array $data): array
     {
         return LabelerJobService::create($data);
     }
 
+    /**
+     * @throws Exception
+     */
     public static function getNextQueuedJob()
     {
         $job = LabelerJobService::claimNextJob();
 
         if ($job) {
-            (new LabelerGenerator)->work((array) $job);
+            self::work((array) $job);
         }
 
         return $job;
     }
 
-    public function work(array $data)
+    /**
+     * @throws Exception
+     */
+    public static function work(array $data)
     {
         $jobId = $data['id'];
 
-        $templateArr = $this->getTemplateArray($data['template_id']);
+        $templateArr = self::getTemplateArray($data['template_id']);
         $data['data'] = json_decode($data['data'], true);
         $uploadDir = storage_path('app/public/uploads');
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
@@ -56,7 +67,7 @@ class LabelerGenerator
         try {
             foreach ($data['data'] as $index => $item) {
                 $tempCopy = $templateArr;
-                $this->fillTemplateObjects($tempCopy['objects'], $item);
+                self::fillTemplateObjects($tempCopy['objects'], $item);
 
                 $jsonFilePath = $uploadDir . DIRECTORY_SEPARATOR . 'upload_' . time() . "_{$index}.json";
                 file_put_contents($jsonFilePath, json_encode($tempCopy, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
@@ -75,7 +86,7 @@ class LabelerGenerator
 
             $zip = new ZipArchive();
             if ($zip->open($zipPath, ZipArchive::CREATE) !== true) {
-                throw new \Exception('Не удалось создать архив');
+                throw new Exception('Не удалось создать архив');
             }
 
             foreach ($resultFiles as $file) {
@@ -89,28 +100,32 @@ class LabelerGenerator
             foreach ($resultFiles as $file) {
                 if (file_exists($file)) unlink($file);
             }
-            LabelerJobService::markCompleted($jobId, 'storage/uploads/' . $zipName);
 
+            LabelerJobService::markCompleted($jobId, 'storage/uploads/' . $zipName);
             return $jobId;
-        } catch (\Exception $e) {
+
+        } catch (Exception $e) {
             LabelerJobService::markFailed($jobId, $e->getMessage());
             throw $e;
         }
     }
 
-    private function getTemplateArray(int $templateId): array
+    /**
+     * @throws Exception
+     */
+    private static function getTemplateArray(int $templateId): array
     {
         $template = TemplateService::find($templateId);
         $templateArr = json_decode($template['template'], true);
 
         if (!isset($templateArr['objects'])) {
-            throw new \Exception('Template objects not found');
+            throw new Exception('Template objects not found');
         }
 
         return $templateArr;
     }
 
-    private function fillTemplateObjects(array &$objects, array $data): void
+    private static function fillTemplateObjects(array &$objects, array $data): void
     {
         foreach ($objects as &$obj) {
             $key = $obj['id'] ?? null;
@@ -122,30 +137,30 @@ class LabelerGenerator
             $val = $data[$key];
 
             switch ($meta) {
-                case 'datamatrix': $obj['src'] = $this->getDatamatrixSvgBase64($val); break;
-                case 'barcode':    $obj['src'] = $this->generateBarcode($val, $meta_type); break;
-                case 'qr':         $obj['src'] = $this->generateQr($val); break;
+                case 'datamatrix': $obj['src'] = self::getDatamatrixSvgBase64($val); break;
+                case 'barcode':    $obj['src'] = self::generateBarcode($val, $meta_type); break;
+                case 'qr':         $obj['src'] = self::generateQr($val); break;
                 case 'text':       $obj['text'] = $val; break;
             }
         }
     }
 
-    private function getDatamatrixSvgBase64(string $value): string
+    private static function getDatamatrixSvgBase64(string $value): string
     {
         $svg = GS1DataMatrixTemplateService::template1($value);
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
-    private function generateBarcode(string $value, string $meta_type = 'C128'): string
+    private static function generateBarcode(string $value, string $meta_type = 'C128'): string
     {
-        $b = new \Milon\Barcode\DNS1D();
+        $b = new DNS1D();
         $svg = $b->getBarcodeSVG($value, $meta_type, h:50, showCode: false);
         $svg = preg_replace('/\s+/', ' ', trim($svg));
 
         return 'data:image/svg+xml;base64,' . base64_encode($svg);
     }
 
-    private function generateQr(string $value): string
+    private static function generateQr(string $value): string
     {
         $result = Builder::create()
             ->writer(new PngWriter())

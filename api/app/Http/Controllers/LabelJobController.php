@@ -2,16 +2,18 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\LabelerGenerator;
 use App\Services\LabelerJobService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
-class PreviewController extends Controller
+class LabelJobController extends Controller
 {
-    public function preview(Request $request)
+    public function process(Request $request): JsonResponse
     {
         $data = $request->all();
         try {
-            $result = (new \App\Services\LabelerGenerator)->preview($data);
+            $result = LabelerGenerator::preview($data);
             return response()->json($result);
         } catch (\Exception $e) {
             return response()->json([
@@ -20,11 +22,11 @@ class PreviewController extends Controller
             ], 500);
         }
     }
-    public function upload(Request $request)
+    public function upload(Request $request): JsonResponse
     {
         $data = $request->all();
         try {
-            $result = (new \App\Services\LabelerGenerator)->upload($data);
+            $result = LabelerGenerator::upload($data);
             return response()->json($result);
         } catch (\Exception $e) {
             return response()->json([
@@ -34,7 +36,7 @@ class PreviewController extends Controller
         }
     }
 
-    public function status($jobId)
+    public function status($jobId): JsonResponse
     {
         try {
             $result = LabelerJobService::getStatus((int)$jobId);

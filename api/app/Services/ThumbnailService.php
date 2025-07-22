@@ -6,50 +6,47 @@ use Illuminate\Support\Facades\File;
 
 class ThumbnailService
 {
+    /**
+     * Сохранить изображение предпросмотра
+     */
     public static function savePreviewImage(int $id, string $base64png): string
     {
         $storagePath = storage_path('app/public/previews');
+        File::ensureDirectoryExists($storagePath);
 
-        if (!file_exists($storagePath)) {
-            mkdir($storagePath, 0755, true);
-        }
-        $fileName = 'preview_' . $id . '_' . time() . '.png';
-        $base64 = preg_replace('#^data:image/\w+;base64,#i', '', $base64png);
-        $decoded = base64_decode($base64);
+        $fileName = "preview_{$id}_" . time() . ".png";
+        $decoded = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $base64png));
 
-        file_put_contents($storagePath . DIRECTORY_SEPARATOR . $fileName, $decoded);
+        file_put_contents("$storagePath/$fileName", $decoded);
 
-        return 'storage/previews/' . $fileName;
+        return "storage/previews/$fileName";
     }
+
+    /**
+     * Удалить файл предпросмотра
+     */
     public static function delete(string $previewPath): bool
     {
         $filePath = public_path($previewPath);
-        if (File::exists($filePath)) {
-            return File::delete($filePath);
-        }
-        return false;
+        return File::exists($filePath) && File::delete($filePath);
     }
+
+    /**
+     * Сделать копию файла предпросмотра
+     */
     public static function duplicate(?string $previewPath): ?string
     {
-        if (empty($previewPath)) {
-            return null;
-        }
+        if (empty($previewPath)) return null;
 
         $fullPath = public_path($previewPath);
-
-        if (!file_exists($fullPath)) {
-            return null;
-        }
+        if (!File::exists($fullPath)) return null;
 
         $pathInfo = pathinfo($fullPath);
-        $newFileName = $pathInfo['filename'] . '_copy_' . time() . '.' . $pathInfo['extension'];
-        $storageDir = $pathInfo['dirname'];
-        $newFullPath = $storageDir . DIRECTORY_SEPARATOR . $newFileName;
+        $newFileName = "{$pathInfo['filename']}_copy_" . time() . ".{$pathInfo['extension']}";
+        $newFullPath = $pathInfo['dirname'] . DIRECTORY_SEPARATOR . $newFileName;
 
-        if (copy($fullPath, $newFullPath)) {
-            return str_replace(public_path() . DIRECTORY_SEPARATOR, '', $newFullPath);
-        }
-
-        return null;
+        return copy($fullPath, $newFullPath)
+            ? str_replace(public_path() . DIRECTORY_SEPARATOR, '', $newFullPath)
+            : null;
     }
 }
