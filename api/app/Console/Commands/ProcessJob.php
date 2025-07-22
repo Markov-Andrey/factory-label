@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Services\LabelerGenerator;
+use Exception;
 use Illuminate\Console\Command;
 
 class ProcessJob extends Command
@@ -10,7 +11,10 @@ class ProcessJob extends Command
     protected $signature = 'app:process-job';
     protected $description = 'Обработать следующую задачу';
 
-    public function handle()
+    /**
+     * @throws Exception
+     */
+    public function handle(): int
     {
         $this->info('Запущена обработка задачи...');
         $job = LabelerGenerator::getNextQueuedJob();

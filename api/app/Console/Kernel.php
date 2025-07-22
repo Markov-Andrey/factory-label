@@ -12,6 +12,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule): void
     {
+        $schedule->command('app:process-job')->everyMinute();
         // $schedule->command('inspire')->hourly();
     }
 
