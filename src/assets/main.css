@@ -1,7 +1,7 @@
 @import "tailwindcss";
 @import 'flowbite';
 @theme {
-    --color-mascot: #009194;
+    --color-mascot: #12586e;
     --color-danger: #c00000;
 }
 
