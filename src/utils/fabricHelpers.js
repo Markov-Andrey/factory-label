@@ -250,3 +250,33 @@ export function changeLayer(canvas, index, direction) {
     canvas.renderAll();
     return true;
 }
+
+/**
+ * Смещает активный объект по горизонтали или вертикали на заданное значение.
+ * @param {fabric.Canvas} canvas
+ * @param {number} value - Новое значение координаты (X или Y)
+ * @param {'x' | 'y'} coord - Ось: 'x' (left) или 'y' (top)
+ */
+export function moveObject(canvas, value, coord = 'x') {
+    const obj = canvas.getActiveObject();
+    if (obj) {
+        const prop = coord === 'x' ? 'left' : 'top';
+        obj.set(prop, value);
+        obj.setCoords();
+        canvas.requestRenderAll();
+    }
+}
+
+/**
+ * Устанавливает угол поворота активного объекта.
+ * @param {fabric.Canvas} canvas
+ * @param {number} angle - Угол поворота в градусах
+ */
+export function rotateObject(canvas, angle) {
+    const obj = canvas.getActiveObject();
+    if (obj) {
+        obj.set('angle', angle);
+        obj.setCoords();
+        canvas.requestRenderAll();
+    }
+}

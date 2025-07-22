@@ -118,14 +118,52 @@
                     <SvgArrow />
                 </summary>
                 <div class="bg-white border-t border-gray-300 p-2 space-y-2">
-                    <label class="block font-semibold">ID выбранного объекта:</label>
-                    <input
-                        type="text"
-                        v-model="selectedObjectId"
-                        @input="updateSelectedObjectId"
-                        :disabled="!selectedObject"
-                        class="w-full border px-2 py-1 rounded"
-                    />
+                    <div v-if="selectedObject">
+                        <label class="block font-semibold">ID выбранного объекта:</label>
+                        <input
+                            type="text"
+                            v-model="selectedObjectId"
+                            @input="updateSelectedObjectId"
+                            :disabled="!selectedObject"
+                            class="w-full border px-2 py-1 rounded"
+                        />
+                    </div>
+                    <div v-if="selectedObject">
+                        <label class="block font-semibold">Положение:</label>
+                        <div class="flex gap-6">
+                            <div class="flex gap-2 justify-center items-center">
+                                <label class="block font-semibold">X:</label>
+                                <input
+                                    v-if="selectedObject"
+                                    type="number"
+                                    :value="selectedObject.left"
+                                    @input="(e) => moveObject(this.canvas, Number(e.target.value), 'x')"
+                                    class="w-full border px-2 py-1 rounded"
+                                />
+                            </div>
+                            <div class="flex gap-2 justify-center items-center">
+                                <label class="block font-semibold">Y:</label>
+                                <input
+                                    v-if="selectedObject"
+                                    type="number"
+                                    :value="selectedObject.top"
+                                    @input="(e) => moveObject(this.canvas, Number(e.target.value), 'y')"
+                                    class="w-full border px-2 py-1 rounded"
+                                />
+                            </div>
+                            <div class="flex gap-2 justify-center items-center">
+                                <label class="block font-semibold">Угол:</label>
+                                <input
+                                    v-if="selectedObject"
+                                    type="number"
+                                    :value="selectedObject.angle"
+                                    @input="(e) => rotateObject(this.canvas, Number(e.target.value))"
+                                    class="w-full border px-2 py-1 rounded"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <label class="block font-semibold">Инфо:</label>
                     <pre class="bg-gray-100 text-xs p-2 overflow-auto max-h-64 border rounded" >
                         {{ JSON.stringify(selectedObject, null, 2)
                         .replace(/[{}"]/g, '') }}
@@ -176,7 +214,7 @@ import {
     setTextAlign, setTextFont,
     toggleBold, toggleItalic, toggleProperty,
     updateFontSize, updateLineHeight,
-    changeLayer, clearTextStyles,
+    changeLayer, clearTextStyles, moveObject, rotateObject,
 } from '@/utils/fabricHelpers.js';
 import {loadCanvas, saveCanvas} from '@/utils/fabricSaveLoad.js';
 import {registerKeyboardShortcuts} from '@/utils/keyboardListeners.js';
@@ -268,7 +306,7 @@ export default {
     methods: {
         setTextFont, addText, addRect, addImage, setTextAlign, toggleBold, toggleItalic, updateFontSize, updateLineHeight,
         saveCanvas, loadCanvas, registerKeyboardShortcuts,
-        fabricIconsSpecial, fabricIconsBarcodes,
+        fabricIconsSpecial, fabricIconsBarcodes, moveObject, rotateObject,
         undo, redo, onColorChange, onLayerClick, toggleProperty, changeLayer, clearTextStyles,
 
         exit() { this.$router.push('/'); },
