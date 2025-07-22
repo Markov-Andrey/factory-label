@@ -45,21 +45,25 @@
 
         <div
             v-if="modalVisible"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-opacity-30 backdrop-blur-sm"
         >
-            <div class="bg-white p-6 rounded shadow-md w-96">
-                <h2 class="text-xl mb-4">{{ modalTitle }}</h2>
-                <BaseInput v-model="name" type="text" label="Название" class="w-full" />
-                <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
-                <div class="flex justify-end space-x-2 mt-4">
-                    <BaseButton @click="closeModal" color="bg-danger">Отмена</BaseButton>
-                    <BaseButton
-                        @click="submitModal"
-                        :disabled="!name.trim() || loading"
-                        color="bg-mascot"
-                    >
-                        {{ modalButtonText }}
-                    </BaseButton>
+            <div class="bg-white rounded overflow-auto shadow-floating w-96">
+                <div class="bg-mascot">
+                    <h2 class="text-xl text-center bold text-white p-2">{{ modalTitle }}</h2>
+                </div>
+                <div class="p-4">
+                    <BaseInput v-model="name" type="text" label="Название" class="w-full" />
+                    <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
+                    <div class="flex justify-end space-x-2 mt-4">
+                        <BaseButton @click="closeModal" color="bg-danger">Отмена</BaseButton>
+                        <BaseButton
+                            @click="submitModal"
+                            :disabled="!name.trim() || loading"
+                            color="bg-mascot"
+                        >
+                            {{ modalButtonText }}
+                        </BaseButton>
+                    </div>
                 </div>
             </div>
         </div>

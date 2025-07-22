@@ -1,18 +1,17 @@
 <template>
     <div
-            class="template-card relative rounded shadow hover:shadow-xl transition-shadow hover-with-buttons"
+            class="relative rounded shadow hover:shadow-xl transition-shadow hover-with-buttons"
     >
-        <div class="flex justify-between items-center px-2 bg-mascot rounded-t-lg">
-            <h2 class="text-lg font-semibold truncate max-w-[70%] text-white">
+        <div class="grid items-start gap-0.5 px-3 py-1 bg-mascot rounded-t-lg">
+            <h2 class="font-semibold truncate text-white leading-tight">
                 {{ template.name }}
             </h2>
             <span
-                    v-if="template.tags"
-                    class="bg-gray-300 text-gray-700 text-xs font-medium px-3 py-1 rounded-full truncate max-w-[25%]"
-                    title="Тег"
+                v-if="template.tags"
+                class="text-[14px] text-white/80 font-normal"
             >
-        {{ template.tags }}
-      </span>
+                #{{ template.tags }}
+            </span>
         </div>
 
         <router-link :to="`/templates/${template.id}`" class="block">
