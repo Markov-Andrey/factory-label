@@ -15,7 +15,7 @@
         </div>
 
         <router-link :to="`/templates/${template.id}`" class="block">
-            <div class="relative w-full flex items-center justify-center" style="height: 200px;">
+            <div class="relative w-full flex items-center justify-center h-[200px]">
                 <img
                         v-if="template.preview_path"
                         :src="apiBaseUrl + '/' + template.preview_path"
