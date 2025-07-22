@@ -1,20 +1,18 @@
 <template>
-    <div @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
+    <div class="relative inline-block" @mouseenter="showTooltip = true" @mouseleave="showTooltip = false">
         <BaseButton
             @click="showModal = true"
             :color="buttonColor"
             :icon="buttonIcon"
-            :disabled="false"
         >
             {{ buttonText }}
         </BaseButton>
 
-        <!-- Tooltip -->
         <BaseTooltip
             v-if="tooltip && showTooltip"
             :text="tooltip"
             :placement="placement"
-            tooltip-id="gallery-tooltip"
+            :tooltip-id="tooltipId"
         />
     </div>
 
@@ -100,6 +98,7 @@ export default {
         return {
             showModal: false,
             showTooltip: false,
+            tooltipId: 'tooltip-' + Math.random().toString(36).slice(2),
         }
     },
     watch: {

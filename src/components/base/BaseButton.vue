@@ -1,10 +1,9 @@
 <template>
-    <div class="relative inline-block" @mouseenter="show = true" @mouseleave="show = false">
-        <button
-                :class="[
-        'group relative inline-flex items-center justify-center gap-2 rounded overflow-hidden cursor-pointer',
-        disabled ? 'opacity-50 cursor-not-allowed' : '',
+    <div class="relative inline-block" @mouseenter="show = true" @mouseleave="show = false" >
+      <button :class="[
+        'group relative inline-flex items-center justify-center gap-2 rounded overflow-hidden',
         sizeClasses.padding,
+        disabled ? 'opacity-50 cursor-not-allowed pointer-events-none' : 'cursor-pointer',
       ]"
                 :disabled="disabled"
                 @click="handleClick"
@@ -14,12 +13,18 @@
               :class="[
           'absolute inset-0 transition duration-150 z-0',
           color,
-          !disabled ? 'group-hover:brightness-90' : '',
+          !disabled && 'group-hover:brightness-90',
         ]"
               aria-hidden="true"
       ></span>
 
-            <span :class="['relative z-10 flex items-center gap-2', textColor, sizeClasses.textSize]">
+            <span
+                    :class="[
+          'relative z-10 flex items-center gap-2',
+          textColor,
+          sizeClasses.textSize,
+        ]"
+            >
         <component
                 v-if="IconComponent"
                 :is="IconComponent"
@@ -30,7 +35,12 @@
       </span>
         </button>
 
-        <BaseTooltip v-if="tooltip && show" :text="tooltip" :tooltipId="tooltipId" :placement="placement" />
+        <BaseTooltip
+                v-if="tooltip && show"
+                :text="tooltip"
+                :tooltip-id="tooltipId"
+                :placement="placement"
+        />
     </div>
 </template>
 
@@ -39,15 +49,15 @@ import * as heroicons from '@heroicons/vue/24/solid'
 import BaseTooltip from '@/components/base/BaseTooltip.vue'
 
 export default {
-    components: { BaseTooltip },
+    components: {BaseTooltip},
     props: {
-        color: { type: String, default: 'bg-blue-600' },
-        textColor: { type: String, default: 'text-white' },
-        icon: { type: String, default: null },
-        tooltip: { type: String, default: '' },
-        placement: { type: String, default: 'top' },
-        disabled: { type: Boolean, default: false },
-        size: { type: String, default: 'md' }, // новый проп
+        color: {type: String, default: 'bg-blue-600'},
+        textColor: {type: String, default: 'text-white'},
+        icon: {type: String, default: null},
+        tooltip: {type: String, default: ''},
+        placement: {type: String, default: 'top'},
+        disabled: {type: Boolean, default: false},
+        size: {type: String, default: 'md'},
     },
     data() {
         return {

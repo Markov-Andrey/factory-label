@@ -1,5 +1,9 @@
 @import "tailwindcss";
 @import 'flowbite';
+@theme {
+    --color-mascot: #009194;
+    --color-danger: #c00000;
+}
 
 /* Для Chrome, Edge, Safari и Opera (WebKit) */
 ::-webkit-scrollbar {

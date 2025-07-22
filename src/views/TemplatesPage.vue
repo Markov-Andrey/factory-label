@@ -2,7 +2,7 @@
     <div class="max-w-6xl mb-12 mx-auto">
         <header class="sticky top-0 bg-gray-200 shadow-md z-50 py-1">
             <div class="flex flex-wrap justify-center items-center gap-4">
-                <BaseButton placement="bottom" tooltip="Создать новый шаблон" icon="PlusCircleIcon" @click="openModal('create')" color="bg-gray-600">
+                <BaseButton placement="bottom" tooltip="Создать новый шаблон" icon="PlusCircleIcon" @click="openModal('create')" color="bg-mascot">
                     Создать
                 </BaseButton>
                 <span>Тег</span>

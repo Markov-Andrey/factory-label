@@ -2,7 +2,7 @@
     <div
             class="template-card relative rounded shadow hover:shadow-xl transition-shadow hover-with-buttons"
     >
-        <div class="flex justify-between items-center px-2 bg-gray-600 border-b rounded-t-lg">
+        <div class="flex justify-between items-center px-2 bg-mascot rounded-t-lg">
             <h2 class="text-lg font-semibold truncate max-w-[70%] text-white">
                 {{ template.name }}
             </h2>
@@ -35,10 +35,10 @@
 
         <div class="button-overlay rounded absolute bottom-0 left-0 right-0 bg-white/80 backdrop-blur-sm px-3 py-2 flex justify-center gap-2 opacity-0 pointer-events-none transition-opacity duration-200">
             <div class="pointer-events-auto flex gap-2">
-                <BaseButton @click="onRename" icon="PencilSquareIcon" color="bg-gray-600" placement="top" tooltip="Переименовать"/>
-                <BaseButton @click="onDuplicate" icon="DocumentDuplicateIcon" color="bg-gray-600" placement="top" tooltip="Создать дубликат" />
-                <BaseButton @click="onEdit" icon="PaintBrushIcon" color="bg-gray-600" placement="top" tooltip="Редактировать" />
-                <BaseButton @click="onDelete" icon="XCircleIcon" color="bg-gray-600" placement="top" tooltip="Удалить" />
+                <BaseButton @click="onRename" icon="PencilSquareIcon" color="bg-mascot" placement="top" tooltip="Переименовать"/>
+                <BaseButton @click="onDuplicate" icon="DocumentDuplicateIcon" color="bg-mascot" placement="top" tooltip="Создать дубликат" />
+                <BaseButton @click="onEdit" icon="PaintBrushIcon" color="bg-mascot" placement="top" tooltip="Редактировать" />
+                <BaseButton @click="onDelete" icon="XCircleIcon" color="bg-danger" placement="top" tooltip="Удалить" />
             </div>
         </div>
     </div>

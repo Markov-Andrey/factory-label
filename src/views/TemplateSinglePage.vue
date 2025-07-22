@@ -18,7 +18,7 @@
                     ref="fileInput"
                 />
 
-                <BaseButton tooltip="Загрузить файл" @click="$refs.fileInput.click()" color="bg-gray-600" icon="ArrowDownOnSquareIcon">
+                <BaseButton tooltip="Загрузить файл" @click="$refs.fileInput.click()" color="bg-mascot" icon="ArrowDownOnSquareIcon">
                     Выбрать файл
                 </BaseButton>
                 <div v-if="objectCount !== null" class="text-sm text-gray-600 mt-2 text-center">
@@ -62,7 +62,7 @@
                 </div>
                 <div class="w-full bg-gray-200 rounded-full h-2.5 overflow-hidden">
                     <div
-                        class="bg-gray-600 h-2.5 rounded-full transition-all duration-[1500ms] ease-in-out"
+                        class="bg-mascot h-2.5 rounded-full transition-all duration-[1500ms] ease-in-out"
                         :style="{ width: progressPercent + '%' }"
                     />
                 </div>
@@ -70,7 +70,7 @@
             <div v-else>
                 <BaseButton
                     tooltip="Скачать архив"
-                    color="bg-gray-600"
+                    color="bg-mascot"
                     icon="ArchiveBoxArrowDownIcon"
                     @click="downloadZip"
                 >
@@ -80,13 +80,13 @@
         </div>
 
         <div class="flex gap-2 items-center justify-center m-5">
-            <BaseButton tooltip="К выбору шаблона" @click="exit" color="bg-gray-600" icon="ArrowLeftEndOnRectangleIcon">
+            <BaseButton tooltip="К выбору шаблона" @click="exit" color="bg-mascot" icon="ArrowLeftEndOnRectangleIcon">
                 Назад
             </BaseButton>
             <BaseButton
                 :disabled="!(objectCount > 0 && previewImageUrl)"
                 tooltip="Полная обработка файла"
-                color="bg-gray-600"
+                color="bg-mascot"
                 icon="PlusCircleIcon"
                 @click="upload"
             >

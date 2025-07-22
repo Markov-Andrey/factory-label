@@ -7,15 +7,15 @@
                     <BaseSelect tooltip="Шрифт текста" placement="bottom" v-model="fontFamily" @change="val => setTextFont(this.canvas, val)" :options="fontOptions"/>
                     <BaseInput @change="updateFontSize(this.canvas, this.fontSize)" tooltip="Размер шрифта" placement="bottom" v-model="fontSize" type="number" min="1" max="100" step="1" class="w-32" />
                     <BaseInput @change="updateLineHeight(this.canvas, this.lineHeight)" tooltip="Межстрочный интервал" placement="bottom" v-model="lineHeight" type="number" step="0.01" min="0.3" max="3" class="w-32" />
-                    <BaseButton @click="toggleBold(this.canvas)" color="bg-gray-600" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" placement="bottom" />
-                    <BaseButton @click="toggleItalic(this.canvas)" color="bg-gray-600" icon="ItalicIcon" tooltip="Курсив (Ctrl+I)" placement="bottom" />
-                    <BaseButton @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю (Ctrl+L)" placement="bottom" color="bg-gray-600" />
-                    <BaseButton @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру (Ctrl+E)" placement="bottom" color="bg-gray-600" />
-                    <BaseButton @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю (Ctrl+R)" placement="bottom" color="bg-gray-600" />
-                    <BaseButton @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине (Ctrl+J)" placement="bottom" color="bg-gray-600" />
+                    <BaseButton @click="toggleBold(this.canvas)" color="bg-mascot" icon="BoldIcon" tooltip="Полужирный (Ctrl+B)" placement="bottom" />
+                    <BaseButton @click="toggleItalic(this.canvas)" color="bg-mascot" icon="ItalicIcon" tooltip="Курсив (Ctrl+I)" placement="bottom" />
+                    <BaseButton @click="setTextAlign(this.canvas,'left')" icon="Bars3BottomLeftIcon" tooltip="Текст по левому краю (Ctrl+L)" placement="bottom" color="bg-mascot" />
+                    <BaseButton @click="setTextAlign(this.canvas,'center')" icon="Bars2Icon" tooltip="Текст по центру (Ctrl+E)" placement="bottom" color="bg-mascot" />
+                    <BaseButton @click="setTextAlign(this.canvas,'right')" icon="Bars3BottomRightIcon" tooltip="Текст по правому краю (Ctrl+R)" placement="bottom" color="bg-mascot" />
+                    <BaseButton @click="setTextAlign(this.canvas,'justify')" icon="Bars4Icon" tooltip="Текст по ширине (Ctrl+J)" placement="bottom" color="bg-mascot" />
                     <BaseColorPicker tooltip="Фон текста" placement="bottom" v-model="backgroundColor" @update:modelValue="color => onColorChange(color, this.canvas, 'backgroundColor')" />
                     <BaseColorPicker tooltip="Цвет текста" placement="bottom" v-model="fontColor" @update:modelValue="color => onColorChange(color, this.canvas, 'fill')" />
-                    <BaseButton @click="clearTextStyles(this.canvas)" icon="BackspaceIcon" tooltip="Очистить стили (Ctrl+Space)" placement="bottom" color="bg-gray-600" />
+                    <BaseButton @click="clearTextStyles(this.canvas)" icon="BackspaceIcon" tooltip="Очистить стили (Ctrl+Space)" placement="bottom" color="bg-mascot" />
                 </div>
             </div>
         </header>
@@ -34,7 +34,7 @@
             </div>
 
             <details class="group border border-gray-300 rounded">
-                <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-600 text-white rounded group-open:rounded-b-none">
+                <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-mascot text-white rounded group-open:rounded-b-none">
                     <span class="font-semibold">Размеры шаблона</span>
                     <SvgArrow/>
                 </summary>
@@ -47,7 +47,7 @@
             </details>
             <!-- Аккордеон: Слои -->
             <details class="group border border-gray-300 rounded">
-                <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-600 text-white rounded group-open:rounded-b-none">
+                <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-mascot text-white rounded group-open:rounded-b-none">
                     <span class="font-semibold">Слои</span>
                     <SvgArrow/>
                 </summary>
@@ -65,7 +65,7 @@
                             <div class="grid">
                                 <BaseButton
                                     size="sm"
-                                    color="bg-gray-500"
+                                    color="bg-mascot"
                                     icon="ChevronUpIcon"
                                     tooltip="Слой вверх"
                                     placement="left"
@@ -73,7 +73,7 @@
                                 />
                                 <BaseButton
                                     size="sm"
-                                    color="bg-gray-500"
+                                    color="bg-mascot"
                                     icon="ChevronDownIcon"
                                     tooltip="Слой вниз"
                                     placement="left"
@@ -81,14 +81,14 @@
                                 />
                             </div>
                             <BaseButton
-                                color="bg-gray-500"
+                                color="bg-mascot"
                                 tooltip="Видимость слоя"
                                 placement="left"
                                 :icon="layer.visible ? 'EyeIcon' : 'EyeSlashIcon'"
                                 @click.prevent="toggleVisibility(layer.index)"
                             />
                             <BaseButton
-                                color="bg-gray-500"
+                                color="bg-danger"
                                 tooltip="Блокировка слоя"
                                 placement="left"
                                 :icon="layer.selectable ? 'LockOpenIcon' : 'LockClosedIcon'"
@@ -101,7 +101,7 @@
 
             <!-- Аккордеон: Карта ключей -->
             <details class="group border border-gray-300 rounded">
-                <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-600 text-white rounded group-open:rounded-b-none">
+                <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-mascot text-white rounded group-open:rounded-b-none">
                     <span class="font-semibold">Карта ключей</span>
                     <SvgArrow/>
                 </summary>
@@ -113,7 +113,7 @@
 
             <!-- Аккордеон: Текущий объект -->
             <details class="group" >
-                <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-gray-600 text-white rounded group-open:rounded-b-none">
+                <summary class="flex justify-between items-center cursor-pointer px-3 py-2 bg-mascot text-white rounded group-open:rounded-b-none">
                     <span class="font-semibold">Текущий объект</span>
                     <SvgArrow />
                 </summary>
@@ -137,17 +137,17 @@
         <!-- Инструменты слева -->
         <div class="fixed left-0 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded shadow-floating shadow z-40">
             <div class="grid grid-cols-1 gap-1">
-                <BaseButton tooltip="Сохранить (Ctrl+S)" placement="right" @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-gray-600" icon="CloudArrowUpIcon"/>
-                <BaseButton tooltip="Выйти" placement="right" @click="exit" color="bg-gray-600" icon="ArrowLeftEndOnRectangleIcon"/>
+                <BaseButton tooltip="Сохранить (Ctrl+S)" placement="right" @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-mascot" icon="CloudArrowUpIcon"/>
+                <BaseButton tooltip="Выйти" placement="right" @click="exit" color="bg-danger" icon="ArrowLeftEndOnRectangleIcon"/>
                 <hr class="m-1 border-t-2 border-gray-400">
-                <BaseButton @click="undo(); this.canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" placement="right" color="bg-gray-600" />
-                <BaseButton @click="redo(); this.canUpd()" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть (Ctrl+Y)" placement="right" color="bg-gray-600" />
+                <BaseButton @click="undo(); this.canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" placement="right" color="bg-mascot" />
+                <BaseButton @click="redo(); this.canUpd()" :disabled="!canRedo" icon="ArrowUturnRightIcon" tooltip="Вернуть (Ctrl+Y)" placement="right" color="bg-mascot" />
                 <hr class="m-1 border-t-2 border-gray-400">
-                <BaseButton tooltip="Добавить текст" placement="right" @click="addText(this.canvas);" color="bg-gray-600" icon="ItalicIcon"/>
-                <BaseButton tooltip="Добавить рамку" placement="right" @click="addRect(this.canvas);" color="bg-gray-600" icon="Squares2X2Icon"/>
-                <SelectGalleryIcons tooltip="Добавить QR" placement="right" button-color="bg-gray-600" button-icon="QrCodeIcon" modal-title="Выберите код" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
-                <SelectGalleryIcons tooltip="Добавить символ" placement="right" button-color="bg-gray-600" button-icon="AtSymbolIcon" modal-title="Выберите символ" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
-                <BaseButton tooltip="Добавить изображение" placement="right" @click="() => $refs.imageInput.click()" color="bg-gray-600" icon="PhotoIcon"/>
+                <BaseButton tooltip="Добавить текст" placement="right" @click="addText(this.canvas);" color="bg-mascot" icon="ItalicIcon"/>
+                <BaseButton tooltip="Добавить рамку" placement="right" @click="addRect(this.canvas);" color="bg-mascot" icon="Squares2X2Icon"/>
+                <SelectGalleryIcons tooltip="Добавить QR" placement="right" button-color="bg-mascot" button-icon="QrCodeIcon" modal-title="Выберите код" :icons="fabricIconsBarcodes()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
+                <SelectGalleryIcons tooltip="Добавить символ" placement="right" button-color="bg-mascot" button-icon="AtSymbolIcon" modal-title="Выберите символ" :icons="fabricIconsSpecial()" @icon-selected="icon => addImage(this.canvas, icon.path, icon.meta, icon.meta_type)" />
+                <BaseButton tooltip="Добавить изображение" placement="right" @click="() => $refs.imageInput.click()" color="bg-mascot" icon="PhotoIcon"/>
                 <input @change="addImageFromFile" type="file" ref="imageInput" class="hidden" accept="image/*" />
             </div>
         </div>
