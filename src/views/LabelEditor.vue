@@ -137,7 +137,7 @@
         <!-- Инструменты слева -->
         <div class="fixed left-0 top-1/2 transform -translate-y-1/2 bg-gray-200 p-2 rounded shadow-floating shadow z-40">
             <div class="grid grid-cols-1 gap-1">
-                <BaseButton tooltip="Сохранить (Ctrl+S)" placement="right" @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-mascot" icon="CloudArrowUpIcon"/>
+                <BaseButton tooltip="Сохранить (Ctrl+S)" placement="right" @click="saveCanvas(this.canvas, widthMM, heightMM, this.$route.params.id)" color="bg-accept" icon="CloudArrowUpIcon"/>
                 <BaseButton tooltip="Выйти" placement="right" @click="exit" color="bg-danger" icon="ArrowLeftEndOnRectangleIcon"/>
                 <hr class="m-1 border-t-2 border-gray-400">
                 <BaseButton @click="undo(); this.canUpd()" :disabled="!canUndo" icon="ArrowUturnLeftIcon" tooltip="Отменить (Ctrl+Z)" placement="right" color="bg-mascot" />

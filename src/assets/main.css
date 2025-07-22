@@ -1,8 +1,9 @@
 @import "tailwindcss";
 @import 'flowbite';
 @theme {
-    --color-mascot: #12586e;
-    --color-danger: #c00000;
+    --color-mascot: #0073a2;
+    --color-accept: #00a976;
+    --color-danger: #c51a2a;
 }
 
 /* Для Chrome, Edge, Safari и Opera (WebKit) */

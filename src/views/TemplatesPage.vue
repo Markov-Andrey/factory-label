@@ -52,11 +52,11 @@
                 <BaseInput v-model="name" type="text" label="Название" class="w-full" />
                 <BaseInput v-model="tags" type="text" label="Тег" class="w-full" />
                 <div class="flex justify-end space-x-2 mt-4">
-                    <BaseButton @click="closeModal" color="bg-gray-500">Отмена</BaseButton>
+                    <BaseButton @click="closeModal" color="bg-danger">Отмена</BaseButton>
                     <BaseButton
                         @click="submitModal"
                         :disabled="!name.trim() || loading"
-                        color="bg-blue-600"
+                        color="bg-mascot"
                     >
                         {{ modalButtonText }}
                     </BaseButton>
