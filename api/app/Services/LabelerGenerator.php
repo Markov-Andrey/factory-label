@@ -33,7 +33,10 @@ class LabelerGenerator
     public static function getNextQueuedJob()
     {
         $job = LabelerJobService::claimNextJob();
-        (new LabelerGenerator)->work((array) $job);
+
+        if ($job) {
+            (new LabelerGenerator)->work((array) $job);
+        }
 
         return $job;
     }
