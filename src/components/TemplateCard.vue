@@ -1,7 +1,5 @@
 <template>
-    <div
-            class="relative rounded shadow hover:shadow-xl transition-shadow hover-with-buttons"
-    >
+    <div class="relative rounded shadow-sm hover:shadow-lg transform transition-transform duration-200 hover:scale-105 transition-shadow hover-with-buttons" >
         <div class="grid items-start gap-0.5 px-3 py-1 bg-mascot rounded-t-lg">
             <h2 class="font-semibold truncate text-white leading-tight">
                 {{ template.name }}
