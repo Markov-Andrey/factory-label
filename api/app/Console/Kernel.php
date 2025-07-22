@@ -13,6 +13,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->command('app:process-job')->everyMinute();
+        $schedule->command('app:clear-tmp')->dailyAt('00:10');
         // $schedule->command('inspire')->hourly();
     }
 
