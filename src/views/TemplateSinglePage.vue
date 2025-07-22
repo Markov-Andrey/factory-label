@@ -26,7 +26,7 @@
 
             <div class="col-span-2 border rounded p-4">
                 <h3 class="text-md font-medium mb-2">Карта ключей</h3>
-                <div class="grid grid-cols-3 gap-4 max-h-48 overflow-auto">
+                <div class="grid grid-cols-4 gap-1 max-h-48 overflow-auto">
                     <div
                         v-for="(value, key) in meta"
                         :key="key"
