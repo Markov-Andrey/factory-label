@@ -1,10 +1,53 @@
 export function fabricIconsSpecial() {
     return [
         {
-            name: 'Знаки',
+            name: 'Знаки соответствия',
             category: true,
             items: [
                 { name: 'Евразийское соответствие', path: '/assets/icons/eac.svg', meta: '', meta_type: '' },
+                { name: 'Европейское соответствие', path: '/assets/icons/ce.svg', meta: '', meta_type: '' },
+                { name: 'РСТ', path: '/assets/icons/rst.svg', meta: '', meta_type: '' },
+                { name: 'РСТ тех.регламент', path: '/assets/icons/rst-tr.svg', meta: '', meta_type: '' },
+            ],
+        },
+        {
+            name: 'Манипуляционные знаки',
+            category: true,
+            items: [
+                { name: 'Хрупкое', path: '/assets/icons/m-khrupkoe.svg', meta: '', meta_type: '' },
+                { name: 'Беречь от влаги', path: '/assets/icons/m-boitsya-vlagi.svg', meta: '', meta_type: '' },
+                { name: 'Беречь от солнечных лучей', path: '/assets/icons/m-berech-ot-sol.svg', meta: '', meta_type: '' },
+                { name: 'Беречь от излучения', path: '/assets/icons/m-berech-ot-izluchen.svg', meta: '', meta_type: '' },
+                { name: 'Пределы температуры', path: '/assets/icons/m-temperat.svg', meta: '', meta_type: '' },
+                { name: 'Скоропортящийся груз', path: '/assets/icons/m-skoroport.svg', meta: '', meta_type: '' },
+
+                { name: 'Герметичная упаковка', path: '/assets/icons/m-germetichnaya-upak.svg', meta: '', meta_type: '' },
+                { name: 'Крюками не брать', path: '/assets/icons/m-kryukami-ne-brat.svg', meta: '', meta_type: '' },
+                { name: 'Место строповки', path: '/assets/icons/m-mesto-stropovki.svg', meta: '', meta_type: '' },
+                { name: 'Поднимать тележкой запрещается', path: '/assets/icons/m-zdes-podnimat-tel.svg', meta: '', meta_type: '' },
+                { name: 'Верх', path: '/assets/icons/m-verkh.svg', meta: '', meta_type: '' },
+                { name: 'Центр тяжести', path: '/assets/icons/m-tsentr-tyazhesti.svg', meta: '', meta_type: '' },
+                { name: 'Штабелировать запрещается', path: '/assets/icons/m-shtabelirovat-zap.svg', meta: '', meta_type: '' },
+                { name: 'Поднимать непосредственно за груз', path: '/assets/icons/m-podnimat-neposred.svg', meta: '', meta_type: '' },
+                { name: 'Открывать здесь', path: '/assets/icons/m-otkryvat-zdes.svg', meta: '', meta_type: '' },
+                { name: 'Защищать от радиоактивных источников', path: '/assets/icons/m-zaschischat-ot-ra.svg', meta: '', meta_type: '' },
+                { name: 'Не катить', path: '/assets/icons/m-ne-katit.svg', meta: '', meta_type: '' },
+                { name: 'Предел штабелирования по массе', path: '/assets/icons/m-shtabelirovanie-o.svg', meta: '', meta_type: '' },
+                { name: 'Зажимать здесь', path: '/assets/icons/m-zazhimat-zdes.svg', meta: '', meta_type: '' },
+                { name: 'Не зажимать', path: '/assets/icons/m-ne-zazhimat.svg', meta: '', meta_type: '' },
+                { name: 'Предел по количеству ярусов в штабеле', path: '/assets/icons/m-predel-po-koliche.svg', meta: '', meta_type: '' },
+                { name: 'Вилочные погрузчики не использовать', path: '/assets/icons/m-vilochnye-pogruzc.svg', meta: '', meta_type: '' },
+            ],
+        },
+        {
+            name: 'Экологические знаки',
+            category: true,
+            items: [
+                { name: 'Зеленая точка', path: '/assets/icons/e-zelenaya-tochka.svg', meta: '', meta_type: '' },
+                { name: 'Петля Мебиуса', path: '/assets/icons/e-vtorichnaya-perera.svg', meta: '', meta_type: '' },
+                { name: 'Выкидывать в мусорное урну', path: '/assets/icons/e-vykidyvat-v-musorn.svg', meta: '', meta_type: '' },
+                { name: 'Бокал-вилка', path: '/assets/icons/e-znak-bokal-vilka.svg', meta: '', meta_type: '' },
+                { name: 'Сертификация по экологическим требованиям', path: '/assets/icons/e-stand.svg', meta: '', meta_type: '' },
             ],
         },
         {

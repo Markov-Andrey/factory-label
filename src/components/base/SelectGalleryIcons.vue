@@ -54,7 +54,7 @@
                             </h4>
                             <div
                                 v-if="category.items && category.items.length"
-                                class="grid grid-cols-6 gap-3"
+                                class="grid grid-cols-10 gap-1"
                             >
                                 <div
                                     v-for="(icon, index) in category.items"
