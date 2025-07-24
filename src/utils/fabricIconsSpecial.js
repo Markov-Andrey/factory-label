@@ -20,7 +20,6 @@ export function fabricIconsSpecial() {
                 { name: 'Беречь от излучения', path: '/assets/icons/m-berech-ot-izluchen.svg', meta: '', meta_type: '' },
                 { name: 'Пределы температуры', path: '/assets/icons/m-temperat.svg', meta: '', meta_type: '' },
                 { name: 'Скоропортящийся груз', path: '/assets/icons/m-skoroport.svg', meta: '', meta_type: '' },
-
                 { name: 'Герметичная упаковка', path: '/assets/icons/m-germetichnaya-upak.svg', meta: '', meta_type: '' },
                 { name: 'Крюками не брать', path: '/assets/icons/m-kryukami-ne-brat.svg', meta: '', meta_type: '' },
                 { name: 'Место строповки', path: '/assets/icons/m-mesto-stropovki.svg', meta: '', meta_type: '' },
