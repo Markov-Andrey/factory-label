@@ -44,9 +44,20 @@ export function fabricIconsSpecial() {
             items: [
                 { name: 'Зеленая точка', path: '/assets/icons/e-zelenaya-tochka.svg', meta: '', meta_type: '' },
                 { name: 'Петля Мебиуса', path: '/assets/icons/e-vtorichnaya-perera.svg', meta: '', meta_type: '' },
-                { name: 'Выкидывать в мусорное урну', path: '/assets/icons/e-vykidyvat-v-musorn.svg', meta: '', meta_type: '' },
+                { name: 'Выкидывать в урну', path: '/assets/icons/e-vykidyvat-v-musorn.svg', meta: '', meta_type: '' },
+                { name: 'Не выкидывать в урну', path: '/assets/icons/m-ne-vybrasyvat.svg', meta: '', meta_type: '' },
                 { name: 'Бокал-вилка', path: '/assets/icons/e-znak-bokal-vilka.svg', meta: '', meta_type: '' },
                 { name: 'Сертификация по экологическим требованиям', path: '/assets/icons/e-stand.svg', meta: '', meta_type: '' },
+            ],
+        },
+        {
+            name: 'Другие',
+            category: true,
+            items: [
+                { name: 'Срок годности', path: '/assets/icons/d-srok-godnosti.svg', meta: '', meta_type: '' },
+                { name: 'Песочные часы', path: '/assets/icons/d-pesochnye-chasy.svg', meta: '', meta_type: '' },
+                { name: 'Вес нетто', path: '/assets/icons/d-ves-netto.svg', meta: '', meta_type: '' },
+                { name: 'Вес в унциях', path: '/assets/icons/d-floz.svg', meta: '', meta_type: '' },
             ],
         },
         {
