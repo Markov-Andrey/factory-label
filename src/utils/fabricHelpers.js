@@ -13,6 +13,7 @@ export function addText(canvas, options = {}) {
         left: 100,
         top: 100,
         fontSize: 30,
+        lineHeight: 1.0,
         fill: '#000000',
         backgroundColor: '',
         id: '',
