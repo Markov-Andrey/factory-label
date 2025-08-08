@@ -20,13 +20,12 @@ class NodeService
     }
     public static function getNodePath(): string
     {
-        $isWindows = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-        $command = $isWindows ? 'where node' : 'which node';
-        $path = trim((string) shell_exec($command));
-        if (empty($path)) {
-            throw new \RuntimeException('Node.js executable not found in system PATH.');
+        $nodePath = env('NODE_PATH', '');
+
+        if (empty($nodePath) || !file_exists($nodePath)) {
+            throw new \RuntimeException('Node.js executable not found at path from .env');
         }
 
-        return $path;
+        return $nodePath;
     }
 }
